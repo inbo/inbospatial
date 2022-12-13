@@ -1,4 +1,4 @@
-# inbospatial 0.0.0
+# inbospatial 0.0.1
 
 * Added a `NEWS.md` file to track changes to the package.
 * New function `get_features_wfs` to get features (vector data) from a Web
