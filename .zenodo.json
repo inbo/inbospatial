@@ -1,0 +1,34 @@
+{
+  "title": "inbospatial: A Collection of Useful R Functions for Spatial Data",
+  "version": "0.0.0",
+  "description": "Useful R functions developed at the Research Institute for Nature and Forest (INBO) for dealing with spatial raster or vector data.",
+  "creators": [
+    {
+      "name": "Van Calster, Hans",
+      "orcid": "https://orcid.org/0000-0001-8595-8426"
+    }
+  ],
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "MIT",
+  "communities": [
+    {
+      "identifier": "inbo"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Research Institute for Nature and Forest",
+      "type": "RightsHolder"
+    },
+    {
+      "name": "Van Calster, Hans",
+      "type": "ContactPerson",
+      "orcid": "https://orcid.org/0000-0001-8595-8426"
+    }
+  ],
+  "language": "eng",
+  "keywords": [
+    "R package"
+  ]
+}

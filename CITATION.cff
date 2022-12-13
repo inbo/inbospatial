@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+authors:
+- family-names: Van Calster
+  given-names: Hans
+  orcid: https://orcid.org/0000-0001-8595-8426
+contact:
+- email: hans.vancalster@inbo.be
+  family-names: Van Calster
+  given-names: Hans
+- email: info@inbo.be
+  name: Research Institute for Nature and Forest
+title: 'inbospatial: A Collection of Useful R Functions for Spatial Data'
+version: 0.0.0
+abstract: Useful R functions developed at the Research Institute for Nature and Forest
+  (INBO) for dealing with spatial raster or vector data.
+license: MIT + file LICENSE
+type: software
+repository-code: https://github.com/inbo/inbospatial
+identifiers: []
+keywords: R package
