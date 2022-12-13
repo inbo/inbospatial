@@ -33,11 +33,11 @@ For instance \code{"EPSG:31370"}.}
 Pass this as a named vector with names \code{"xmin"}, \code{"xmax"}, \code{"ymin"},
 \code{"ymax"}.}
 
-\item{filter}{Optional \link{standard OGC filter}
-(https://www.ogc.org/standards/filter) specification}
+\item{filter}{Optional
+\href{https://www.ogc.org/standards/filter}{standard OGC filter} specification}
 
-\item{cql_filter}{Optional \link{Contextual Query Language}
-(https://portal.ogc.org/files/96288) filter.
+\item{cql_filter}{Optional
+\href{https://portal.ogc.org/files/96288}{Contextual Query Language} filter.
 This currently only works if the \code{WFS} is hosted on a \code{GeoServer}.}
 
 \item{output_format}{Optional output format supported by the \code{WFS}.}

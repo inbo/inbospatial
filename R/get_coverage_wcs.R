@@ -9,7 +9,7 @@
 #' @param layername Character string; name of the layer
 #' @param resolution Output resolution in meters
 #' @param wcs_crs Native CRS in which the raster layers are stored on the `WCS`
-#' @param output_wcs Output CRS.
+#' @param output_crs Output CRS.
 #' May involve reprojection.
 #' @param bbox_crs CRS in which bbox coordinates are passed
 #' @param version `WCS` version to be used.

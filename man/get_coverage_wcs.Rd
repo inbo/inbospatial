@@ -27,14 +27,14 @@ get_coverage_wcs(
 
 \item{wcs_crs}{Native CRS in which the raster layers are stored on the \code{WCS}}
 
+\item{output_crs}{Output CRS.
+May involve reprojection.}
+
 \item{bbox_crs}{CRS in which bbox coordinates are passed}
 
 \item{version}{\code{WCS} version to be used.}
 
 \item{...}{Additional key-value pairs passed on to the \code{WCS} query}
-
-\item{output_wcs}{Output CRS.
-May involve reprojection.}
 }
 \value{
 A \code{SpatRaster} object
