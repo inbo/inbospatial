@@ -41,7 +41,7 @@
 #'
 #' @details See https://inbo.github.io/tutorials/tutorials/spatial_wfs_services/
 #'  for more information.
-#' @family GIS_utilities
+#' @family web_services
 #'
 #' @export
 #' @examples

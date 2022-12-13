@@ -81,7 +81,7 @@ filter = paste0("<Filter><PropertyIsEqualTo><PropertyName>",
 }
 }
 \seealso{
-Other GIS_utilities: 
+Other web_services: 
 \code{\link{get_coverage_wcs}()}
 }
-\concept{GIS_utilities}
+\concept{web_services}
