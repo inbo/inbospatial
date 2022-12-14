@@ -6,7 +6,7 @@
 #' The request is made up of key-value pairs and additional key-value pairs can
 #' be passed to the function.
 #' The full documentation for the `WFS` standard can be consulted from
-#' https://www.ogc.org/standards/wfs
+#' [the OGC standards website](https://www.ogc.org/standards/wfs)
 #'
 #' @param wfs Web address for the service which you want to query features from
 #' @param version Version number for the service.
@@ -39,7 +39,8 @@
 #' @importFrom xml2 as_list
 #' @importFrom assertthat assert_that is.string
 #'
-#' @details See https://inbo.github.io/tutorials/tutorials/spatial_wfs_services/
+#' @details See this
+#' [tutorial](https://inbo.github.io/tutorials/tutorials/spatial_wfs_services/)
 #'  for more information.
 #' @family web_services
 #'

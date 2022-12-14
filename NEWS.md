@@ -1,6 +1,6 @@
 # inbospatial 0.0.2
 
-* Minor changes to fix failing github actions
+* Minor changes to fix failing GitHub actions
 
 # inbospatial 0.0.1
 
