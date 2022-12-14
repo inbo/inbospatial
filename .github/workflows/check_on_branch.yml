@@ -17,5 +17,5 @@ jobs:
     steps:
       - uses: inbo/actions/check_pkg@master
         with:
-          - token: ${{ secrets.PAT }}
-          - aptget: libudunits2-dev libgdal-dev libgeos-dev libproj-dev
+          token: ${{ secrets.PAT }}
+          aptget: libudunits2-dev libgdal-dev libgeos-dev libproj-dev
