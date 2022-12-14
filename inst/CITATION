@@ -2,12 +2,12 @@ citHeader("To cite `inbospatial` in publications please use:")
 # begin checklist entry
 citEntry(
   entry = "Manual",
-  title = "inbospatial: A Collection of Useful R Functions for Spatial Data. Version 0.0.1",
+  title = "inbospatial: A Collection of Useful R Functions for Spatial Data. Version 0.0.2",
   author = c(person(given = "Hans", family = "Van Calster")),
   year = 2022,
   url = "https://github.com/inbo/inbospatial",
   abstract = "Useful R functions developed at the Research Institute for Nature and Forest (INBO) for dealing with spatial raster or vector data.",
-  textVersion = "Van Calster, Hans (2022) inbospatial: A Collection of Useful R Functions for Spatial Data. Version 0.0.1. https://github.com/inbo/inbospatial",
+  textVersion = "Van Calster, Hans (2022) inbospatial: A Collection of Useful R Functions for Spatial Data. Version 0.0.2. https://github.com/inbo/inbospatial",
   keywords = "R package",
 )
 # end checklist entry
