@@ -62,11 +62,11 @@ features that are requested.
 The request is made up of key-value pairs and additional key-value pairs can
 be passed to the function.
 The full documentation for the \code{WFS} standard can be consulted from
-\href{https://www.ogc.org/standards/wfs}{the OGC standards website}
+\url{https://www.ogc.org/standards/wfs}.
 }
 \details{
-See this
-\href{https://inbo.github.io/tutorials/tutorials/spatial_wfs_services/}{tutorial}
+See
+\url{https://inbo.github.io/tutorials/tutorials/spatial_wfs_services/}
 for more information.
 }
 \examples{
