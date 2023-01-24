@@ -34,7 +34,7 @@
 #' requested features.
 #' @param ... Additional key-value pairs passed on to the WFS query.
 #'
-#' @importFrom httr parse_url build_url GET content
+#' @importFrom httr parse_url build_url GET HEAD content
 #' @importFrom sf read_sf
 #' @importFrom xml2 as_list
 #' @importFrom assertthat assert_that is.string
@@ -116,24 +116,29 @@ get_feature_wfs <- function(
 
   request <- build_url(url)
 
-  result <- GET(request)
-  if (result$status_code != 200L) {
-    parsed <- as_list(content(result, "parsed", encoding = "UTF-8"))
+  meta_info <- HEAD(request)
 
+  if (meta_info$status_code == 200L) {
+    if (result_type == "hits") {
+      get_result <- GET(request)
+      parsed <- as_list(content(get_result, "parsed", encoding = "UTF-8"))
+      n_features <- attr(parsed$FeatureCollection, "numberMatched")
+      return(n_features)
+    } else {
+      result <- read_sf(request)
+      return(result)
+    }
+  } else {
+    get_result <- GET(request)
+    parsed <- as_list(content(get_result, "parsed", encoding = "UTF-8"))
     if (names(parsed) == "ExceptionReport") {
       message <- unlist(parsed$ExceptionReport$Exception$ExceptionText)
       old_op <- options(warning.length = max(nchar(message), 1000))
       on.exit(options(old_op))
       stop(sprintf(paste0(message, "\nThe requested url was: %s"),
                    request))
+    } else {
+      stop(sprintf("Exited with HTTP status code %s", meta_info$status_code))
     }
-  }
-
-  if (result_type == "hits") {
-    n_features <- attr(parsed$FeatureCollection, "numberMatched")
-    return(n_features)
-  } else {
-    result <- read_sf(request)
-    return(result)
   }
 }
