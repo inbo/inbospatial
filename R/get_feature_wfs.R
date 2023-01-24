@@ -117,14 +117,16 @@ get_feature_wfs <- function(
   request <- build_url(url)
 
   result <- GET(request)
-  parsed <- as_list(content(result, "parsed", encoding = "UTF-8"))
+  if (result$status_code != 200L) {
+    parsed <- as_list(content(result, "parsed", encoding = "UTF-8"))
 
-  if (names(parsed) == "ExceptionReport") {
-    message <- unlist(parsed$ExceptionReport$Exception$ExceptionText)
-    old_op <- options(warning.length = max(nchar(message), 1000))
-    on.exit(options(old_op))
-    stop(sprintf(paste0(message, "\nThe requested url was: %s"),
-                 request))
+    if (names(parsed) == "ExceptionReport") {
+      message <- unlist(parsed$ExceptionReport$Exception$ExceptionText)
+      old_op <- options(warning.length = max(nchar(message), 1000))
+      on.exit(options(old_op))
+      stop(sprintf(paste0(message, "\nThe requested url was: %s"),
+                   request))
+    }
   }
 
   if (result_type == "hits") {
