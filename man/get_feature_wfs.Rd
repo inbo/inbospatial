@@ -7,8 +7,8 @@
 get_feature_wfs(
   wfs,
   version = "2.0.0",
-  layername,
-  crs,
+  layername = NULL,
+  crs = NULL,
   bbox = NULL,
   filter = NULL,
   cql_filter = NULL,
@@ -24,9 +24,9 @@ get_feature_wfs(
 \item{version}{Version number for the service.
 For instance \code{"2.0.0"}.}
 
-\item{layername}{the name of a layer hosted by the web feature service}
+\item{layername}{Optional name of a layer hosted by the web feature service}
 
-\item{crs}{coordinate reference system to represent the features.
+\item{crs}{Optional coordinate reference system to represent the features.
 For instance \code{"EPSG:31370"}.}
 
 \item{bbox}{Optional bounding box.
