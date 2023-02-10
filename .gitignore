@@ -6,3 +6,4 @@
 .httr-oauth
 *.html
 docs
+inst/doc

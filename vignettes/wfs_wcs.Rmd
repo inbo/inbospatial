@@ -1,0 +1,166 @@
+---
+title: "Example use cases to get data from web feature or web coverage services."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{wfs_wcs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(sf)
+library(dplyr)
+library(inbospatial)
+```
+
+# Introduction
+
+A WFS or Web Feature Service allows you to download vector spatial data from the web.
+A WCS or Web Coverage Service is similar, but is used for raster spatial data.
+In this vignette, we will show how to the functions `get_feature_wfs()` and `get_coverage_wcs()` can be used to get data into your R session from these services.
+
+For a more in-depth explanation about WFS services, we refer to [the INBO tutorial about WFS](https://inbo.github.io/tutorials/tutorials/spatial_wfs_services/){target="_BLANK"}.
+The tutorial takes a more hands-on coding approach to getting data from a WFS, whereas in this vignette much of the coding stuff is hidden away in the `get_feature_wfs()` function.
+
+# WFS examples
+
+## Simple use case without filter
+
+```{r bel-regions}
+wfs_regions <- "https://eservices.minfin.fgov.be/arcgis/services/R2C/Regions/MapServer/WFSServer"
+
+bel_regions <- get_feature_wfs(
+  wfs = wfs_regions,
+  layername = "regions",
+  crs  = "EPSG:31370")
+
+bel_regions
+
+```
+
+You can achieve (almost) the same result using a combination of `sf::read_sf()` and `sf::st_transform()`.
+
+```{r}
+bel_regions2 <- read_sf(paste0("WFS:", wfs_regions),
+        layer = "regions") %>%
+  st_transform(crs = 31370)
+
+waldo::compare(bel_regions, bel_regions2)
+```
+
+Most notably, a couple of fields have a different field type and the geometry column is a "MULTIPOLYGON" in the first instance yet a "MULTSURFACE" in the second case.
+
+
+## Apply a CQL-Filter to filter on a field
+
+```{r prov}
+wfs_vrbg <- "https://geoservices.informatievlaanderen.be/overdrachtdiensten/VRBG/wfs"
+
+prov <- get_feature_wfs(
+  wfs = wfs_vrbg,
+  layername = "VRBG:Refprv",
+  cql_filter = "NAAM='West-Vlaanderen'")
+
+prov
+```
+
+Here, we could have also used `sf::read_sf()` in combination with an [OGR SQL query](https://gdal.org/user/ogr_sql_dialect.html):
+
+```{r}
+prov2 <- read_sf(paste0("WFS:", wfs_vrbg),
+                 query = "select * from Refprv where NAAM='West-Vlaanderen'")
+
+waldo::compare(prov, prov2)
+```
+
+
+
+## Request a subset of fields
+
+```{r prov-fields}
+wfs_vrbg <- "https://geoservices.informatievlaanderen.be/overdrachtdiensten/VRBG/wfs"
+
+prov_fields <- get_feature_wfs(
+  wfs = wfs_vrbg,
+  layername = "VRBG:Refprv",
+  crs = "EPSG:31370",
+  property_name = paste("NAAM", "NUTS2", "SHAPE", sep = ","))
+
+prov_fields
+
+read_sf(paste0("WFS:", wfs_vrbg),
+        query = "select NAAM, NUTS2 from Refprv where NAAM='Antwerpen'")
+
+
+```
+
+## Spatial filtering using a bounding box
+
+```{r bwk-bbox}
+wfs_bwk <- "https://geoservices.informatievlaanderen.be/overdrachtdiensten/BWK/wfs"
+
+bwk_bbox <- get_feature_wfs(
+  wfs = wfs_bwk,
+  layername = "BWK:Bwkhab",
+  crs = "EPSG:31370",
+  bbox = c(xmin = 142600, ymin = 153800, xmax = 146000, ymax = 156900))
+
+
+bwk_bbox
+
+
+bwk_bbox2 <- read_sf(
+  paste0("WFS:", wfs_bwk),
+  layer = "BWK:Bwkhab",
+  wkt_filter = st_as_text(
+    st_as_sfc(
+      st_bbox(
+        c(xmin = 142600, ymin = 153800, xmax = 146000, ymax = 156900),
+        crs = st_crs(31370)
+      )
+    )
+  )
+)
+```
+
+## Spatial filters using spatial binary predicates
+
+### Intersects a point
+
+```{r}
+wfs_soiltypes <- "https://www.dov.vlaanderen.be/geoserver/bodemkaart/bodemtypes/wfs"
+
+x_lam <- 173995
+y_lam <- 212093
+
+soil_type <- get_feature_wfs(
+  wfs = wfs_soiltypes,
+  layername = "bodemkaart:bodemtypes",
+  crs = "EPSG:31370",
+  cql_filter = sprintf("INTERSECTS(geom,POINT(%s %s))",
+                       x_lam, y_lam))
+
+soil_type
+
+
+# this is not exactly the same
+# the wkt filter takes the bounding box and returns what overlaps with it
+read_sf(paste0("WFS:", wfs_soiltypes),
+        layer = "bodemkaart:bodemtypes",
+        wkt_filter = 
+          st_point(c(x_lam, y_lam)) %>%
+          st_as_text()
+          )
+
+```
+
+
+
+# WCS examples
