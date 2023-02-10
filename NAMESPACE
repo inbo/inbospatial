@@ -2,6 +2,8 @@
 
 export(get_coverage_wcs)
 export(get_feature_wfs)
+export(scalefactor_lcc)
+export(scalefactor_tcyl)
 importFrom(assertthat,assert_that)
 importFrom(assertthat,is.string)
 importFrom(httr,GET)
