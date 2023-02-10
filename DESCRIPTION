@@ -21,12 +21,14 @@ Imports:
     stringr,
     terra,
     xml2
+Suggests: 
+    dplyr,
+    knitr,
+    rmarkdown,
+    waldo
+VignetteBuilder: 
+    knitr
 Encoding: UTF-8
 Language: en-GB
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-Suggests: 
-    dplyr,
-    knitr,
-    rmarkdown
-VignetteBuilder: knitr

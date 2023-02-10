@@ -36,18 +36,19 @@
 #'
 #' @export
 scalefactor_lcc <- function(par_deg, par1_deg, par2_deg) {
-  par <- par_deg/180*pi
-  par1 <- par1_deg/180*pi
-  par2 <- par2_deg/180*pi
-  cos(par1) * (tan(pi/4 + par1/2))^coneconst_lcc(par1, par2) /
-    (cos(par) * (tan(pi/4 + par/2))^coneconst_lcc(par1, par2))
+  par <- par_deg / 180 * pi
+  par1 <- par1_deg / 180 * pi
+  par2 <- par2_deg / 180 * pi
+  cos(par1) * (tan(pi / 4 + par1 / 2))^coneconst_lcc(par1, par2) /
+    (cos(par) * (tan(pi / 4 + par / 2))^coneconst_lcc(par1, par2))
 }
 
 #' Calculate the cone constant for a normal LCC projection
 #'
 #' @keywords internal
 coneconst_lcc <- function(par1, par2) {
-  log(cos(par1) / cos(par2)) / log(tan(pi/4 + par2/2) / tan(pi/4 + par1/2))
+  log(cos(par1) / cos(par2)) / log(tan(pi / 4 + par2 / 2) /
+                                     tan(pi / 4 + par1 / 2))
 }
 
 
@@ -92,7 +93,6 @@ coneconst_lcc <- function(par1, par2) {
 #'
 #' @export
 scalefactor_tcyl <- function(ang_dist) {
-  ang_dist <- ang_dist/180*pi
+  ang_dist <- ang_dist / 180 * pi
   1 / cos(ang_dist)
 }
-

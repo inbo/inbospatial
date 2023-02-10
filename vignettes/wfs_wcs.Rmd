@@ -34,7 +34,8 @@ The tutorial takes a more hands-on coding approach to getting data from a WFS, w
 ## Simple use case without filter
 
 ```{r bel-regions}
-wfs_regions <- "https://eservices.minfin.fgov.be/arcgis/services/R2C/Regions/MapServer/WFSServer"
+wfs_regions <-
+  "https://eservices.minfin.fgov.be/arcgis/services/R2C/Regions/MapServer/WFSServer" # nolint
 
 bel_regions <- get_feature_wfs(
   wfs = wfs_regions,
@@ -61,7 +62,8 @@ Most notably, a couple of fields have a different field type and the geometry co
 ## Apply a CQL-Filter to filter on a field
 
 ```{r prov}
-wfs_vrbg <- "https://geoservices.informatievlaanderen.be/overdrachtdiensten/VRBG/wfs"
+wfs_vrbg <-
+  "https://geoservices.informatievlaanderen.be/overdrachtdiensten/VRBG/wfs"
 
 prov <- get_feature_wfs(
   wfs = wfs_vrbg,
@@ -85,7 +87,8 @@ waldo::compare(prov, prov2)
 ## Request a subset of fields
 
 ```{r prov-fields}
-wfs_vrbg <- "https://geoservices.informatievlaanderen.be/overdrachtdiensten/VRBG/wfs"
+wfs_vrbg <-
+  "https://geoservices.informatievlaanderen.be/overdrachtdiensten/VRBG/wfs"
 
 prov_fields <- get_feature_wfs(
   wfs = wfs_vrbg,
@@ -104,7 +107,8 @@ read_sf(paste0("WFS:", wfs_vrbg),
 ## Spatial filtering using a bounding box
 
 ```{r bwk-bbox}
-wfs_bwk <- "https://geoservices.informatievlaanderen.be/overdrachtdiensten/BWK/wfs"
+wfs_bwk <-
+  "https://geoservices.informatievlaanderen.be/overdrachtdiensten/BWK/wfs"
 
 bwk_bbox <- get_feature_wfs(
   wfs = wfs_bwk,
@@ -135,7 +139,8 @@ bwk_bbox2 <- read_sf(
 ### Intersects a point
 
 ```{r}
-wfs_soiltypes <- "https://www.dov.vlaanderen.be/geoserver/bodemkaart/bodemtypes/wfs"
+wfs_soiltypes <-
+  "https://www.dov.vlaanderen.be/geoserver/bodemkaart/bodemtypes/wfs"
 
 x_lam <- 173995
 y_lam <- 212093
@@ -154,11 +159,10 @@ soil_type
 # the wkt filter takes the bounding box and returns what overlaps with it
 read_sf(paste0("WFS:", wfs_soiltypes),
         layer = "bodemkaart:bodemtypes",
-        wkt_filter = 
+        wkt_filter =
           st_point(c(x_lam, y_lam)) %>%
           st_as_text()
           )
-
 ```
 
 
