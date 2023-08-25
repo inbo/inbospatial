@@ -20,7 +20,12 @@ Imports:
     sf,
     stringr,
     terra,
-    xml2
+    xml2,
+    magrittr
+Suggests:
+    leaflet,
+    leaflet.extras,
+    leaflet.extras2
 Encoding: UTF-8
 Language: en-GB
 Roxygen: list(markdown = TRUE)
