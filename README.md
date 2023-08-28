@@ -49,6 +49,6 @@ remotes::install_github("inbo/inbospatial")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-#library(inbospatial)
+# library(inbospatial)
 ## basic example code
 ```
