@@ -1,4 +1,4 @@
-# nolint start object_usage_linter.
+# nolint start: object_usage_linter.
 
 attrib_digvl <- paste0(
   "&copy; <a href=https://www.vlaanderen.be/",
@@ -252,7 +252,7 @@ add_wms_fl_habitatmap <- function(
       transparent = TRUE,
       info_format = "text/html"
     ),
-    popupOptions = leaflet::popupOptions(maxWidth = 1200), # nolint object_name_linter.
+    popupOptions = leaflet::popupOptions(maxWidth = 1200), # nolint: object_name_linter.
     add_wms_legend = FALSE,
     ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
@@ -311,7 +311,7 @@ add_wms_fl_forestnature <- function(
       transparent = TRUE,
       info_format = "text/html"
     ),
-    popupOptions = leaflet::popupOptions(maxWidth = 600), # nolint object_name_linter.
+    popupOptions = leaflet::popupOptions(maxWidth = 600), # nolint: object_name_linter.
     add_wms_legend = FALSE,
     ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
@@ -355,7 +355,7 @@ add_wms_fl_agriculture <- function(
       transparent = TRUE,
       info_format = "text/html"
     ),
-    popupOptions = leaflet::popupOptions(maxWidth = 1200), # nolint object_name_linter.
+    popupOptions = leaflet::popupOptions(maxWidth = 1200), # nolint: object_name_linter.
     add_wms_legend = FALSE,
     ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
@@ -400,7 +400,7 @@ add_wms_nlnb_nnb <- function(
       transparent = TRUE,
       info_format = "text/html"
     ),
-    popupOptions = leaflet::popupOptions(maxWidth = 600), # nolint object_name_linter.
+    popupOptions = leaflet::popupOptions(maxWidth = 600), # nolint: object_name_linter.
     add_wms_legend = FALSE,
     ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
@@ -435,14 +435,14 @@ add_wms_nlnb_nnb <- function(
 
 #' @rdname add_wms
 #' @export
-add_wms_nlnb_natte_natuurparels <- function( # styler: off # nolint object_name_linter.
+add_wms_nlnb_natte_natuurparels <- function( # styler: off # nolint: object_name_linter.
     map,
     options = leaflet::WMSTileOptions(
       format = "image/png",
       transparent = TRUE,
       info_format = "text/html"
     ),
-    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint object_name_linter.
+    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint: object_name_linter.
     add_wms_legend = FALSE,
     ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
@@ -477,14 +477,14 @@ add_wms_nlnb_natte_natuurparels <- function( # styler: off # nolint object_name_
 
 #' @rdname add_wms
 #' @export
-add_wms_nlnb_ambitie_landschapstypen <- function( # styler: off # nolint object_name_linter.
+add_wms_nlnb_ambitie_landschapstypen <- function( # styler: off # nolint: object_name_linter.
     map,
     options = leaflet::WMSTileOptions(
       format = "image/png",
       transparent = TRUE,
       info_format = "text/html"
     ),
-    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint object_name_linter.
+    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint: object_name_linter.
     add_wms_legend = FALSE,
     ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
@@ -519,14 +519,14 @@ add_wms_nlnb_ambitie_landschapstypen <- function( # styler: off # nolint object_
 
 #' @rdname add_wms
 #' @export
-add_wms_nlnb_ambitie_natuurtypen <- function( # styler: off # nolint object_name_linter.
+add_wms_nlnb_ambitie_natuurtypen <- function( # styler: off # nolint: object_name_linter.
     map,
     options = leaflet::WMSTileOptions(
       format = "image/png",
       transparent = TRUE,
       info_format = "text/html"
     ),
-    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint object_name_linter.
+    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint: object_name_linter.
     add_wms_legend = FALSE,
     ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
@@ -569,7 +569,7 @@ add_wms_nlnb_landschapstypen <- function(
       info_format = "text/html",
       minZoom = 13
     ),
-    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint object_name_linter.
+    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint: object_name_linter.
     add_wms_legend = FALSE,
     ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
@@ -611,7 +611,7 @@ add_wms_nlnb_natuurtypen <- function(
       info_format = "text/html",
       minZoom = 13
     ),
-    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint object_name_linter.
+    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint: object_name_linter.
     add_wms_legend = FALSE,
     ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
