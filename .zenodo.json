@@ -22,6 +22,12 @@
       "type": "ContactPerson"
     },
     {
+      "name": "Vanderhaeghe, Floris",
+      "affiliation": "Research Institute for Nature and Forest (INBO)",
+      "orcid": "0000-0002-6378-6229",
+      "type": "ProjectMember"
+    },
+    {
       "name": "Research Institute for Nature and Forest (INBO)",
       "type": "RightsHolder"
     }
