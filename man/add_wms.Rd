@@ -194,12 +194,17 @@ Referentiebestand')}
 Flemish Nature & Forest Agency}
 \item{\code{_agriculture}}{Parcels with the agricultural use in a specific
 year}
-\item{\code{_nnb}}{Netherlands; 'Natuurnetwerk Brabant (Rijk en Provincie NNB)'}
+\item{\code{_nnb}}{Netherlands; 'Natuurnetwerk Brabant
+(Rijk en Provincie NNB)'}
 \item{\code{_natte_natuurparels}}{Netherlands; 'Natte natuurparels'}
-\item{\code{_ambitie_landschapstypen}}{Netherlands; 'Natuurbeheerplan - Ambitiekaart Landschaptypen'}
-\item{\code{_ambitie_natuurtypen}}{Netherlands; 'Natuurbeheerplan - Ambitiekaart Natuurtypen'}
-\item{\code{_landschapstypen}}{Netherlands; 'Natuurbeheerplan - Beheertypenkaart_Landschaptypen'}
-\item{\code{_natuurtypen}}{Netherlands; 'Natuurbeheerplan - Beheertypenkaart Natuurtypen'}
+\item{\code{_ambitie_landschapstypen}}{Netherlands;
+'Natuurbeheerplan - Ambitiekaart Landschaptypen'}
+\item{\code{_ambitie_natuurtypen}}{Netherlands;
+'Natuurbeheerplan - Ambitiekaart Natuurtypen'}
+\item{\code{_landschapstypen}}{Netherlands;
+'Natuurbeheerplan - Beheertypenkaart_Landschaptypen'}
+\item{\code{_natuurtypen}}{Netherlands;
+'Natuurbeheerplan - Beheertypenkaart Natuurtypen'}
 }
 }
 
@@ -214,7 +219,6 @@ leaflet() |>
   add_wms_be_cartoweb("topo_grey") |>
   add_wms_fl_forestnature() |>
   add_wms_nlnb_nnb()
-
 
 }
 \author{

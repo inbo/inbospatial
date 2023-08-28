@@ -57,7 +57,6 @@ leaflet() |>
   setView(lng = 5.4, lat = 52.2, zoom = 14) |>
   add_wmts_nl_ortho()
 
-
 }
 \author{
 Floris Vanderhaeghe, \url{https://github.com/florisvdh}
