@@ -6,7 +6,7 @@
 #' The request is made up of key-value pairs and additional key-value pairs can
 #' be passed to the function.
 #' The full documentation for the `WFS` standard can be consulted from
-#' \url{https://www.ogc.org/standards/wfs}.
+#' \url{https://www.ogc.org/standard/wfs/}.
 #'
 #' @param wfs Web address for the service which you want to query features from
 #' @param version Version number for the service.
@@ -18,7 +18,7 @@
 #' Pass this as a named vector with names `"xmin"`, `"xmax"`, `"ymin"`,
 #' `"ymax"`.
 #' @param filter Optional
-#' [standard OGC filter](https://www.ogc.org/standards/filter) specification
+#' [standard OGC filter](https://www.ogc.org/standard/filter/) specification
 #' @param cql_filter Optional
 #' [Contextual Query Language](https://portal.ogc.org/files/96288) filter.
 #' This currently only works if the `WFS` is hosted on a `GeoServer`.
@@ -129,14 +129,21 @@ get_feature_wfs <- function(
   request <- build_url(url)
 
   get_result <- GET(request)
+  handle_result_types(
+    get_result,
+    result_type = result_type,
+    property_name = property_name,
+    request = request)
+}
 
-  if (get_result$status_code == 200L) {
+handle_result_types <- function(result, result_type, property_name, request) {
+  if (result$status_code == 200L) {
     if (result_type == "hits") {
-      parsed <- as_list(content(get_result, "parsed", encoding = "UTF-8"))
+      parsed <- as_list(content(result, "parsed", encoding = "UTF-8"))
       n_features <- attr(parsed$FeatureCollection, "numberMatched")
       return(n_features)
     } else {
-      content <- content(get_result, encoding = "UTF-8")
+      content <- content(result, encoding = "UTF-8")
       # Write the content to disk
       destfile <- paste0(tempfile(), ".gml")
       if (inherits(content, "xml_document")) {
@@ -165,7 +172,7 @@ get_feature_wfs <- function(
       return(result)
     }
   } else {
-    parsed <- as_list(content(get_result, "parsed", encoding = "UTF-8"))
+    parsed <- as_list(content(result, "parsed", encoding = "UTF-8"))
     if (names(parsed) == "ExceptionReport") {
       message <- unlist(parsed$ExceptionReport$Exception$ExceptionText)
       old_op <- options(warning.length = max(nchar(message), 1000))
@@ -175,7 +182,7 @@ get_feature_wfs <- function(
         request
       ))
     } else {
-      stop(sprintf("Exited with HTTP status code %s", get_result$status_code))
+      stop(sprintf("Exited with HTTP status code %s", result$status_code))
     }
   }
 }

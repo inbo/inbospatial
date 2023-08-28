@@ -56,13 +56,16 @@ See \href{https://metadata.vlaanderen.be/metadatacenter/srv/dut/catalog.search#/
 }
 \examples{
 \dontrun{
- bbox <- sf::st_bbox(
-   c(xmin = 155800 , xmax = 155850, ymin = 132700, ymax = 132750),
-     crs = sf::st_crs(31370))
- get_coverage_wcs(wcs = "dsm",
-   bbox = bbox,
-   layername = "EL.GridCoverage.DSM",
-   resolution = 1)
+bbox <- sf::st_bbox(
+  c(xmin = 155800, xmax = 155850, ymin = 132700, ymax = 132750),
+  crs = sf::st_crs(31370)
+)
+get_coverage_wcs(
+  wcs = "dsm",
+  bbox = bbox,
+  layername = "EL.GridCoverage.DSM",
+  resolution = 1
+)
 }
 
 }

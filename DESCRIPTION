@@ -4,8 +4,8 @@ Title: A Collection of Useful R Functions for Spatial Data
 Version: 0.0.2
 Authors@R: c(
     person("Hans", "Van Calster", , "hans.vancalster@inbo.be", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0001-8595-8426")),
-    person("Research Institute for Nature and Forest", , , "info@inbo.be", role = c("cph", "fnd"))
+           comment = c(ORCID = "0000-0001-8595-8426", affiliation = "Research Institute for Nature and Forest (INBO)")),
+    person("Research Institute for Nature and Forest (INBO)", , , "info@inbo.be", role = c("cph", "fnd"))
   )
 Description: Useful R functions developed at the Research Institute for
     Nature and Forest (INBO) for dealing with spatial raster or vector
@@ -32,6 +32,9 @@ Suggests:
     waldo
 VignetteBuilder: 
     knitr
+Config/checklist/communities: inbo
+Config/checklist/keywords: spatial; geospatial; utilities; GIS; raster;
+    vector
 Encoding: UTF-8
 Language: en-GB
 Roxygen: list(markdown = TRUE)
