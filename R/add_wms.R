@@ -435,7 +435,7 @@ add_wms_nlnb_nnb <- function(
 
 #' @rdname add_wms
 #' @export
-add_wms_nlnb_natte_natuurparels <- function( # nolint object_name_linter.
+add_wms_nlnb_natte_natuurparels <- function( # styler: off # nolint object_name_linter.
     map,
     options = leaflet::WMSTileOptions(
       format = "image/png",
@@ -477,7 +477,7 @@ add_wms_nlnb_natte_natuurparels <- function( # nolint object_name_linter.
 
 #' @rdname add_wms
 #' @export
-add_wms_nlnb_ambitie_landschapstypen <- function( # nolint object_name_linter.
+add_wms_nlnb_ambitie_landschapstypen <- function( # styler: off # nolint object_name_linter.
     map,
     options = leaflet::WMSTileOptions(
       format = "image/png",
@@ -519,7 +519,7 @@ add_wms_nlnb_ambitie_landschapstypen <- function( # nolint object_name_linter.
 
 #' @rdname add_wms
 #' @export
-add_wms_nlnb_ambitie_natuurtypen <- function( # nolint object_name_linter.
+add_wms_nlnb_ambitie_natuurtypen <- function( # styler: off # nolint object_name_linter.
     map,
     options = leaflet::WMSTileOptions(
       format = "image/png",
