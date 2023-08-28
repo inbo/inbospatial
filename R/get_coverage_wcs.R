@@ -33,13 +33,16 @@
 #' @return A `SpatRaster` object
 #' @examples
 #' \dontrun{
-#'  bbox <- sf::st_bbox(
-#'    c(xmin = 155800 , xmax = 155850, ymin = 132700, ymax = 132750),
-#'      crs = sf::st_crs(31370))
-#'  get_coverage_wcs(wcs = "dsm",
-#'    bbox = bbox,
-#'    layername = "EL.GridCoverage.DSM",
-#'    resolution = 1)
+#' bbox <- sf::st_bbox(
+#'   c(xmin = 155800, xmax = 155850, ymin = 132700, ymax = 132750),
+#'   crs = sf::st_crs(31370)
+#' )
+#' get_coverage_wcs(
+#'   wcs = "dsm",
+#'   bbox = bbox,
+#'   layername = "EL.GridCoverage.DSM",
+#'   resolution = 1
+#' )
 #' }
 #'
 get_coverage_wcs <- function(wcs = c("dtm", "dsm", "omz", "omw"),
@@ -58,8 +61,7 @@ get_coverage_wcs <- function(wcs = c("dtm", "dsm", "omz", "omw"),
   bbox_crs <- match.arg(bbox_crs)
 
   # set url
-  wcs <- switch(
-    wcs,
+  wcs <- switch(wcs,
     omz = "https://geo.api.vlaanderen.be/oi-omz/wcs",
     omw = "https://geo.api.vlaanderen.be/oi-omw/wcs",
     dtm = "https://geo.api.vlaanderen.be/el-dtm/wcs",
@@ -86,58 +88,69 @@ get_coverage_wcs <- function(wcs = c("dtm", "dsm", "omz", "omw"),
 
   if (version == "2.0.1") {
     epsg_code <- str_extract(wcs_crs, "\\d+")
-    url$query <- list(SERVICE = "WCS",
-                      VERSION = version,
-                      REQUEST = "GetCoverage",
-                      COVERAGEID = layername,
-                      CRS = wcs_crs,
-                      SUBSET = paste0(
-                        "x,http://www.opengis.net/def/crs/EPSG/0/",
-                        epsg_code, "(",
-                        bbox[["xmin"]],
-                        ",",
-                        bbox[["xmax"]], ")"),
-                      SUBSET = paste0(
-                        "y,http://www.opengis.net/def/crs/EPSG/0/",
-                        epsg_code,
-                        "(",
-                        bbox[["ymin"]],
-                        ",",
-                        bbox[["ymax"]], ")"),
-                      SCALEFACTOR = resolution,
-                      FORMAT = "image/tiff",
-                      RESPONSE_CRS = wcs_crs,
-                      ...)
+    url$query <- list(
+      SERVICE = "WCS",
+      VERSION = version,
+      REQUEST = "GetCoverage",
+      COVERAGEID = layername,
+      CRS = wcs_crs,
+      SUBSET = paste0(
+        "x,http://www.opengis.net/def/crs/EPSG/0/",
+        epsg_code, "(",
+        bbox[["xmin"]],
+        ",",
+        bbox[["xmax"]], ")"
+      ),
+      SUBSET = paste0(
+        "y,http://www.opengis.net/def/crs/EPSG/0/",
+        epsg_code,
+        "(",
+        bbox[["ymin"]],
+        ",",
+        bbox[["ymax"]], ")"
+      ),
+      SCALEFACTOR = resolution,
+      FORMAT = "image/tiff",
+      RESPONSE_CRS = wcs_crs,
+      ...
+    )
     request <- build_url(url)
     file <- tempfile(fileext = ".mht")
-    GET(url = request,
-        write_disk(file))
-    #multipart file extract tif part
+    GET(
+      url = request,
+      write_disk(file)
+    )
+    # multipart file extract tif part
     unpack_mht(file)
     file <- str_replace(file, "mht", "tif")
   }
 
   if (version == "1.0.0") {
-    url$query <- list(SERVICE = "WCS",
-                      VERSION = version,
-                      REQUEST = "GetCoverage",
-                      COVERAGE = layername,
-                      CRS = wcs_crs,
-                      BBOX = paste(
-                        bbox[["xmin"]],
-                        bbox[["ymin"]],
-                        bbox[["xmax"]],
-                        bbox[["ymax"]],
-                        sep = ","),
-                      RESX = resolution,
-                      RESY = resolution,
-                      FORMAT = "geoTIFF",
-                      RESPONSE_CRS = wcs_crs,
-                      ...)
+    url$query <- list(
+      SERVICE = "WCS",
+      VERSION = version,
+      REQUEST = "GetCoverage",
+      COVERAGE = layername,
+      CRS = wcs_crs,
+      BBOX = paste(
+        bbox[["xmin"]],
+        bbox[["ymin"]],
+        bbox[["xmax"]],
+        bbox[["ymax"]],
+        sep = ","
+      ),
+      RESX = resolution,
+      RESY = resolution,
+      FORMAT = "geoTIFF",
+      RESPONSE_CRS = wcs_crs,
+      ...
+    )
     request <- build_url(url)
     file <- tempfile(fileext = ".tif")
-    GET(url = request,
-        write_disk(file))
+    GET(
+      url = request,
+      write_disk(file)
+    )
   }
 
   raster <- rast(file)
@@ -180,6 +193,8 @@ unpack_mht <- function(path) {
   pos_end <- length(raw_vector) - (length(lines_raw[end + 1]) + 1)
 
   tif <- raw_vector[pos_start:pos_end]
-  write_file(tif,
-             str_replace(path, "mht", "tif"))
+  write_file(
+    tif,
+    str_replace(path, "mht", "tif")
+  )
 }
