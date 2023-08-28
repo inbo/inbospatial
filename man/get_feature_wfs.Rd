@@ -72,13 +72,18 @@ for more information.
 \examples{
 \dontrun{
 vlaanderen <- get_feature_wfs(
-wfs = paste0("https://eservices.minfin.fgov.be/",
-             "arcgis/services/R2C/Regions/MapServer/WFSServer"),
-layername = "regions",
-crs = "EPSG:31370",
-filter = paste0("<Filter><PropertyIsEqualTo><PropertyName>",
-                "regions:NameDUT</PropertyName><Literal>'Vlaams Gewest'",
-                "</Literal></PropertyIsEqualTo></Filter>"))
+  wfs = paste0(
+    "https://eservices.minfin.fgov.be/",
+    "arcgis/services/R2C/Regions/MapServer/WFSServer"
+  ),
+  layername = "regions",
+  crs = "EPSG:31370",
+  filter = paste0(
+    "<Filter><PropertyIsEqualTo><PropertyName>",
+    "regions:NameDUT</PropertyName><Literal>'Vlaams Gewest'",
+    "</Literal></PropertyIsEqualTo></Filter>"
+  )
+)
 }
 }
 \seealso{
