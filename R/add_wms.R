@@ -1,8 +1,22 @@
-attrib_digvl <- "&copy; <a href=https://www.vlaanderen.be/digitaal-vlaanderen/onze-oplossingen/geografische-webdiensten/ons-gis-aanbod>Digitaal Vlaanderen</a>"
-attrib_ngi <- "&copy; <a href=https://www.ngi.be/website/aanbod>Nationaal Geografisch Instituut</a>"
-attrib_gdi <- "&copy; <a href=https://www.vlaanderen.be/geopunt/vlaams-geoportaal/gdi-vlaanderen>GDI-Vlaanderen</a>"
-attrib_nb <- "&copy; <a href=https://georegister.brabant.nl>Provincie Noord-Brabant</a>"
-attrib_ngeo <- "&copy; <a href=https://www.nationaalgeoregister.nl>Nationaal Georegister</a>"
+# nolint start object_usage_linter.
+
+attrib_digvl <- paste0(
+  "&copy; <a href=https://www.vlaanderen.be/",
+  "digitaal-vlaanderen/onze-oplossingen/geografische-webdiensten/",
+  "ons-gis-aanbod>Digitaal Vlaanderen</a>"
+)
+attrib_ngi <- paste0(
+  "&copy; <a href=https://www.ngi.be/website/aanbod>",
+  "Nationaal Geografisch Instituut</a>"
+)
+attrib_gdi <- paste0(
+  "&copy; <a href=https://www.vlaanderen.be/geopunt/vlaams-geoportaal/",
+  "gdi-vlaanderen>GDI-Vlaanderen</a>"
+)
+attrib_nb <-
+  "&copy; <a href=https://georegister.brabant.nl>Provincie Noord-Brabant</a>"
+attrib_ngeo <-
+  "&copy; <a href=https://www.nationaalgeoregister.nl>Nationaal Georegister</a>"
 
 
 #' addTiles() wrapper functions for WMTS services
@@ -52,7 +66,11 @@ add_wmts_nl_brt <- function(map,
   layer <- match.arg(layer)
   leaflet::addTiles(
     map = map,
-    urlTemplate = paste0("https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/", layer, "/EPSG:3857/{z}/{x}/{y}.png"),
+    urlTemplate = paste0(
+      "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/",
+      layer,
+      "/EPSG:3857/{z}/{x}/{y}.png"
+    ),
     attribution = attrib_ngeo,
     ...
   )
@@ -66,7 +84,10 @@ add_wmts_nl_ortho <- function(map,
   require_pkgs("leaflet")
   leaflet::addTiles(
     map = map,
-    urlTemplate = "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg",
+    urlTemplate = paste0(
+      "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/",
+      "EPSG:3857/{z}/{x}/{y}.jpeg"
+    ),
     attribution = attrib_ngeo,
     ...
   )
@@ -108,12 +129,17 @@ add_wmts_nl_ortho <- function(map,
 #' Flemish Nature & Forest Agency}
 #' \item{\code{_agriculture}}{Parcels with the agricultural use in a specific
 #' year}
-#' \item{\code{_nnb}}{Netherlands; 'Natuurnetwerk Brabant (Rijk en Provincie NNB)'}
+#' \item{\code{_nnb}}{Netherlands; 'Natuurnetwerk Brabant
+#' (Rijk en Provincie NNB)'}
 #' \item{\code{_natte_natuurparels}}{Netherlands; 'Natte natuurparels'}
-#' \item{\code{_ambitie_landschapstypen}}{Netherlands; 'Natuurbeheerplan - Ambitiekaart Landschaptypen'}
-#' \item{\code{_ambitie_natuurtypen}}{Netherlands; 'Natuurbeheerplan - Ambitiekaart Natuurtypen'}
-#' \item{\code{_landschapstypen}}{Netherlands; 'Natuurbeheerplan - Beheertypenkaart_Landschaptypen'}
-#' \item{\code{_natuurtypen}}{Netherlands; 'Natuurbeheerplan - Beheertypenkaart Natuurtypen'}
+#' \item{\code{_ambitie_landschapstypen}}{Netherlands;
+#' 'Natuurbeheerplan - Ambitiekaart Landschaptypen'}
+#' \item{\code{_ambitie_natuurtypen}}{Netherlands;
+#' 'Natuurbeheerplan - Ambitiekaart Natuurtypen'}
+#' \item{\code{_landschapstypen}}{Netherlands;
+#' 'Natuurbeheerplan - Beheertypenkaart_Landschaptypen'}
+#' \item{\code{_natuurtypen}}{Netherlands;
+#' 'Natuurbeheerplan - Beheertypenkaart Natuurtypen'}
 #' }
 #'
 #' @inheritParams leaflet::addWMSTiles
@@ -146,10 +172,11 @@ add_wmts_nl_ortho <- function(map,
 #' @importFrom magrittr %>%
 #' @importFrom assertthat is.number
 #' @export
-add_wms_be_cartoweb <- function(map,
-                                layer = c("topo", "topo_grey", "overlay", "crossborder"),
-                                options = leaflet::WMSTileOptions(format = "image/png", transparent = TRUE),
-                                ...) {
+add_wms_be_cartoweb <- function(
+    map,
+    layer = c("topo", "topo_grey", "overlay", "crossborder"),
+    options = leaflet::WMSTileOptions(format = "image/png", transparent = TRUE),
+    ...) {
   require_pkgs("leaflet")
   layer <- match.arg(layer)
   leaflet::addWMSTiles(
@@ -166,9 +193,10 @@ add_wms_be_cartoweb <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_be_ortho <- function(map,
-                             options = leaflet::WMSTileOptions(format = "image/png", transparent = TRUE),
-                             ...) {
+add_wms_be_ortho <- function(
+    map,
+    options = leaflet::WMSTileOptions(format = "image/png", transparent = TRUE),
+    ...) {
   require_pkgs("leaflet")
   leaflet::addWMSTiles(
     map = map,
@@ -182,9 +210,10 @@ add_wms_be_ortho <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_nl_ortho <- function(map,
-                             options = leaflet::WMSTileOptions(format = "image/png", transparent = TRUE),
-                             ...) {
+add_wms_nl_ortho <- function(
+    map,
+    options = leaflet::WMSTileOptions(format = "image/png", transparent = TRUE),
+    ...) {
   require_pkgs("leaflet")
   leaflet::addWMSTiles(
     map = map,
@@ -199,9 +228,10 @@ add_wms_nl_ortho <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_fl_grbmap <- function(map,
-                              options = leaflet::WMSTileOptions(format = "image/png", transparent = TRUE),
-                              ...) {
+add_wms_fl_grbmap <- function(
+    map,
+    options = leaflet::WMSTileOptions(format = "image/png", transparent = TRUE),
+    ...) {
   require_pkgs("leaflet")
   leaflet::addWMSTiles(
     map = map,
@@ -215,15 +245,16 @@ add_wms_fl_grbmap <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_fl_habitatmap <- function(map,
-                                  options = leaflet::WMSTileOptions(
-                                    format = "image/png",
-                                    transparent = TRUE,
-                                    info_format = "text/html"
-                                  ),
-                                  popupOptions = leaflet::popupOptions(maxWidth = 1200),
-                                  add_wms_legend = FALSE,
-                                  ...) {
+add_wms_fl_habitatmap <- function(
+    map,
+    options = leaflet::WMSTileOptions(
+      format = "image/png",
+      transparent = TRUE,
+      info_format = "text/html"
+    ),
+    popupOptions = leaflet::popupOptions(maxWidth = 1200), # nolint object_name_linter.
+    add_wms_legend = FALSE,
+    ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
   leaflet.extras2::addWMS(
     map = map,
@@ -238,7 +269,14 @@ add_wms_fl_habitatmap <- function(map,
       if (!add_wms_legend) {
         .
       } else {
-        leaflet.extras::addWMSLegend(., "https://geo.api.vlaanderen.be/INBO/wms?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=BWK2Hab")
+        leaflet.extras::addWMSLegend(
+          .,
+          paste0(
+            "https://geo.api.vlaanderen.be/INBO/wms?",
+            "request=GetLegendGraphic%26version=1.3.0%26",
+            "format=image/png%26layer=BWK2Hab"
+          )
+        )
       }
     }
 }
@@ -246,9 +284,10 @@ add_wms_fl_habitatmap <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_fl_habitatlabels <- function(map,
-                                     options = leaflet::WMSTileOptions(format = "image/png", transparent = TRUE),
-                                     ...) {
+add_wms_fl_habitatlabels <- function(
+    map,
+    options = leaflet::WMSTileOptions(format = "image/png", transparent = TRUE),
+    ...) {
   require_pkgs("leaflet")
   leaflet::addWMSTiles(
     map = map,
@@ -265,19 +304,21 @@ add_wms_fl_habitatlabels <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_fl_forestnature <- function(map,
-                                    options = leaflet::WMSTileOptions(
-                                      format = "image/png",
-                                      transparent = TRUE,
-                                      info_format = "text/html"
-                                    ),
-                                    popupOptions = leaflet::popupOptions(maxWidth = 600),
-                                    add_wms_legend = FALSE,
-                                    ...) {
+add_wms_fl_forestnature <- function(
+    map,
+    options = leaflet::WMSTileOptions(
+      format = "image/png",
+      transparent = TRUE,
+      info_format = "text/html"
+    ),
+    popupOptions = leaflet::popupOptions(maxWidth = 600), # nolint object_name_linter.
+    add_wms_legend = FALSE,
+    ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
   leaflet.extras2::addWMS(
     map = map,
-    baseUrl = "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wms",
+    baseUrl =
+      "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wms",
     layers = "am:am_patdat",
     options = options,
     popupOptions = popupOptions,
@@ -288,7 +329,15 @@ add_wms_fl_forestnature <- function(map,
       if (!add_wms_legend) {
         .
       } else {
-        leaflet.extras::addWMSLegend(., "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=am%3Aam_patdat")
+        leaflet.extras::addWMSLegend(
+          .,
+          paste0(
+            "https://www.mercator.vlaanderen.be/raadpleegdiensten",
+            "mercatorpubliek/ows?service=WMS&version=1.3.0&",
+            "request=GetLegendGraphic&format=image%2Fpng&width=20&",
+            "height=20&layer=am%3Aam_patdat"
+          )
+        )
       }
     }
 }
@@ -298,16 +347,17 @@ add_wms_fl_forestnature <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_fl_agriculture <- function(map,
-                                   year,
-                                   options = leaflet::WMSTileOptions(
-                                     format = "image/png",
-                                     transparent = TRUE,
-                                     info_format = "text/html"
-                                   ),
-                                   popupOptions = leaflet::popupOptions(maxWidth = 1200),
-                                   add_wms_legend = FALSE,
-                                   ...) {
+add_wms_fl_agriculture <- function(
+    map,
+    year,
+    options = leaflet::WMSTileOptions(
+      format = "image/png",
+      transparent = TRUE,
+      info_format = "text/html"
+    ),
+    popupOptions = leaflet::popupOptions(maxWidth = 1200), # nolint object_name_linter.
+    add_wms_legend = FALSE,
+    ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
   assert_that(is.number(year))
   assert_that(year >= 2008, year < 2100)
@@ -324,7 +374,14 @@ add_wms_fl_agriculture <- function(map,
       if (!add_wms_legend) {
         .
       } else {
-        leaflet.extras::addWMSLegend(., paste0("https://geo.api.vlaanderen.be/ALV/wms?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=LbGebrPerc", year))
+        leaflet.extras::addWMSLegend(
+          ., paste0(
+            "https://geo.api.vlaanderen.be/ALV/wms?",
+            "request=GetLegendGraphic%26version=1.3.0%26",
+            "format=image/png%26layer=LbGebrPerc",
+            year
+          )
+        )
       }
     }
 }
@@ -336,19 +393,23 @@ add_wms_fl_agriculture <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_nlnb_nnb <- function(map,
-                             options = leaflet::WMSTileOptions(
-                               format = "image/png",
-                               transparent = TRUE,
-                               info_format = "text/html"
-                             ),
-                             popupOptions = leaflet::popupOptions(maxWidth = 600),
-                             add_wms_legend = FALSE,
-                             ...) {
+add_wms_nlnb_nnb <- function(
+    map,
+    options = leaflet::WMSTileOptions(
+      format = "image/png",
+      transparent = TRUE,
+      info_format = "text/html"
+    ),
+    popupOptions = leaflet::popupOptions(maxWidth = 600), # nolint object_name_linter.
+    add_wms_legend = FALSE,
+    ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
   leaflet.extras2::addWMS(
     map = map,
-    baseUrl = "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WMSServer",
+    baseUrl = paste0(
+      "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/",
+      "MapServer/WMSServer"
+    ),
     layers = "8",
     options = options,
     popupOptions = popupOptions,
@@ -359,7 +420,14 @@ add_wms_nlnb_nnb <- function(map,
       if (!add_wms_legend) {
         .
       } else {
-        leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=8&")
+        leaflet.extras::addWMSLegend(
+          .,
+          paste0(
+            "https://atlas.brabant.nl/arcgis/services/",
+            "natuurbeheerplan_vastgesteld/MapServer/WmsServer?",
+            "request=GetLegendGraphic&version=1.3.0&format=image/png&layer=8&"
+          )
+        )
       }
     }
 }
@@ -367,19 +435,23 @@ add_wms_nlnb_nnb <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_nlnb_natte_natuurparels <- function(map,
-                                            options = leaflet::WMSTileOptions(
-                                              format = "image/png",
-                                              transparent = TRUE,
-                                              info_format = "text/html"
-                                            ),
-                                            popupOptions = leaflet::popupOptions(maxWidth = 2000),
-                                            add_wms_legend = FALSE,
-                                            ...) {
+add_wms_nlnb_natte_natuurparels <- function( # nolint object_name_linter.
+    map,
+    options = leaflet::WMSTileOptions(
+      format = "image/png",
+      transparent = TRUE,
+      info_format = "text/html"
+    ),
+    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint object_name_linter.
+    add_wms_legend = FALSE,
+    ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
   leaflet.extras2::addWMS(
     map = map,
-    baseUrl = "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WMSServer",
+    baseUrl = paste0(
+      "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/",
+      "MapServer/WMSServer"
+    ),
     layers = "4",
     options = options,
     popupOptions = popupOptions,
@@ -390,7 +462,14 @@ add_wms_nlnb_natte_natuurparels <- function(map,
       if (!add_wms_legend) {
         .
       } else {
-        leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=4&")
+        leaflet.extras::addWMSLegend(
+          .,
+          paste0(
+            "https://atlas.brabant.nl/arcgis/services/",
+            "natuurbeheerplan_vastgesteld/MapServer/WmsServer?",
+            "request=GetLegendGraphic&version=1.3.0&format=image/png&layer=4&"
+          )
+        )
       }
     }
 }
@@ -398,19 +477,23 @@ add_wms_nlnb_natte_natuurparels <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_nlnb_ambitie_landschapstypen <- function(map,
-                                                 options = leaflet::WMSTileOptions(
-                                                   format = "image/png",
-                                                   transparent = TRUE,
-                                                   info_format = "text/html"
-                                                 ),
-                                                 popupOptions = leaflet::popupOptions(maxWidth = 2000),
-                                                 add_wms_legend = FALSE,
-                                                 ...) {
+add_wms_nlnb_ambitie_landschapstypen <- function( # nolint object_name_linter.
+    map,
+    options = leaflet::WMSTileOptions(
+      format = "image/png",
+      transparent = TRUE,
+      info_format = "text/html"
+    ),
+    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint object_name_linter.
+    add_wms_legend = FALSE,
+    ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
   leaflet.extras2::addWMS(
     map = map,
-    baseUrl = "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WMSServer",
+    baseUrl = paste0(
+      "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/",
+      "MapServer/WMSServer"
+    ),
     layers = "12",
     options = options,
     popupOptions = popupOptions,
@@ -421,7 +504,14 @@ add_wms_nlnb_ambitie_landschapstypen <- function(map,
       if (!add_wms_legend) {
         .
       } else {
-        leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=12&")
+        leaflet.extras::addWMSLegend(
+          .,
+          paste0(
+            "https://atlas.brabant.nl/arcgis/services/",
+            "natuurbeheerplan_vastgesteld/MapServer/WmsServer?",
+            "request=GetLegendGraphic&version=1.3.0&format=image/png&layer=12&"
+          )
+        )
       }
     }
 }
@@ -429,19 +519,23 @@ add_wms_nlnb_ambitie_landschapstypen <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_nlnb_ambitie_natuurtypen <- function(map,
-                                             options = leaflet::WMSTileOptions(
-                                               format = "image/png",
-                                               transparent = TRUE,
-                                               info_format = "text/html"
-                                             ),
-                                             popupOptions = leaflet::popupOptions(maxWidth = 2000),
-                                             add_wms_legend = FALSE,
-                                             ...) {
+add_wms_nlnb_ambitie_natuurtypen <- function( # nolint object_name_linter.
+    map,
+    options = leaflet::WMSTileOptions(
+      format = "image/png",
+      transparent = TRUE,
+      info_format = "text/html"
+    ),
+    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint object_name_linter.
+    add_wms_legend = FALSE,
+    ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
   leaflet.extras2::addWMS(
     map = map,
-    baseUrl = "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WMSServer",
+    baseUrl = paste0(
+      "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/",
+      "MapServer/WMSServer"
+    ),
     layers = "13",
     options = options,
     popupOptions = popupOptions,
@@ -452,7 +546,14 @@ add_wms_nlnb_ambitie_natuurtypen <- function(map,
       if (!add_wms_legend) {
         .
       } else {
-        leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=13&")
+        leaflet.extras::addWMSLegend(
+          .,
+          paste0(
+            "https://atlas.brabant.nl/arcgis/services/",
+            "natuurbeheerplan_vastgesteld/MapServer/WmsServer?",
+            "request=GetLegendGraphic&version=1.3.0&format=image/png&layer=13&"
+          )
+        )
       }
     }
 }
@@ -460,20 +561,23 @@ add_wms_nlnb_ambitie_natuurtypen <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_nlnb_landschapstypen <- function(map,
-                                         options = leaflet::WMSTileOptions(
-                                           format = "image/png",
-                                           transparent = TRUE,
-                                           info_format = "text/html",
-                                           minZoom = 13
-                                         ),
-                                         popupOptions = leaflet::popupOptions(maxWidth = 2000),
-                                         add_wms_legend = FALSE,
-                                         ...) {
+add_wms_nlnb_landschapstypen <- function(
+    map,
+    options = leaflet::WMSTileOptions(
+      format = "image/png",
+      transparent = TRUE,
+      info_format = "text/html",
+      minZoom = 13
+    ),
+    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint object_name_linter.
+    add_wms_legend = FALSE,
+    ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
   leaflet.extras2::addWMS(
-    map = map,
-    baseUrl = "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WMSServer",
+    baseUrl = paste0(
+      "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/",
+      "MapServer/WMSServer"
+    ),
     layers = "9",
     options = options,
     popupOptions = popupOptions,
@@ -484,7 +588,14 @@ add_wms_nlnb_landschapstypen <- function(map,
       if (!add_wms_legend) {
         .
       } else {
-        leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=9&")
+        leaflet.extras::addWMSLegend(
+          .,
+          paste0(
+            "https://atlas.brabant.nl/arcgis/services/",
+            "natuurbeheerplan_vastgesteld/MapServer/WmsServer?",
+            "request=GetLegendGraphic&version=1.3.0&format=image/png&layer=9&"
+          )
+        )
       }
     }
 }
@@ -492,20 +603,24 @@ add_wms_nlnb_landschapstypen <- function(map,
 
 #' @rdname add_wms
 #' @export
-add_wms_nlnb_natuurtypen <- function(map,
-                                     options = leaflet::WMSTileOptions(
-                                       format = "image/png",
-                                       transparent = TRUE,
-                                       info_format = "text/html",
-                                       minZoom = 13
-                                     ),
-                                     popupOptions = leaflet::popupOptions(maxWidth = 2000),
-                                     add_wms_legend = FALSE,
-                                     ...) {
+add_wms_nlnb_natuurtypen <- function(
+    map,
+    options = leaflet::WMSTileOptions(
+      format = "image/png",
+      transparent = TRUE,
+      info_format = "text/html",
+      minZoom = 13
+    ),
+    popupOptions = leaflet::popupOptions(maxWidth = 2000), # nolint object_name_linter.
+    add_wms_legend = FALSE,
+    ...) {
   require_pkgs(c("leaflet.extras", "leaflet.extras2"))
   leaflet.extras2::addWMS(
     map = map,
-    baseUrl = "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WMSServer",
+    baseUrl = paste0(
+      "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/",
+      "MapServer/WMSServer"
+    ),
     layers = "10",
     options = options,
     popupOptions = popupOptions,
@@ -516,7 +631,16 @@ add_wms_nlnb_natuurtypen <- function(map,
       if (!add_wms_legend) {
         .
       } else {
-        leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=10&")
+        leaflet.extras::addWMSLegend(
+          .,
+          paste0(
+            "https://atlas.brabant.nl/arcgis/services/",
+            "natuurbeheerplan_vastgesteld/MapServer/WmsServer?",
+            "request=GetLegendGraphic&version=1.3.0&format=image/png&layer=10&"
+          )
+        )
       }
     }
 }
+
+# nolint end
