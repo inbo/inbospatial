@@ -11,7 +11,7 @@ or
 proof-of-concept.](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://opensource.org/license/mit/)
 [![Release](https://img.shields.io/github/release/inbo/inbospatial.svg)](https://github.com/inbo/inbospatial/releases)
 ![GitHub](https://img.shields.io/github/license/inbo/inbospatial) [![R
 build
