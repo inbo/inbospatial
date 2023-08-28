@@ -220,6 +220,20 @@ leaflet() |>
   add_wms_fl_forestnature() |>
   add_wms_nlnb_nnb()
 
+# It can also use mapview objects, if you first extract the leaflet map slot:
+library(mapview)
+kmi_stations <- sf::read_sf(
+  system.file("extdata/kmi_stations.geojson", package = "inbospatial")
+)
+mapview(kmi_stations, map.types = "CartoDB.Positron")@map |>
+  add_wms_be_cartoweb()
+# alternative syntax:
+\dontrun{
+mapview(kmi_stations, map.types = "CartoDB.Positron") |>
+  _@map |>
+  add_wms_be_cartoweb()
+}
+
 }
 \author{
 Floris Vanderhaeghe, \url{https://github.com/florisvdh}

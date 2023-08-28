@@ -28,6 +28,7 @@ Suggests:
     leaflet,
     leaflet.extras,
     leaflet.extras2,
+    mapview,
     rmarkdown,
     waldo
 VignetteBuilder: 
