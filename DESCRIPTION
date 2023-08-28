@@ -29,7 +29,8 @@ Suggests:
 VignetteBuilder: 
     knitr
 Config/checklist/communities: inbo
-Config/checklist/keywords: spatial; geospatial; utilities; GIS; raster; vector
+Config/checklist/keywords: spatial; geospatial; utilities; GIS; raster;
+    vector
 Encoding: UTF-8
 Language: en-GB
 Roxygen: list(markdown = TRUE)
