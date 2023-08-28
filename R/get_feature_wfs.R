@@ -148,6 +148,11 @@ get_feature_wfs <- function(
                           regexpr(pattern = "\\d+$", text = srs))
         sf::st_crs(result) <- as.integer(srs)
       }
+      # avoid that non nillable fields are mandatory
+      # and remove fields all NA
+      if (!is.null(property_name)) {
+        result <- result[, strsplit(property_name, split = ",")[[1]]]
+      }
       return(result)
     }
   } else {
