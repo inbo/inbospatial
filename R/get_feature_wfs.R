@@ -133,7 +133,8 @@ get_feature_wfs <- function(
     get_result,
     result_type = result_type,
     property_name = property_name,
-    request = request)
+    request = request
+  )
 }
 
 handle_result_types <- function(result, result_type, property_name, request) {
