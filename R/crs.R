@@ -72,7 +72,7 @@ coneconst_lcc <- function(par1, par2) {
 #' of 0.9996.
 #'
 #' @return
-#' Numeric vector, same length as \code{ang_dist}.
+#' Numeric vector, same length as `ang_dist`.
 #'
 #' @family functions to explore properties of coordinate reference systems
 #'
