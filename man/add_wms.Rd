@@ -15,7 +15,7 @@
 \alias{add_wms_nlnb_ambitie_natuurtypen}
 \alias{add_wms_nlnb_landschapstypen}
 \alias{add_wms_nlnb_natuurtypen}
-\title{addWMSTiles() wrapper functions for WMS services}
+\title{addWMSTiles() and addWMS() wrapper functions for WMS services}
 \usage{
 add_wms_be_cartoweb(
   map,

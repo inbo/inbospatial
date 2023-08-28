@@ -96,7 +96,7 @@ add_wmts_nl_ortho <- function(map,
 
 
 
-#' addWMSTiles() wrapper functions for WMS services
+#' addWMSTiles() and addWMS() wrapper functions for WMS services
 #'
 #' The `add_wms_*()` functions are shorthand alternatives for a fully specified
 #' [leaflet::addWMSTiles()] or [leaflet.extras2::addWMS()] statement.
