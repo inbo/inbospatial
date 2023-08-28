@@ -146,7 +146,8 @@ kmi_synop <- get_feature_wfs(
     "the_geom",
     sep = ","
   ),
-  cql_filter = "((code = 6447) AND (temp_max IS NOT NULL) AND (timestamp >= '2000-01-01 00:00:00.000'))"
+  cql_filter = "((code = 6447) AND (temp_max IS NOT NULL) AND
+  (timestamp >= '2000-01-01 00:00:00.000'))"
 )
 
 kmi_synop
