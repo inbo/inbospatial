@@ -48,27 +48,31 @@
 #' @examples
 #' \dontrun{
 #' vlaanderen <- get_feature_wfs(
-#' wfs = paste0("https://eservices.minfin.fgov.be/",
-#'              "arcgis/services/R2C/Regions/MapServer/WFSServer"),
-#' layername = "regions",
-#' crs = "EPSG:31370",
-#' filter = paste0("<Filter><PropertyIsEqualTo><PropertyName>",
-#'                 "regions:NameDUT</PropertyName><Literal>'Vlaams Gewest'",
-#'                 "</Literal></PropertyIsEqualTo></Filter>"))
+#'   wfs = paste0(
+#'     "https://eservices.minfin.fgov.be/",
+#'     "arcgis/services/R2C/Regions/MapServer/WFSServer"
+#'   ),
+#'   layername = "regions",
+#'   crs = "EPSG:31370",
+#'   filter = paste0(
+#'     "<Filter><PropertyIsEqualTo><PropertyName>",
+#'     "regions:NameDUT</PropertyName><Literal>'Vlaams Gewest'",
+#'     "</Literal></PropertyIsEqualTo></Filter>"
+#'   )
+#' )
 #' }
 get_feature_wfs <- function(
-  wfs,
-  version = "2.0.0",
-  layername = NULL,
-  crs = NULL,
-  bbox = NULL,
-  filter = NULL,
-  cql_filter = NULL,
-  output_format = NULL,
-  property_name = NULL,
-  result_type = c("results", "hits"),
-  ...
-  ) {
+    wfs,
+    version = "2.0.0",
+    layername = NULL,
+    crs = NULL,
+    bbox = NULL,
+    filter = NULL,
+    cql_filter = NULL,
+    output_format = NULL,
+    property_name = NULL,
+    result_type = c("results", "hits"),
+    ...) {
   result_type <- match.arg(result_type)
   url <- parse_url(wfs)
   assert_that(grepl("\\d\\.\\d\\.\\d", version))
@@ -86,36 +90,39 @@ get_feature_wfs <- function(
       bbox[["ymin"]],
       bbox[["xmax"]],
       bbox[["ymax"]],
-      sep = ",")
+      sep = ","
+    )
   }
   if (grepl(pattern = "^2", x = version)) {
-    url$query <- list(service = "wfs",
-                      request = "GetFeature",
-                      version = version,
-                      typeNames = layername,
-                      srsName = crs,
-                      bbox = bbox,
-                      filter = filter,
-                      cql_filter = cql_filter,
-                      outputFormat = output_format,
-                      propertyName = property_name,
-                      resultType = result_type,
-                      ...
+    url$query <- list(
+      service = "wfs",
+      request = "GetFeature",
+      version = version,
+      typeNames = layername,
+      srsName = crs,
+      bbox = bbox,
+      filter = filter,
+      cql_filter = cql_filter,
+      outputFormat = output_format,
+      propertyName = property_name,
+      resultType = result_type,
+      ...
     )
   }
   if (grepl(pattern = "^1", x = version)) {
-    url$query <- list(service = "wfs",
-                      request = "GetFeature",
-                      version = version,
-                      typeName = layername,
-                      srsName = crs,
-                      bbox = bbox,
-                      filter = filter,
-                      cql_filter = cql_filter,
-                      outputFormat = output_format,
-                      propertyName = property_name,
-                      resultType = NULL,
-                      ...
+    url$query <- list(
+      service = "wfs",
+      request = "GetFeature",
+      version = version,
+      typeName = layername,
+      srsName = crs,
+      bbox = bbox,
+      filter = filter,
+      cql_filter = cql_filter,
+      outputFormat = output_format,
+      propertyName = property_name,
+      resultType = NULL,
+      ...
     )
   }
 
@@ -129,7 +136,7 @@ get_feature_wfs <- function(
       n_features <- attr(parsed$FeatureCollection, "numberMatched")
       return(n_features)
     } else {
-      content <-  content(get_result, encoding = "UTF-8")
+      content <- content(get_result, encoding = "UTF-8")
       # Write the content to disk
       destfile <- paste0(tempfile(), ".gml")
       if (inherits(content, "xml_document")) {
@@ -144,8 +151,10 @@ get_feature_wfs <- function(
       if (is.na(sf::st_crs(result))) {
         srs <- xml2::read_xml(destfile)
         srs <- xml2::xml_find_first(srs, ".//@srsName") |> xml2::xml_text()
-        srs <- regmatches(srs,
-                          regexpr(pattern = "\\d+$", text = srs))
+        srs <- regmatches(
+          srs,
+          regexpr(pattern = "\\d+$", text = srs)
+        )
         sf::st_crs(result) <- as.integer(srs)
       }
       # avoid that non nillable fields are mandatory
@@ -161,8 +170,10 @@ get_feature_wfs <- function(
       message <- unlist(parsed$ExceptionReport$Exception$ExceptionText)
       old_op <- options(warning.length = max(nchar(message), 1000))
       on.exit(options(old_op))
-      stop(sprintf(paste0(message, "\nThe requested url was: %s"),
-                   request))
+      stop(sprintf(
+        paste0(message, "\nThe requested url was: %s"),
+        request
+      ))
     } else {
       stop(sprintf("Exited with HTTP status code %s", get_result$status_code))
     }
