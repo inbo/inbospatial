@@ -69,7 +69,7 @@ Passing the WFS directly to the `dsn` argument of `sf::read_sf`, on the other ha
 
 ```{r prov}
 wfs_vrbg <-
-  "https://geoservices.informatievlaanderen.be/overdrachtdiensten/VRBG/wfs"
+  "https://geo.api.vlaanderen.be/VRBG/wfs"
 
 prov <- get_feature_wfs(
   wfs = wfs_vrbg,
@@ -88,13 +88,13 @@ prov2 <- read_sf(paste0("WFS:", wfs_vrbg),
 waldo::compare(prov, prov2)
 ```
 
-This time, both methods yield the same result apart from a different naming of the CRS (but their `WKT` specification is the same - so it's the same CRS).
+This time, both methods yield the same result.
 
 ## Request a subset of fields
 
 ```{r prov-fields}
 wfs_vrbg <-
-  "https://geoservices.informatievlaanderen.be/overdrachtdiensten/VRBG/wfs"
+  "https://geo.api.vlaanderen.be/VRBG/wfs"
 
 prov_fields <- get_feature_wfs(
   wfs = wfs_vrbg,
@@ -113,8 +113,6 @@ prov_fields_sf <- read_sf(paste0("WFS:", wfs_vrbg),
 
 waldo::compare(prov_fields, prov_fields_sf)
 ```
-
-The only result difference is again the naming of the CRS.
 
 ## Meteorological data example
 
@@ -149,7 +147,7 @@ kmi_synop
 
 ```{r bwk-bbox}
 wfs_bwk <-
-  "https://geoservices.informatievlaanderen.be/overdrachtdiensten/BWK/wfs"
+  "https://geo.api.vlaanderen.be/BWK/wfs"
 
 bwk_bbox <- get_feature_wfs(
   wfs = wfs_bwk,
@@ -211,7 +209,7 @@ soil_type <- get_feature_wfs(
 soil_type
 ```
 
-```{r}
+```{r eval=FALSE}
 soil_type_sf <- read_sf(
   paste0("WFS:", wfs_soiltypes),
   query = "select * from bodemtypes",
@@ -220,7 +218,5 @@ soil_type_sf <- read_sf(
 
 soil_type_sf
 ```
-
-
 
 # WCS examples
