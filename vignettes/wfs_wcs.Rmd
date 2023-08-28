@@ -40,7 +40,8 @@ wfs_regions <-
 bel_regions <- get_feature_wfs(
   wfs = wfs_regions,
   layername = "regions",
-  crs  = "EPSG:31370")
+  crs = "EPSG:31370"
+)
 
 bel_regions
 ```
@@ -49,12 +50,14 @@ You can achieve (almost) the same result using a combination of `sf::read_sf()` 
 
 ```{r}
 bel_regions2 <- read_sf(paste0("WFS:", wfs_regions),
-        layer = "regions") %>%
+  layer = "regions"
+) %>%
   st_transform(crs = 31370)
 
 waldo::compare(bel_regions, bel_regions2,
-               x_arg = "inbospatial", y_arg = "sf",
-               max_diffs = 8)
+  x_arg = "inbospatial", y_arg = "sf",
+  max_diffs = 8
+)
 ```
 
 There are however a number of differences.
@@ -74,7 +77,8 @@ wfs_vrbg <-
 prov <- get_feature_wfs(
   wfs = wfs_vrbg,
   layername = "VRBG:Refprv",
-  cql_filter = "NAAM='West-Vlaanderen'")
+  cql_filter = "NAAM='West-Vlaanderen'"
+)
 
 prov
 ```
@@ -83,7 +87,8 @@ Here, we could have also used `sf::read_sf()` in combination with an [OGR SQL qu
 
 ```{r}
 prov2 <- read_sf(paste0("WFS:", wfs_vrbg),
-                 query = "select * from Refprv where NAAM='West-Vlaanderen'")
+  query = "select * from Refprv where NAAM='West-Vlaanderen'"
+)
 
 waldo::compare(prov, prov2)
 ```
@@ -100,7 +105,8 @@ prov_fields <- get_feature_wfs(
   wfs = wfs_vrbg,
   layername = "VRBG:Refprv",
   crs = "EPSG:31370",
-  property_name = paste("NAAM", "NUTS2", "SHAPE", sep = ","))
+  property_name = paste("NAAM", "NUTS2", "SHAPE", sep = ",")
+)
 
 prov_fields
 ```
@@ -109,7 +115,8 @@ Again, we can use `sf::read_sf()` in combination with an [OGR SQL query](https:/
 
 ```{r}
 prov_fields_sf <- read_sf(paste0("WFS:", wfs_vrbg),
-        query = "select NAAM, NUTS2 from Refprv")
+  query = "select NAAM, NUTS2 from Refprv"
+)
 
 waldo::compare(prov_fields, prov_fields_sf)
 ```
@@ -138,8 +145,11 @@ kmi_synop <- get_feature_wfs(
   wfs = kmi,
   layername = "synop:synop_data",
   property_name = paste("code", "timestamp", "temp_max",
-                        "the_geom", sep = ","),
-  cql_filter = "((code = 6447) AND (temp_max IS NOT NULL) AND (timestamp >= '2000-01-01 00:00:00.000'))")
+    "the_geom",
+    sep = ","
+  ),
+  cql_filter = "((code = 6447) AND (temp_max IS NOT NULL) AND (timestamp >= '2000-01-01 00:00:00.000'))"
+)
 
 kmi_synop
 ```
@@ -155,7 +165,8 @@ bwk_bbox <- get_feature_wfs(
   wfs = wfs_bwk,
   layername = "BWK:Bwkhab",
   crs = "EPSG:31370",
-  bbox = c(xmin = 142600, ymin = 153800, xmax = 146000, ymax = 156900))
+  bbox = c(xmin = 142600, ymin = 153800, xmax = 146000, ymax = 156900)
+)
 
 bwk_bbox
 ```
@@ -205,8 +216,11 @@ soil_type <- get_feature_wfs(
   wfs = wfs_soiltypes,
   layername = "bodemkaart:bodemtypes",
   crs = "EPSG:31370",
-  cql_filter = sprintf("INTERSECTS(geom,POINT(%s %s))",
-                       x_lam, y_lam))
+  cql_filter = sprintf(
+    "INTERSECTS(geom,POINT(%s %s))",
+    x_lam, y_lam
+  )
+)
 
 soil_type
 ```
@@ -215,8 +229,11 @@ soil_type
 soil_type_sf <- read_sf(
   paste0("WFS:", wfs_soiltypes),
   query = "select * from bodemtypes",
-  wkt_filter = sprintf("ST_Intersects(geom,POINT(%s %s))",
-                  x_lam, y_lam))
+  wkt_filter = sprintf(
+    "ST_Intersects(geom,POINT(%s %s))",
+    x_lam, y_lam
+  )
+)
 
 soil_type_sf
 ```
