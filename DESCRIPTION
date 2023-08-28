@@ -18,12 +18,12 @@ BugReports: https://github.com/inbo/inbospatial/issues
 Imports: 
     assertthat,
     httr,
+    magrittr,
     readr,
     sf,
     stringr,
     terra,
-    xml2,
-    magrittr
+    xml2
 Suggests: 
     dplyr,
     knitr,
