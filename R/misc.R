@@ -19,24 +19,23 @@
 #' assert_that
 #' @keywords internal
 require_pkgs <- function(pkgs) {
-    assert_that(is.character(pkgs))
-    available <- vapply(
-      pkgs,
-      function(x) requireNamespace(x, quietly = TRUE),
-      FUN.VALUE = logical(1)
+  assert_that(is.character(pkgs))
+  available <- vapply(
+    pkgs,
+    function(x) requireNamespace(x, quietly = TRUE),
+    FUN.VALUE = logical(1)
+  )
+  if (!all(available)) {
+    multiple <- sum(!available) > 1
+    stop(ifelse(multiple, "Multiple", "A"),
+      " package",
+      ifelse(multiple, "s", ""),
+      " needed for this function ",
+      ifelse(multiple, "are", "is"),
+      " missing.\nPlease install as follows: install.packages(",
+      deparse(pkgs[!available]),
+      ")",
+      call. = FALSE
     )
-    if (!all(available)) {
-        multiple <- sum(!available) > 1
-        stop(ifelse(multiple, "Multiple", "A"),
-             " package",
-             ifelse(multiple, "s", ""),
-             " needed for this function ",
-             ifelse(multiple, "are", "is"),
-             " missing.\nPlease install as follows: install.packages(",
-             deparse(pkgs[!available]),
-             ")",
-             call. = FALSE)
-    }
+  }
 }
-
-

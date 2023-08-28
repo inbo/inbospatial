@@ -40,7 +40,6 @@ attrib_ngeo <- "&copy; <a href=https://www.nationaalgeoregister.nl>Nationaal Geo
 #'   setView(lng = 5.4, lat = 52.2, zoom = 14) |>
 #'   add_wmts_nl_ortho()
 #'
-#'
 #' @author
 #' Floris Vanderhaeghe, \url{https://github.com/florisvdh}
 #'
@@ -140,7 +139,6 @@ add_wmts_nl_ortho <- function(map,
 #'   add_wms_fl_forestnature() |>
 #'   add_wms_nlnb_nnb()
 #'
-#'
 #' @author
 #' Floris Vanderhaeghe, \url{https://github.com/florisvdh}
 #'
@@ -235,11 +233,14 @@ add_wms_fl_habitatmap <- function(map,
     popupOptions = popupOptions,
     attribution = attrib_digvl,
     ...
-  )  %>%  {
-    if (!add_wms_legend) . else {
-      leaflet.extras::addWMSLegend(., "https://geo.api.vlaanderen.be/INBO/wms?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=BWK2Hab")
+  ) %>%
+    {
+      if (!add_wms_legend) {
+        .
+      } else {
+        leaflet.extras::addWMSLegend(., "https://geo.api.vlaanderen.be/INBO/wms?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=BWK2Hab")
+      }
     }
-  }
 }
 
 
@@ -282,11 +283,14 @@ add_wms_fl_forestnature <- function(map,
     popupOptions = popupOptions,
     attribution = attrib_digvl,
     ...
-  )  %>%  {
-    if (!add_wms_legend) . else {
-      leaflet.extras::addWMSLegend(., "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=am%3Aam_patdat")
+  ) %>%
+    {
+      if (!add_wms_legend) {
+        .
+      } else {
+        leaflet.extras::addWMSLegend(., "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=am%3Aam_patdat")
+      }
     }
-  }
 }
 
 
@@ -315,11 +319,14 @@ add_wms_fl_agriculture <- function(map,
     popupOptions = popupOptions,
     attribution = attrib_digvl,
     ...
-  )  %>%  {
-    if (!add_wms_legend) . else {
-      leaflet.extras::addWMSLegend(., paste0("https://geo.api.vlaanderen.be/ALV/wms?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=LbGebrPerc", year))
+  ) %>%
+    {
+      if (!add_wms_legend) {
+        .
+      } else {
+        leaflet.extras::addWMSLegend(., paste0("https://geo.api.vlaanderen.be/ALV/wms?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=LbGebrPerc", year))
+      }
     }
-  }
 }
 
 
@@ -347,11 +354,14 @@ add_wms_nlnb_nnb <- function(map,
     popupOptions = popupOptions,
     attribution = attrib_nb,
     ...
-  )  %>%  {
-    if (!add_wms_legend) . else {
-      leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=8&")
+  ) %>%
+    {
+      if (!add_wms_legend) {
+        .
+      } else {
+        leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=8&")
+      }
     }
-  }
 }
 
 
@@ -375,11 +385,14 @@ add_wms_nlnb_natte_natuurparels <- function(map,
     popupOptions = popupOptions,
     attribution = attrib_nb,
     ...
-  )  %>%  {
-    if (!add_wms_legend) . else {
-      leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=4&")
+  ) %>%
+    {
+      if (!add_wms_legend) {
+        .
+      } else {
+        leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=4&")
+      }
     }
-  }
 }
 
 
@@ -403,11 +416,14 @@ add_wms_nlnb_ambitie_landschapstypen <- function(map,
     popupOptions = popupOptions,
     attribution = attrib_nb,
     ...
-  )  %>%  {
-    if (!add_wms_legend) . else {
-      leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=12&")
+  ) %>%
+    {
+      if (!add_wms_legend) {
+        .
+      } else {
+        leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=12&")
+      }
     }
-  }
 }
 
 
@@ -431,11 +447,14 @@ add_wms_nlnb_ambitie_natuurtypen <- function(map,
     popupOptions = popupOptions,
     attribution = attrib_nb,
     ...
-  )  %>%  {
-    if (!add_wms_legend) . else {
-      leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=13&")
+  ) %>%
+    {
+      if (!add_wms_legend) {
+        .
+      } else {
+        leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=13&")
+      }
     }
-  }
 }
 
 
@@ -460,11 +479,14 @@ add_wms_nlnb_landschapstypen <- function(map,
     popupOptions = popupOptions,
     attribution = attrib_nb,
     ...
-  )  %>%  {
-    if (!add_wms_legend) . else {
-      leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=9&")
+  ) %>%
+    {
+      if (!add_wms_legend) {
+        .
+      } else {
+        leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=9&")
+      }
     }
-  }
 }
 
 
@@ -489,15 +511,12 @@ add_wms_nlnb_natuurtypen <- function(map,
     popupOptions = popupOptions,
     attribution = attrib_nb,
     ...
-  )  %>%  {
-    if (!add_wms_legend) . else {
-      leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=10&")
+  ) %>%
+    {
+      if (!add_wms_legend) {
+        .
+      } else {
+        leaflet.extras::addWMSLegend(., "https://atlas.brabant.nl/arcgis/services/natuurbeheerplan_vastgesteld/MapServer/WmsServer?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=10&")
+      }
     }
-  }
 }
-
-
-
-
-
-
