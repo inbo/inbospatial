@@ -11,8 +11,8 @@
 #' @param wfs Web address for the service which you want to query features from
 #' @param version Version number for the service.
 #' For instance `"2.0.0"`.
-#' @param layername the name of a layer hosted by the web feature service
-#' @param crs coordinate reference system to represent the features.
+#' @param layername Optional name of a layer hosted by the web feature service
+#' @param crs Optional coordinate reference system to represent the features.
 #' For instance `"EPSG:31370"`.
 #' @param bbox Optional bounding box.
 #' Pass this as a named vector with names `"xmin"`, `"xmax"`, `"ymin"`,
@@ -34,7 +34,7 @@
 #' requested features.
 #' @param ... Additional key-value pairs passed on to the WFS query.
 #'
-#' @importFrom httr parse_url build_url GET content
+#' @importFrom httr parse_url build_url GET HEAD content
 #' @importFrom sf read_sf
 #' @importFrom xml2 as_list
 #' @importFrom assertthat assert_that is.string
@@ -59,8 +59,8 @@
 get_feature_wfs <- function(
   wfs,
   version = "2.0.0",
-  layername,
-  crs,
+  layername = NULL,
+  crs = NULL,
   bbox = NULL,
   filter = NULL,
   cql_filter = NULL,
@@ -72,7 +72,12 @@ get_feature_wfs <- function(
   result_type <- match.arg(result_type)
   url <- parse_url(wfs)
   assert_that(grepl("\\d\\.\\d\\.\\d", version))
-  assert_that(grepl("EPSG:\\d+", crs))
+  assert_that(is.null(crs) || grepl("EPSG:\\d+", crs))
+  assert_that(is.null(layername) || is.string(layername))
+  assert_that(is.null(filter) || is.string(filter))
+  assert_that(is.null(cql_filter) || is.string(cql_filter))
+  assert_that(is.null(property_name) || is.string(property_name))
+
   if (!is.null(bbox)) {
     assert_that(length(bbox) == 4)
     assert_that(all(names(bbox) %in% c("xmin", "xmax", "ymin", "ymax")))
@@ -116,22 +121,50 @@ get_feature_wfs <- function(
 
   request <- build_url(url)
 
-  result <- GET(request)
-  parsed <- as_list(content(result, "parsed", encoding = "UTF-8"))
+  get_result <- GET(request)
 
-  if (names(parsed) == "ExceptionReport") {
-    message <- unlist(parsed$ExceptionReport$Exception$ExceptionText)
-    old_op <- options(warning.length = max(nchar(message), 1000))
-    on.exit(options(old_op))
-    stop(sprintf(paste0(message, "\nThe requested url was: %s"),
-                 request))
-  }
-
-  if (result_type == "hits") {
-    n_features <- attr(parsed$FeatureCollection, "numberMatched")
-    return(n_features)
+  if (get_result$status_code == 200L) {
+    if (result_type == "hits") {
+      parsed <- as_list(content(get_result, "parsed", encoding = "UTF-8"))
+      n_features <- attr(parsed$FeatureCollection, "numberMatched")
+      return(n_features)
+    } else {
+      content <-  content(get_result, encoding = "UTF-8")
+      # Write the content to disk
+      destfile <- paste0(tempfile(), ".gml")
+      if (inherits(content, "xml_document")) {
+        xml2::write_xml(content, destfile)
+      }
+      if (inherits(content, "raw")) {
+        writeBin(content, destfile, useBytes = TRUE)
+      }
+      # Read the temporary GML file back in
+      result <- read_sf(destfile)
+      # Sometimes CRS is missing
+      if (is.na(sf::st_crs(result))) {
+        srs <- xml2::read_xml(destfile)
+        srs <- xml2::xml_find_first(srs, ".//@srsName") |> xml2::xml_text()
+        srs <- regmatches(srs,
+                          regexpr(pattern = "\\d+$", text = srs))
+        sf::st_crs(result) <- as.integer(srs)
+      }
+      # avoid that non nillable fields are mandatory
+      # and remove fields all NA
+      if (!is.null(property_name)) {
+        result <- result[, strsplit(property_name, split = ",")[[1]]]
+      }
+      return(result)
+    }
   } else {
-    result <- read_sf(request)
-    return(result)
+    parsed <- as_list(content(get_result, "parsed", encoding = "UTF-8"))
+    if (names(parsed) == "ExceptionReport") {
+      message <- unlist(parsed$ExceptionReport$Exception$ExceptionText)
+      old_op <- options(warning.length = max(nchar(message), 1000))
+      on.exit(options(old_op))
+      stop(sprintf(paste0(message, "\nThe requested url was: %s"),
+                   request))
+    } else {
+      stop(sprintf("Exited with HTTP status code %s", get_result$status_code))
+    }
   }
 }

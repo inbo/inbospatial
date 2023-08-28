@@ -1,7 +1,7 @@
 Type: Package
 Package: inbospatial
 Title: A Collection of Useful R Functions for Spatial Data
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: c(
     person("Hans", "Van Calster", , "hans.vancalster@inbo.be", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-8595-8426")),
@@ -22,10 +22,16 @@ Imports:
     terra,
     xml2,
     magrittr
-Suggests:
+Suggests: 
+    dplyr,
+    knitr,
     leaflet,
     leaflet.extras,
-    leaflet.extras2
+    leaflet.extras2,
+    rmarkdown,
+    waldo
+VignetteBuilder: 
+    knitr
 Encoding: UTF-8
 Language: en-GB
 Roxygen: list(markdown = TRUE)

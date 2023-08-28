@@ -1,3 +1,13 @@
+# inbospatial 0.0.2
+
+## Enhancements
+
+* improved error handling in `get_features_wfs` (#3)
+
+## Bug fixes
+
+* Minor changes to fix failing GitHub actions
+
 # inbospatial 0.0.1
 
 * Added a `NEWS.md` file to track changes to the package.
