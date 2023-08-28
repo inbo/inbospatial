@@ -17,11 +17,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Hans Van Calster \email{hans.vancalster@inbo.be} (\href{https://orcid.org/0000-0001-8595-8426}{ORCID})
+\strong{Maintainer}: Hans Van Calster \email{hans.vancalster@inbo.be} (\href{https://orcid.org/0000-0001-8595-8426}{ORCID}) (Research Institute for Nature and Forest (INBO))
 
 Other contributors:
 \itemize{
-  \item Research Institute for Nature and Forest \email{info@inbo.be} [copyright holder, funder]
+  \item Research Institute for Nature and Forest (INBO) \email{info@inbo.be} [copyright holder, funder]
 }
 
 }
