@@ -138,41 +138,7 @@ get_feature_wfs <- function(
 }
 
 handle_result_types <- function(result, result_type, property_name, request) {
-  if (result$status_code == 200L) {
-    if (result_type == "hits") {
-      parsed <- as_list(content(result, "parsed", encoding = "UTF-8"))
-      n_features <- attr(parsed$FeatureCollection, "numberMatched")
-      return(n_features)
-    } else {
-      content <- content(result, encoding = "UTF-8")
-      # Write the content to disk
-      destfile <- paste0(tempfile(), ".gml")
-      if (inherits(content, "xml_document")) {
-        xml2::write_xml(content, destfile)
-      }
-      if (inherits(content, "raw")) {
-        writeBin(content, destfile, useBytes = TRUE)
-      }
-      # Read the temporary GML file back in
-      result <- read_sf(destfile)
-      # Sometimes CRS is missing
-      if (is.na(sf::st_crs(result))) {
-        srs <- xml2::read_xml(destfile)
-        srs <- xml2::xml_find_first(srs, ".//@srsName") |> xml2::xml_text()
-        srs <- regmatches(
-          srs,
-          regexpr(pattern = "\\d+$", text = srs)
-        )
-        sf::st_crs(result) <- as.integer(srs)
-      }
-      # avoid that non nillable fields are mandatory
-      # and remove fields all NA
-      if (!is.null(property_name)) {
-        result <- result[, strsplit(property_name, split = ",")[[1]]]
-      }
-      return(result)
-    }
-  } else {
+  if (result$status_code != 200L) {
     parsed <- as_list(content(result, "parsed", encoding = "UTF-8"))
     if (names(parsed) == "ExceptionReport") {
       message <- unlist(parsed$ExceptionReport$Exception$ExceptionText)
@@ -182,8 +148,50 @@ handle_result_types <- function(result, result_type, property_name, request) {
         paste0(message, "\nThe requested url was: %s"),
         request
       ))
-    } else {
-      stop(sprintf("Exited with HTTP status code %s", result$status_code))
     }
+    stop(sprintf("Exited with HTTP status code %s", result$status_code))
   }
+
+  if (result_type == "hits") {
+    parsed <- as_list(content(result, "parsed", encoding = "UTF-8"))
+    n_features <- attr(parsed$FeatureCollection, "numberMatched")
+    return(n_features)
+  }
+
+  content <- content(result, encoding = "UTF-8")
+  # Write the content to disk
+  destfile <- paste0(tempfile(), ".gml")
+  store_as_gml(content = content, destfile = destfile)
+
+  # Read the temporary GML file back in
+  result <- read_sf(destfile)
+  # Sometimes CRS is missing
+  if (is.na(sf::st_crs(result))) {
+    srs <- xml2::read_xml(destfile)
+    srs <- xml2::xml_find_first(srs, ".//@srsName") |> xml2::xml_text()
+    srs <- regmatches(
+      srs,
+      regexpr(pattern = "\\d+$", text = srs)
+    )
+    sf::st_crs(result) <- as.integer(srs)
+  }
+  # avoid that non nillable fields are mandatory
+  # and remove fields all NA
+  if (!is.null(property_name)) {
+    result <- result[, strsplit(property_name, split = ",")[[1]]]
+  }
+  return(result)
+}
+
+store_as_gml <- function(content, ...) {
+  UseMethod("store_as_gml", content)
+}
+
+store_as_gml.raw <- function(content, destfile, ...) {
+  writeBin(content, destfile, useBytes = TRUE)
+}
+
+#' @importFrom xml2 write_xml
+store_as_gml.xml_document <- function(content, destfile, ...) {
+  write_xml(content, destfile)
 }

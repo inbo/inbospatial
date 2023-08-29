@@ -20,12 +20,12 @@
 #'   - `"omw"`: orthophotomosaic winter images Flanders
 #'   - `"dtm"`: digital terrain model Flanders
 #'   - `"dsm"`: digital surface model Flanders
-#' See [metadata Vlaanderen](https://metadata.vlaanderen.be/metadatacenter/srv/dut/catalog.search#/search?keyword=OGC:WCS) for more information # nolint
+#' See [metadata Vlaanderen](https://metadata.vlaanderen.be/metadatacenter/srv/dut/catalog.search#/search?keyword=OGC:WCS) for more information # nolint: line_length_liner.
 #'
 #' @importFrom sf st_as_sf st_transform st_coordinates
 #' @importFrom terra rast `res<-` project
 #' @importFrom assertthat assert_that
-#' @importFrom httr parse_url build_url GET write_disk
+#' @importFrom httr parse_url build_url GET write_disk stop_for_status
 #' @importFrom stringr str_extract str_replace
 #'
 #' @export
@@ -45,15 +45,16 @@
 #' )
 #' }
 #'
-get_coverage_wcs <- function(wcs = c("dtm", "dsm", "omz", "omw"),
-                             bbox,
-                             layername,
-                             resolution,
-                             wcs_crs = "EPSG:4258",
-                             output_crs = "EPSG:31370",
-                             bbox_crs = "EPSG:31370",
-                             version = c("1.0.0", "2.0.1"),
-                             ...) {
+get_coverage_wcs <- function(
+    wcs = c("dtm", "dsm", "omz", "omw"),
+    bbox,
+    layername,
+    resolution,
+    wcs_crs = "EPSG:4258",
+    output_crs = "EPSG:31370",
+    bbox_crs = "EPSG:31370",
+    version = c("1.0.0", "2.0.1"),
+    ...) {
   # prelim check
   version <- match.arg(version)
   wcs <- match.arg(wcs)
@@ -80,7 +81,6 @@ get_coverage_wcs <- function(wcs = c("dtm", "dsm", "omz", "omw"),
     st_transform(crs = wcs_crs) |>
     st_coordinates() |>
     as.vector() -> bbox
-
   names(bbox) <- c("xmin", "xmax", "ymin", "ymax")
 
   # build url request
@@ -116,7 +116,7 @@ get_coverage_wcs <- function(wcs = c("dtm", "dsm", "omz", "omw"),
     )
     request <- build_url(url)
     file <- tempfile(fileext = ".mht")
-    GET(
+    x <- GET(
       url = request,
       write_disk(file)
     )
@@ -147,11 +147,13 @@ get_coverage_wcs <- function(wcs = c("dtm", "dsm", "omz", "omw"),
     )
     request <- build_url(url)
     file <- tempfile(fileext = ".tif")
-    GET(
+    x <- GET(
       url = request,
       write_disk(file)
     )
   }
+
+  stop_for_status(x)
 
   raster <- rast(file)
   template <- project(raster, output_crs)
