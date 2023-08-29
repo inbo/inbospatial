@@ -188,12 +188,12 @@ store_as_gml <- function(content, ...) {
 }
 
 store_as_gml.raw <- function(
-    content, destfile = paste0(tempfile(), ".gml"), ...) {
+    content, destfile = tempfile(fileext = "gml"), ...) {
   writeBin(content, destfile, useBytes = TRUE)
 }
 
 #' @importFrom xml2 write_xml
 store_as_gml.xml_document <- function(
-    content, destfile = paste0(tempfile(), ".gml"), ...) {
+    content, destfile = tempfile(fileext = "gml"), ...) {
   write_xml(content, destfile)
 }
