@@ -160,7 +160,8 @@ handle_result_types <- function(result, result_type, property_name, request) {
 
   content <- content(result, encoding = "UTF-8")
   # Write the content to disk
-  store_as_gml(content = content)
+  destfile <- tempfile(fileext = "gml")
+  store_as_gml(content = content, destfile = destfile)
 
   # Read the temporary GML file back in
   result <- read_sf(destfile)
