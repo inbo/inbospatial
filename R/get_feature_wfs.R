@@ -168,7 +168,8 @@ handle_result_types <- function(result, result_type, property_name, request) {
   # Sometimes CRS is missing
   if (is.na(sf::st_crs(result))) {
     srs <- xml2::read_xml(destfile)
-    srs <- xml2::xml_find_first(srs, ".//@srsName") |> xml2::xml_text()
+    srs <- xml2::xml_find_first(srs, ".//@srsName") |>
+      xml2::xml_text()
     srs <- regmatches(
       srs,
       regexpr(pattern = "\\d+$", text = srs)
