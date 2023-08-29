@@ -36,7 +36,7 @@
 #'
 #' @export
 scalefactor_lcc <- function(par_deg, par1_deg, par2_deg) {
-  par <- par_deg / 180 * pi
+  par <- par_deg * pi / 180
   par1 <- par1_deg / 180 * pi
   par2 <- par2_deg / 180 * pi
   cos(par1) * (tan(pi / 4 + par1 / 2))^coneconst_lcc(par1, par2) /
