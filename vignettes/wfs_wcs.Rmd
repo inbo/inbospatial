@@ -238,3 +238,34 @@ soil_type_sf
 ```
 
 # WCS examples
+
+Example of a false-colour infrared image.
+The three bands of the image are visualized using `terra::plotRGB`.
+
+```{r omz-example}
+bbox <- sf::st_bbox(
+  c(xmin = 99477, xmax = 99541, ymin = 172580, ymax = 172640),
+  crs = sf::st_crs(31370)
+)
+omz <- get_coverage_wcs(
+  wcs = "omz",
+  bbox = bbox,
+  layername = "OI.OrthoimageCoverage.OMZ.CIR",
+  resolution = 1,
+  version = "1.0.0"
+)
+terra::plotRGB(omz)
+```
+
+Example of extracting the  digital terrain model for the same bounding box:
+
+```{r dtm-example}
+dtm <- get_coverage_wcs(
+  wcs = "dtm",
+  bbox = bbox,
+  layername = "EL.GridCoverage.DTM",
+  resolution = 1)
+terra::plot(dtm)
+```
+
+

@@ -51,7 +51,7 @@ The following WCS services can currently be used:
 \item \code{"omw"}: orthophotomosaic winter images Flanders
 \item \code{"dtm"}: digital terrain model Flanders
 \item \code{"dsm"}: digital surface model Flanders
-See \href{https://metadata.vlaanderen.be/metadatacenter/srv/dut/catalog.search#/search?keyword=OGC:WCS}{metadata Vlaanderen} for more information # nolint
+See \href{https://metadata.vlaanderen.be/metadatacenter/srv/dut/catalog.search#/search?keyword=OGC:WCS}{metadata Vlaanderen} for more information # nolint: line_length_liner.
 }
 }
 \examples{
