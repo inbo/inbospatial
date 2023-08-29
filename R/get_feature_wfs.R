@@ -160,8 +160,7 @@ handle_result_types <- function(result, result_type, property_name, request) {
 
   content <- content(result, encoding = "UTF-8")
   # Write the content to disk
-  destfile <- tempfile(fileext = "gml")
-  store_as_gml(content = content, destfile = destfile)
+  destfile <- store_as_gml(content = content)
 
   # Read the temporary GML file back in
   result <- read_sf(destfile)
@@ -191,10 +190,12 @@ store_as_gml <- function(content, ...) {
 store_as_gml.raw <- function(
     content, destfile = tempfile(fileext = "gml"), ...) {
   writeBin(content, destfile, useBytes = TRUE)
+  return(destfile)
 }
 
 #' @importFrom xml2 write_xml
 store_as_gml.xml_document <- function(
     content, destfile = tempfile(fileext = "gml"), ...) {
   write_xml(content, destfile)
+  return(destfile)
 }
