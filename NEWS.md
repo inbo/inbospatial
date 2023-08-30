@@ -5,7 +5,9 @@
 * utility functions to calculate distance or angular distortions in some
   projection methods
 * `add_wms_*()`and `add_wmts_*()` family of functions, which are shorthand
-  alternatives for a fully specified [leaflet::addTiles()] statement.
+  alternatives for a fully specified [leaflet::addWMSTiles()],
+  [leaflet.extras2::addWMS()] or
+  [leaflet::addTiles()] statement.
 
 ## Enhancements
 
