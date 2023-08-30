@@ -10,7 +10,7 @@
 #' @return
 #' Numeric vector, same length as \code{par_deg}.
 #'
-#' @family crs
+#' @concept crs
 #'
 #' @references
 #' Snyder J.P. (1987). Map Projections - A Working Manual.
@@ -74,7 +74,7 @@ coneconst_lcc <- function(par1, par2) {
 #' @return
 #' Numeric vector, same length as `ang_dist`.
 #'
-#' @family crs
+#' @concept crs
 #'
 #' @references
 #' Iliffe J. & Lott R. (2008). Datums and Map Projections. For Remote Sensing,

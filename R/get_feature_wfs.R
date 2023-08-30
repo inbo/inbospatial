@@ -42,7 +42,7 @@
 #' @details See
 #' \url{https://inbo.github.io/tutorials/tutorials/spatial_wfs_services/}
 #'  for more information.
-#' @family web_services
+#' @concept web_services
 #'
 #' @export
 #' @examples

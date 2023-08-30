@@ -29,7 +29,7 @@
 #' @importFrom stringr str_extract str_replace
 #'
 #' @export
-#' @family web_services
+#' @concept web_services
 #' @return A `SpatRaster` object
 #' @examples
 #' \dontrun{

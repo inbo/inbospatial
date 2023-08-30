@@ -37,10 +37,6 @@ data.frame(ang_dist = x, scalefactor = y)
 Iliffe J. & Lott R. (2008). Datums and Map Projections. For Remote Sensing,
 GIS and Surveying. 2nd edn. Whittles Publishing, Caithness, UK, 208 p.
 }
-\seealso{
-Other crs: 
-\code{\link{scalefactor_lcc}()}
-}
 \author{
 Floris Vanderhaeghe, \url{https://github.com/florisvdh}
 }
