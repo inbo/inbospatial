@@ -11,8 +11,8 @@
 
 ## Enhancements
 
-* updated vignette demonstrating `get_features_wfs` and `get_coverage_wcs`
-* improved error handling in `get_features_wfs` (#3)
+* updated vignette demonstrating `get_features_wfs()` and `get_coverage_wcs()`
+* improved error handling in `get_features_wfs()` (#3)
 
 ## Bug fixes
 
