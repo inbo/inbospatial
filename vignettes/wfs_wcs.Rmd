@@ -63,7 +63,7 @@ waldo::compare(bel_regions, bel_regions2,
 There are however a number of differences.
 Most notably, a couple of fields have a different field type and the geometry column is a `"MULTIPOLYGON"` in the first instance yet a `"MULTISURFACE"` in the second case.
 The reason for these differences is that `get_feature_wfs()` retrieves whatever information that is identified from the WFS request - in the same way as you would paste the request in the browser.
-This result is than saved temporarily to a `.GML` file and read with `sf::read_sf()`.
+This result is then saved temporarily to a `.GML` file and read with `sf::read_sf()`.
 Passing the WFS directly to the `dsn` argument of `sf::read_sf`, on the other hand, will translate the request to a form that will pass through [the GDAL WFS driver](https://gdal.org/drivers/vector/wfs.html), which handles field specifications by reading them from a `DescribeFeatureType` request:
 
 > At the first opening, the content of the result of the `GetCapabilities` request will be appended to the file, so that it can be cached for later openings of the dataset. The same applies for the `DescribeFeatureType` request issued to discover the field definition of each layer.
