@@ -3,7 +3,7 @@
 ## New functions
 
 * utility functions to calculate distance or angular distortions in some
-  projection types
+  projection methods
 * `add_wms_*()`and `add_wmts_*()` family of functions, which are shorthand
   alternatives for a fully specified [leaflet::addTiles()] statement.
 
