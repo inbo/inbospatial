@@ -28,7 +28,7 @@ authors:
     href: "https://github.com/hansvancalster"
 
 reference:
-- title: Functions for getting data from web services
+- title: Functions for getting or displaying data from web services
   contents:
   - has_concept("web_services")
 - title: Functions to explore properties of coordinate reference systems
