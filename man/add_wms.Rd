@@ -238,7 +238,13 @@ mapview(kmi_stations, map.types = "CartoDB.Positron") |>
 }
 
 }
+\seealso{
+Other topics on using web services: 
+\code{\link{add_wmts_nl_brt}()},
+\code{\link{get_coverage_wcs}()},
+\code{\link{get_feature_wfs}()}
+}
 \author{
 Floris Vanderhaeghe, \url{https://github.com/florisvdh}
 }
-\concept{web_services}
+\concept{topics on using web services}

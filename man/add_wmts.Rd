@@ -61,7 +61,13 @@ leaflet() |>
   add_wmts_nl_ortho()
 
 }
+\seealso{
+Other topics on using web services: 
+\code{\link{add_wms_be_cartoweb}()},
+\code{\link{get_coverage_wcs}()},
+\code{\link{get_feature_wfs}()}
+}
 \author{
 Floris Vanderhaeghe, \url{https://github.com/florisvdh}
 }
-\concept{web_services}
+\concept{topics on using web services}
