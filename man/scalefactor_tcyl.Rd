@@ -38,10 +38,10 @@ Iliffe J. & Lott R. (2008). Datums and Map Projections. For Remote Sensing,
 GIS and Surveying. 2nd edn. Whittles Publishing, Caithness, UK, 208 p.
 }
 \seealso{
-Other functions to explore properties of coordinate reference systems: 
+Other crs: 
 \code{\link{scalefactor_lcc}()}
 }
 \author{
 Floris Vanderhaeghe, \url{https://github.com/florisvdh}
 }
-\concept{functions to explore properties of coordinate reference systems}
+\concept{crs}

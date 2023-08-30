@@ -182,7 +182,7 @@ bwk_bbox %>%
   plot()
 ```
 
-This can also be done using the `wkt_filter` argument from `sf::read_sf`, but we do not show it here.
+This can also be done using the `wkt_filter` argument from `sf::read_sf`.
 
 ```{r eval=FALSE}
 bwk_bbox_sf <- read_sf(

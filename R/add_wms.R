@@ -45,6 +45,8 @@ attrib_ngeo <-
 #' @inheritParams add_wms_be_ortho
 #' @param ... Further arguments passed to [leaflet::addTiles()].
 #'
+#' @family web_services
+#'
 #' @examples
 #' library(leaflet)
 #' leaflet() |>
@@ -155,6 +157,8 @@ add_wmts_nl_ortho <- function(map,
 #' it is plotted as a separate, static legend.
 #' @param ... Further arguments passed to [leaflet::addWMSTiles()] or
 #' [leaflet.extras2::addWMS()].
+#'
+#' @family web_services
 #'
 #' @examples
 #' library(leaflet)

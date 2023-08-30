@@ -71,6 +71,8 @@ get_coverage_wcs(
 }
 \seealso{
 Other web_services: 
+\code{\link{add_wms_be_cartoweb}()},
+\code{\link{add_wmts_nl_brt}()},
 \code{\link{get_feature_wfs}()}
 }
 \concept{web_services}
