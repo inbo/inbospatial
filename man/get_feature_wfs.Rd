@@ -7,8 +7,8 @@
 get_feature_wfs(
   wfs,
   version = "2.0.0",
-  layername,
-  crs,
+  layername = NULL,
+  crs = NULL,
   bbox = NULL,
   filter = NULL,
   cql_filter = NULL,
@@ -24,9 +24,9 @@ get_feature_wfs(
 \item{version}{Version number for the service.
 For instance \code{"2.0.0"}.}
 
-\item{layername}{the name of a layer hosted by the web feature service}
+\item{layername}{Optional name of a layer hosted by the web feature service}
 
-\item{crs}{coordinate reference system to represent the features.
+\item{crs}{Optional coordinate reference system to represent the features.
 For instance \code{"EPSG:31370"}.}
 
 \item{bbox}{Optional bounding box.
@@ -34,7 +34,7 @@ Pass this as a named vector with names \code{"xmin"}, \code{"xmax"}, \code{"ymin
 \code{"ymax"}.}
 
 \item{filter}{Optional
-\href{https://www.ogc.org/standards/filter}{standard OGC filter} specification}
+\href{https://www.ogc.org/standard/filter/}{standard OGC filter} specification}
 
 \item{cql_filter}{Optional
 \href{https://portal.ogc.org/files/96288}{Contextual Query Language} filter.
@@ -62,7 +62,7 @@ features that are requested.
 The request is made up of key-value pairs and additional key-value pairs can
 be passed to the function.
 The full documentation for the \code{WFS} standard can be consulted from
-\url{https://www.ogc.org/standards/wfs}.
+\url{https://www.ogc.org/standard/wfs/}.
 }
 \details{
 See
@@ -72,17 +72,24 @@ for more information.
 \examples{
 \dontrun{
 vlaanderen <- get_feature_wfs(
-wfs = paste0("https://eservices.minfin.fgov.be/",
-             "arcgis/services/R2C/Regions/MapServer/WFSServer"),
-layername = "regions",
-crs = "EPSG:31370",
-filter = paste0("<Filter><PropertyIsEqualTo><PropertyName>",
-                "regions:NameDUT</PropertyName><Literal>'Vlaams Gewest'",
-                "</Literal></PropertyIsEqualTo></Filter>"))
+  wfs = paste0(
+    "https://eservices.minfin.fgov.be/",
+    "arcgis/services/R2C/Regions/MapServer/WFSServer"
+  ),
+  layername = "regions",
+  crs = "EPSG:31370",
+  filter = paste0(
+    "<Filter><PropertyIsEqualTo><PropertyName>",
+    "regions:NameDUT</PropertyName><Literal>'Vlaams Gewest'",
+    "</Literal></PropertyIsEqualTo></Filter>"
+  )
+)
 }
 }
 \seealso{
-Other web_services: 
+Other topics on using web services: 
+\code{\link{add_wms_be_cartoweb}()},
+\code{\link{add_wmts_nl_brt}()},
 \code{\link{get_coverage_wcs}()}
 }
-\concept{web_services}
+\concept{topics on using web services}
