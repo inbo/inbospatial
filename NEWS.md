@@ -1,7 +1,15 @@
 # inbospatial 0.0.2
 
+## New functions
+
+* utility functions to calculate distance or angular distortions in some
+  projection types
+* `add_wms_*()`and `add_wmts_*()` family of functions, which are shorthand
+  alternatives for a fully specified [leaflet::addTiles()] statement.
+
 ## Enhancements
 
+* updated vignette demonstrating `get_features_wfs` and `get_coverage_wcs`
 * improved error handling in `get_features_wfs` (#3)
 
 ## Bug fixes
