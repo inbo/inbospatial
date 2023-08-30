@@ -41,7 +41,11 @@ Snyder J.P. (1987). Map Projections - A Working Manual.
 U.S. Geological Survey Professional Paper, Nr. 1395. United States
 Government Printing Office, Washington, 397 p.
 }
+\seealso{
+Other functions to explore properties of coordinate reference systems: 
+\code{\link{scalefactor_tcyl}()}
+}
 \author{
 Floris Vanderhaeghe, \url{https://github.com/florisvdh}
 }
-\concept{crs}
+\concept{functions to explore properties of coordinate reference systems}

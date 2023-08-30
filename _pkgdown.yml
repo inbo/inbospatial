@@ -30,7 +30,7 @@ authors:
 reference:
 - title: Functions for getting or displaying data from web services
   contents:
-  - has_concept("web_services")
+  - has_concept("topics on using web services")
 - title: Functions to explore properties of coordinate reference systems
   contents:
-  - has_concept("crs")
+  - has_concept("functions to explore properties of coordinate reference systems")
