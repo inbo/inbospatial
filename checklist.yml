@@ -1,32 +1,30 @@
 description: Configuration file for checklist::check_pkg()
 package: yes
 allowed:
-  warnings: []
+  warnings:
+  - motivation: documentation is a good thing
+    value: 'documented but unexported functions: coneconst_lcc, inbospatial, inbospatial-package,
+      require_pkgs, unpack_mht'
   notes:
-  - motivation: Package will not be published on CRAN
+  - motivation: will not be submitted to CRAN
     value: |-
       checking CRAN incoming feasibility ... NOTE
       Maintainer: 'Hans Van Calster <hans.vancalster@inbo.be>'
 
       New submission
-citation_roles:
-- aut
-- cre
 required:
-- .zenodo.json
 - CITATION
-- CITATION.cff
 - DESCRIPTION
 - R CMD check
 - checklist
 - codemeta
 - documentation
 - filename conventions
+- folder conventions
 - license
 - lintr
 - repository secret
 - spelling
-keywords: R package
 spelling:
   default: en-GB
   ignore:

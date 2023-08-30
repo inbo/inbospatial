@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 [![Project Status: Concept – Minimal or no implementation has been done yet, or the repository is only intended to be a limited example, demo, or proof-of-concept.](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://opensource.org/license/mit/)
 [![Release](https://img.shields.io/github/release/inbo/inbospatial.svg)](https://github.com/inbo/inbospatial/releases)
 ![GitHub](https://img.shields.io/github/license/inbo/inbospatial)
 [![R build status](https://github.com/inbo/inbospatial/workflows/check%20package%20on%20main/badge.svg)](https://github.com/inbo/inbospatial/actions)
@@ -47,7 +47,7 @@ remotes::install_github("inbo/inbospatial")
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-#library(inbospatial)
+# library(inbospatial)
 ## basic example code
 ```
 

@@ -51,23 +51,28 @@ The following WCS services can currently be used:
 \item \code{"omw"}: orthophotomosaic winter images Flanders
 \item \code{"dtm"}: digital terrain model Flanders
 \item \code{"dsm"}: digital surface model Flanders
-See https://metadata.vlaanderen.be/metadatacenter/srv/dut/catalog.search#/search?keyword=OGC:WCS for more information # nolint
+See \href{https://metadata.vlaanderen.be/metadatacenter/srv/dut/catalog.search#/search?keyword=OGC:WCS}{metadata Vlaanderen} for more information # nolint: line_length_linter.
 }
 }
 \examples{
 \dontrun{
- bbox <- sf::st_bbox(
-   c(xmin = 155800 , xmax = 155850, ymin = 132700, ymax = 132750),
-     crs = sf::st_crs(31370))
- get_coverage_wcs(wcs = "dsm",
-   bbox = bbox,
-   layername = "EL.GridCoverage.DSM",
-   resolution = 1)
+bbox <- sf::st_bbox(
+  c(xmin = 155800, xmax = 155850, ymin = 132700, ymax = 132750),
+  crs = sf::st_crs(31370)
+)
+get_coverage_wcs(
+  wcs = "dsm",
+  bbox = bbox,
+  layername = "EL.GridCoverage.DSM",
+  resolution = 1
+)
 }
 
 }
 \seealso{
-Other web_services: 
+Other topics on using web services: 
+\code{\link{add_wms_be_cartoweb}()},
+\code{\link{add_wmts_nl_brt}()},
 \code{\link{get_feature_wfs}()}
 }
-\concept{web_services}
+\concept{topics on using web services}
