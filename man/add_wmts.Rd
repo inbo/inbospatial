@@ -19,6 +19,9 @@ The first value is used if missing.}
 
 \item{...}{Further arguments passed to \code{\link[leaflet:map-layers]{leaflet::addTiles()}}.}
 }
+\value{
+A \code{leaflet} HTML widget object.
+}
 \description{
 The \verb{add_wmts_*()} functions are shorthand alternatives for a fully specified
 \code{\link[leaflet:map-layers]{leaflet::addTiles()}} statement.

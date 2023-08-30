@@ -153,6 +153,9 @@ it is plotted as a separate, static legend.}
 
 \item{year}{Year to be applied in selecting the WMS}
 }
+\value{
+A \code{leaflet} HTML widget object.
+}
 \description{
 The \verb{add_wms_*()} functions are shorthand alternatives for a fully specified
 \code{\link[leaflet:map-layers]{leaflet::addWMSTiles()}} or \code{\link[leaflet.extras2:addWMS]{leaflet.extras2::addWMS()}} statement.

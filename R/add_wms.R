@@ -28,6 +28,8 @@ attrib_ngeo <-
 #' On condition that these functions continue being maintained, using the
 #' shorthand functions should make your scripts more futureproof.
 #'
+#' @returns A `leaflet` HTML widget object.
+#'
 #' @section Abbreviations:
 #' ## Prefixes
 #' \describe{
@@ -106,6 +108,8 @@ add_wmts_nl_ortho <- function(map,
 #'
 #' On condition that these functions continue being maintained, using the
 #' shorthand functions should make your scripts more futureproof.
+#'
+#' @returns A `leaflet` HTML widget object.
 #'
 #' @section Abbreviations:
 #' ## Prefixes
