@@ -153,6 +153,9 @@ it is plotted as a separate, static legend.}
 
 \item{year}{Year to be applied in selecting the WMS}
 }
+\value{
+A \code{leaflet} HTML widget object.
+}
 \description{
 The \verb{add_wms_*()} functions are shorthand alternatives for a fully specified
 \code{\link[leaflet:map-layers]{leaflet::addWMSTiles()}} or \code{\link[leaflet.extras2:addWMS]{leaflet.extras2::addWMS()}} statement.
@@ -236,7 +239,7 @@ mapview(kmi_stations, map.types = "CartoDB.Positron") |>
 
 }
 \seealso{
-Other web_services: 
+Other topics on using web services: 
 \code{\link{add_wmts_nl_brt}()},
 \code{\link{get_coverage_wcs}()},
 \code{\link{get_feature_wfs}()}
@@ -244,4 +247,4 @@ Other web_services:
 \author{
 Floris Vanderhaeghe, \url{https://github.com/florisvdh}
 }
-\concept{web_services}
+\concept{topics on using web services}

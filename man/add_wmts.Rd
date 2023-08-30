@@ -19,6 +19,9 @@ The first value is used if missing.}
 
 \item{...}{Further arguments passed to \code{\link[leaflet:map-layers]{leaflet::addTiles()}}.}
 }
+\value{
+A \code{leaflet} HTML widget object.
+}
 \description{
 The \verb{add_wmts_*()} functions are shorthand alternatives for a fully specified
 \code{\link[leaflet:map-layers]{leaflet::addTiles()}} statement.
@@ -59,7 +62,7 @@ leaflet() |>
 
 }
 \seealso{
-Other web_services: 
+Other topics on using web services: 
 \code{\link{add_wms_be_cartoweb}()},
 \code{\link{get_coverage_wcs}()},
 \code{\link{get_feature_wfs}()}
@@ -67,4 +70,4 @@ Other web_services:
 \author{
 Floris Vanderhaeghe, \url{https://github.com/florisvdh}
 }
-\concept{web_services}
+\concept{topics on using web services}
