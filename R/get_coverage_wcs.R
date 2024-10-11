@@ -4,7 +4,7 @@
 #' from which it is read with `terra::rast()` - if needed reprojected -
 #' and returned as a `SpatRaster`object
 #'
-#' @param wcs One of `"dtm"`, `"dsm"`, `"omz"`, `"omw"`
+#' @param wcs One of `"dtm"`, `"dsm"`, `"omz"`, `"omw"`, `"dhmv"`
 #' @param bbox An object of class bbox of length 4.
 #' @param layername Character string; name of the layer
 #' @param resolution Output resolution in meters
@@ -20,7 +20,8 @@
 #'   - `"omw"`: orthophotomosaic winter images Flanders
 #'   - `"dtm"`: digital terrain model Flanders
 #'   - `"dsm"`: digital surface model Flanders
-#' See [metadata Vlaanderen](https://metadata.vlaanderen.be/metadatacenter/srv/dut/catalog.search#/search?keyword=OGC:WCS) for more information # nolint: line_length_linter.
+#'   - `"dhmv"`: digital elevation model Flanders (contains dtm and dsm data)
+#' See [metadata Vlaanderen](https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS) for more information # nolint: line_length_linter.
 #'
 #' @importFrom sf st_as_sf st_transform st_coordinates
 #' @importFrom terra rast `res<-` project
@@ -46,35 +47,56 @@
 #' }
 #'
 get_coverage_wcs <- function(
-    wcs = c("dtm", "dsm", "omz", "omw"),
+    wcs = c("dtm", "dsm", "omz", "omw", "dhmv"),
     bbox,
     layername,
     resolution,
-    wcs_crs = "EPSG:4258",
+    wcs_crs = c("EPSG:4258", "EPSG:31370"),
     output_crs = "EPSG:31370",
     bbox_crs = "EPSG:31370",
     version = c("1.0.0", "2.0.1"),
     ...) {
+
   # prelim check
   version <- match.arg(version)
+  wcs <- tolower(wcs) # case insensitive wcs
   wcs <- match.arg(wcs)
   wcs_crs <- match.arg(wcs_crs)
   bbox_crs <- match.arg(bbox_crs)
+
+
+  # constrain version | wcs
+  if (wcs == "dhmv") {
+    assert_that(version == "1.0.0",
+      msg = "WCS `DHMV` is incompatible with versions other than `1.0.0`.")
+  }
 
   # set url
   wcs <- switch(wcs,
     omz = "https://geo.api.vlaanderen.be/oi-omz/wcs",
     omw = "https://geo.api.vlaanderen.be/oi-omw/wcs",
     dtm = "https://geo.api.vlaanderen.be/el-dtm/wcs",
-    dsm = "https://geo.api.vlaanderen.be/el-dsm/wcs"
+    dsm = "https://geo.api.vlaanderen.be/el-dsm/wcs",
+    dhmv = "https://geo.api.vlaanderen.be/DHMV/wcs"
   )
 
+  # assure package availability
+  stopifnot(
+    assertthat = require("assertthat", quietly = TRUE),
+    httr = require("httr", quietly = TRUE),
+    sf = require("sf", quietly = TRUE),
+    terra = require("terra", quietly = TRUE)
+  )
+
+  # data type assertions
   assert_that(is.character(layername))
   assert_that(is.character(output_crs))
   assert_that(inherits(bbox, "bbox"))
 
-  assert_that(is.numeric(resolution))
+  # resolution <=0 will give a `404`
+  assert_that(is.numeric(resolution) && resolution > 0)
 
+  # assemble the bounding box
   matrix(bbox, ncol = 2, byrow = TRUE) |>
     as.data.frame() |>
     st_as_sf(coords = c("V1", "V2"), crs = bbox_crs) |>
@@ -83,9 +105,10 @@ get_coverage_wcs <- function(
     as.vector() -> bbox
   names(bbox) <- c("xmin", "xmax", "ymin", "ymax")
 
-  # build url request
+  # prepare url request
   url <- parse_url(wcs)
 
+  # variant: version 2.0.1
   if (version == "2.0.1") {
     epsg_code <- str_extract(wcs_crs, "\\d+")
     url$query <- list(
@@ -114,17 +137,22 @@ get_coverage_wcs <- function(
       RESPONSE_CRS = wcs_crs,
       ...
     )
+
+    # build and run the http request
     request <- build_url(url)
     file <- tempfile(fileext = ".mht")
-    x <- GET(
+    http_response <- GET(
       url = request,
       write_disk(file)
     )
+
     # multipart file extract tif part
     unpack_mht(file)
     file <- str_replace(file, "mht", "tif")
-  }
+  } # /version 2.0.1
 
+
+  # variant: version 1.0.0
   if (version == "1.0.0") {
     url$query <- list(
       SERVICE = "WCS",
@@ -145,20 +173,25 @@ get_coverage_wcs <- function(
       RESPONSE_CRS = wcs_crs,
       ...
     )
+
+    # build and run the http request
     request <- build_url(url)
     file <- tempfile(fileext = ".tif")
-    x <- GET(
+    http_response <- GET(
       url = request,
       write_disk(file)
     )
   }
 
-  stop_for_status(x)
+  # raise http errors
+  stop_for_status(http_response)
 
+  # assemble the spatial raster
   raster <- rast(file)
   template <- project(raster, output_crs)
   res(template) <- resolution
   raster <- project(raster, template)
+
   return(raster)
 }
 
