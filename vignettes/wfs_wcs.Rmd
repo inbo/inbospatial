@@ -80,7 +80,7 @@ prov <- get_feature_wfs(
 prov
 ```
 
-Here, we could have also used `sf::read_sf()` in combination with an [OGR SQL query](https://gdal.org/user/ogr_sql_dialect.html):
+Here, we could have also used `sf::read_sf()` in combination with an [OGR SQL query](https://gdal.org/en/latest/user/ogr_sql_dialect.html):
 
 ```{r}
 prov2 <- read_sf(paste0("WFS:", wfs_vrbg),
