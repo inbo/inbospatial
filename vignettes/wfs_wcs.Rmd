@@ -33,46 +33,43 @@ The tutorial takes a more hands-on coding approach to getting data from a WFS, w
 
 ## Simple use case without filter
 
-```{r bel-regions}
-wfs_regions <-
-  "https://eservices.minfin.fgov.be/arcgis/services/R2C/Regions/MapServer/WFSServer" # nolint
+```{r provinces}
+wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
 
-bel_regions <- get_feature_wfs(
-  wfs = wfs_regions,
-  layername = "regions",
+provinces <- get_feature_wfs(
+  wfs = wfs_vrbg,
+  layername = "VRBG:Refprv",
   crs = "EPSG:31370"
 )
 
-bel_regions
+provinces
 ```
 
 You can achieve (almost) the same result using a combination of `sf::read_sf()` and `sf::st_transform()`.
 
 ```{r}
-bel_regions2 <- read_sf(paste0("WFS:", wfs_regions),
-  layer = "regions"
-) %>%
-  st_transform(crs = 31370)
+provinces2 <- read_sf(paste0("WFS:", wfs_vrbg),
+  layer = "VRBG:Refprv"
+)
 
-waldo::compare(bel_regions, bel_regions2,
+waldo::compare(provinces, provinces2,
   x_arg = "inbospatial", y_arg = "sf",
   max_diffs = 8
 )
 ```
 
-There are however a number of differences.
-Most notably, a couple of fields have a different field type and the geometry column is a `"MULTIPOLYGON"` in the first instance yet a `"MULTISURFACE"` in the second case.
-The reason for these differences is that `get_feature_wfs()` retrieves whatever information that is identified from the WFS request - in the same way as you would paste the request in the browser.
+Both methods yield the same result.
+Note however that for other examples, you may notice substantial differences, most notably for field specifications.
+The reason for such differences is that `get_feature_wfs()` retrieves whatever information that is identified from the WFS request - in the same way as you would paste the request in the browser.
 This result is then saved temporarily to a `.GML` file and read with `sf::read_sf()`.
-Passing the WFS directly to the `dsn` argument of `sf::read_sf`, on the other hand, will translate the request to a form that will pass through [the GDAL WFS driver](https://gdal.org/drivers/vector/wfs.html), which handles field specifications by reading them from a `DescribeFeatureType` request:
+Passing the WFS directly to the `dsn` argument of `sf::read_sf`, on the other hand, will translate the request to a form that will pass through [the GDAL WFS driver](https://gdal.org/en/latest/drivers/vector/wfs.html), which handles field specifications by reading them from a `DescribeFeatureType` request:
 
 > At the first opening, the content of the result of the `GetCapabilities` request will be appended to the file, so that it can be cached for later openings of the dataset. The same applies for the `DescribeFeatureType` request issued to discover the field definition of each layer.
 
 ## Apply a CQL-Filter to filter on a field
 
 ```{r prov}
-wfs_vrbg <-
-  "https://geo.api.vlaanderen.be/VRBG/wfs"
+wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
 
 prov <- get_feature_wfs(
   wfs = wfs_vrbg,
@@ -93,13 +90,12 @@ prov2 <- read_sf(paste0("WFS:", wfs_vrbg),
 waldo::compare(prov, prov2)
 ```
 
-This time, both methods yield the same result.
+Both methods yield the same result.
 
 ## Request a subset of fields
 
 ```{r prov-fields}
-wfs_vrbg <-
-  "https://geo.api.vlaanderen.be/VRBG/wfs"
+wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
 
 prov_fields <- get_feature_wfs(
   wfs = wfs_vrbg,
@@ -111,7 +107,7 @@ prov_fields <- get_feature_wfs(
 prov_fields
 ```
 
-Again, we can use `sf::read_sf()` in combination with an [OGR SQL query](https://gdal.org/user/ogr_sql_dialect.html):
+Again, we can use `sf::read_sf()` in combination with an [OGR SQL query](https://gdal.org/en/latest/user/ogr_sql_dialect.html):
 
 ```{r}
 prov_fields_sf <- read_sf(paste0("WFS:", wfs_vrbg),
@@ -170,14 +166,13 @@ bwk_bbox <- get_feature_wfs(
 bwk_bbox
 ```
 
-This returns a `CURVEPOLYGON` geometry type.
+This returns a `MULTISURFACE` geometry type.
 We can use a couple of `sf` functions to cast this to regular polygons:
 
 ```{r}
 bwk_bbox %>%
   st_cast("GEOMETRYCOLLECTION") %>%
-  st_collection_extract("LINESTRING") %>%
-  st_cast("POLYGON") %>%
+  st_collection_extract("POLYGON") %>%
   st_geometry() %>%
   plot()
 ```
@@ -267,5 +262,3 @@ dtm <- get_coverage_wcs(
   resolution = 1)
 terra::plot(dtm)
 ```
-
-
