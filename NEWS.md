@@ -1,3 +1,5 @@
+# inbospatial 0.0.3
+
 # inbospatial 0.0.2
 
 ## New functions

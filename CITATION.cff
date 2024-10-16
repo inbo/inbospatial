@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: If you use this software, please cite it using these metadata.
-title: 'inbospatial: A Collection of Useful R Functions for Spatial Data'
+title: "inbospatial: A Collection of Useful R Functions for Spatial Data"
 authors:
 - given-names: Hans
   family-names: Van Calster
@@ -22,9 +22,6 @@ doi: ~
 license: MIT
 repository-code: https://github.com/inbo/inbospatial/
 type: software
-abstract: Useful R functions developed at the Research Institute for Nature and Forest
-  (INBO) for dealing with spatial raster or vector data.
-identifiers:
-- type: url
-  value: []
-version: 0.0.2
+abstract: "Useful R functions developed at the Research Institute for Nature and Forest
+  (INBO) for dealing with spatial raster or vector data."
+version: 0.0.3
