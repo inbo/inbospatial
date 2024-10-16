@@ -187,6 +187,7 @@ store_as_gml <- function(content, ...) {
   UseMethod("store_as_gml", content)
 }
 
+#' @export
 store_as_gml.raw <- function(
     content, destfile = tempfile(fileext = "gml"), ...) {
   writeBin(content, destfile, useBytes = TRUE)

@@ -41,4 +41,4 @@ Config/checklist/keywords: spatial; geospatial; utilities; GIS; raster;
 Encoding: UTF-8
 Language: en-GB
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
