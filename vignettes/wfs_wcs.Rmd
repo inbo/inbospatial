@@ -33,6 +33,8 @@ The tutorial takes a more hands-on coding approach to getting data from a WFS, w
 
 ## Simple use case without filter
 
+As a test case, we will query municipal boundaries of Flanders from the "Provisional Reference Municipal Boundaries" (VRBG, "Voorlopig ReferentieBestand Gemeentegrenzen"), which is available via an API on the *vlaanderen.be* website.
+
 ```{r provinces}
 wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
 
@@ -68,6 +70,11 @@ Passing the WFS directly to the `dsn` argument of `sf::read_sf`, on the other ha
 
 ## Apply a CQL-Filter to filter on a field
 
+CQL, the "Common Query Language" ([see here, for example](https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html)), provides a way to filter WFS data.
+The syntax of [CQL is comparable to SQL](https://www.webcomand.com/docs/language/cql/cql_vs_sql), yet there are differences in data types and structures.
+
+You can provide and apply filters in `get_feature_wfs()` via the `cql_filter` argument.
+
 ```{r prov}
 wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
 
@@ -84,7 +91,7 @@ Here, we could have also used `sf::read_sf()` in combination with an [OGR SQL qu
 
 ```{r}
 prov2 <- read_sf(paste0("WFS:", wfs_vrbg),
-  query = "select * from Refprv where NAAM='West-Vlaanderen'"
+  query = "SELECT * FROM Refprv WHERE NAAM='West-Vlaanderen'"
 )
 
 waldo::compare(prov, prov2)
@@ -93,6 +100,10 @@ waldo::compare(prov, prov2)
 Both methods yield the same result.
 
 ## Request a subset of fields
+
+Instead of querying the complete data table, one can select a subset of variables (fields).
+The function `get_feature_wfs()` provides the `property_name` keyword for it, which accepts a string of comma-separated field names.
+Note that field names are capitalized on this particular geoserver.
 
 ```{r prov-fields}
 wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
@@ -111,13 +122,16 @@ Again, we can use `sf::read_sf()` in combination with an [OGR SQL query](https:/
 
 ```{r}
 prov_fields_sf <- read_sf(paste0("WFS:", wfs_vrbg),
-  query = "select NAAM, NUTS2 from Refprv"
+  query = "SELECT NAAM, NUTS2 FROM Refprv"
 )
 
 waldo::compare(prov_fields, prov_fields_sf)
 ```
 
 ## Meteorological data example
+
+Another example of a WFS API is the Belgian Royal Metheorological Institute (KMI, "Koninklijk Meteorologisch Instituut van België").
+Details can be [found here](https://opendata.meteo.be/service/wfs?request=GetCapabilities), [and here](https://publish.geo.be/geonetwork/f0ow2say/api/records/RMI_AWS_WFS).
 
 ```{r stations}
 kmi <- "https://opendata.meteo.be/service/wfs"
@@ -151,6 +165,10 @@ kmi_synop
 
 
 ## Spatial filtering using a bounding box
+
+Few analyses will require a whole countries' data, even if the country is as small as Belgium.
+Hence, it might be useful by restricting the data you query with a bounding box.
+This works as follows, using a `bbox` with the elements `xmin`, `ymin`, `xmax`, and `ymax`.
 
 ```{r bwk-bbox}
 wfs_bwk <-
@@ -197,7 +215,12 @@ bwk_bbox_sf <- read_sf(
 
 ## Spatial filters using spatial binary predicates
 
+In addition to the filters above, you can use logical operations to restrict your area of interest.
+For example, features can be selected by intersection with another geo-object.
+
 ### Intersects a point
+
+As a proof of concept, we can directly query soil parameters at a specific location.
 
 ```{r}
 wfs_soiltypes <-
@@ -219,12 +242,15 @@ soil_type <- get_feature_wfs(
 soil_type
 ```
 
+In theory, this should also be possible "the `sf` way".
+However, `sf` filters after query (which takes a long time), and the code below does not work correctly.
+
 ```{r eval=FALSE}
 soil_type_sf <- read_sf(
   paste0("WFS:", wfs_soiltypes),
-  query = "select * from bodemtypes",
+  query = "SELECT * FROM bodemtypes",
   wkt_filter = sprintf(
-    "ST_Intersects(geom,POINT(%s %s))",
+    "ST_Intersects(geom,ST_Point(%s, %s))",
     x_lam, y_lam
   )
 )
@@ -234,7 +260,11 @@ soil_type_sf
 
 # WCS examples
 
-Example of a false-colour infrared image.
+Above, we covered Web Feature Services (WFS), which are many kinds of vector data.
+Another common geographical data type are grid-like or "raster" data, which you can retrieve via *Web Coverage Services (WCS)*.
+Behold, there is a `get_coverage_wcs()` available for some of the web services we regularly use at INBO.
+
+Below the example of a false-colour infrared image.
 The three bands of the image are visualized using `terra::plotRGB`.
 
 ```{r omz-example}
@@ -252,7 +282,7 @@ omz <- get_coverage_wcs(
 terra::plotRGB(omz)
 ```
 
-Example of extracting the  digital terrain model for the same bounding box:
+Another example, this time extracting the digital terrain model for the same bounding box:
 
 ```{r dtm-example}
 dtm <- get_coverage_wcs(
@@ -262,3 +292,5 @@ dtm <- get_coverage_wcs(
   resolution = 1)
 terra::plot(dtm)
 ```
+
+More details on WCS can be found in the `spatial_dhmv_query.Rmd` vignette.
