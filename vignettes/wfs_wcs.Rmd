@@ -26,7 +26,7 @@ A WFS or Web Feature Service allows you to download vector spatial data from the
 A WCS or Web Coverage Service is similar, but is used for raster spatial data.
 In this vignette, we will show how to the functions `get_feature_wfs()` and `get_coverage_wcs()` can be used to get data into your R session from these services.
 
-For a more in-depth explanation about WFS services, we refer to [the INBO tutorial about WFS](https://tutorials.inbo.be/tutorials/tutorials/spatial_wfs_services/){target="_BLANK"}.
+For a more in-depth explanation about WFS services, we refer to [the INBO tutorial about WFS](https://tutorials.inbo.be/tutorials/spatial_wfs_services/){target="_BLANK"}.
 The tutorial takes a more hands-on coding approach to getting data from a WFS, whereas in this vignette much of the coding stuff is hidden away in the `get_feature_wfs()` function.
 
 # WFS examples
