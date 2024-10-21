@@ -26,14 +26,14 @@ A WFS or Web Feature Service allows you to download vector spatial data from the
 A WCS or Web Coverage Service is similar, but is used for raster spatial data.
 In this vignette, we will show how to the functions `get_feature_wfs()` and `get_coverage_wcs()` can be used to get data into your R session from these services.
 
-For a more in-depth explanation about WFS services, we refer to [the INBO tutorial about WFS](https://inbo.github.io/tutorials/tutorials/spatial_wfs_services/){target="_BLANK"}.
+For a more in-depth explanation about WFS services, we refer to [the INBO tutorial about WFS](https://tutorials.inbo.be/tutorials/tutorials/spatial_wfs_services/){target="_BLANK"}.
 The tutorial takes a more hands-on coding approach to getting data from a WFS, whereas in this vignette much of the coding stuff is hidden away in the `get_feature_wfs()` function.
 
 # WFS examples
 
 ## Simple use case without filter
 
-As a test case, we will query municipal boundaries of Flanders from the "Provisional Reference Municipal Boundaries" (VRBG, "Voorlopig ReferentieBestand Gemeentegrenzen"), which is available via an API on the *vlaanderen.be* website.
+As a test case, we will query municipal boundaries of Flanders from the "Provisional Reference Municipal Boundaries" (`VRBG`, `Voorlopig ReferentieBestand Gemeentegrenzen`), which is available via an API on the `vlaanderen.be` website.
 
 ```{r provinces}
 wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
@@ -71,7 +71,7 @@ Passing the WFS directly to the `dsn` argument of `sf::read_sf`, on the other ha
 ## Apply a CQL-Filter to filter on a field
 
 CQL, the "Common Query Language" ([see here, for example](https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html)), provides a way to filter WFS data.
-The syntax of [CQL is comparable to SQL](https://www.webcomand.com/docs/language/cql/cql_vs_sql), yet there are differences in data types and structures.
+The syntax of [CQL is comparable to SQL](https://www.webcomand.com/docs/language/cql/cql_vs_sql/), yet there are differences in data types and structures.
 
 You can provide and apply filters in `get_feature_wfs()` via the `cql_filter` argument.
 
@@ -130,7 +130,7 @@ waldo::compare(prov_fields, prov_fields_sf)
 
 ## Meteorological data example
 
-Another example of a WFS API is the Belgian Royal Metheorological Institute (KMI, "Koninklijk Meteorologisch Instituut van België").
+Another example of a WFS API is the Belgian Royal Meteorological Institute (KMI, `Koninklijk Meteorologisch Instituut van België`).
 Details can be [found here](https://opendata.meteo.be/service/wfs?request=GetCapabilities), [and here](https://publish.geo.be/geonetwork/f0ow2say/api/records/RMI_AWS_WFS).
 
 ```{r stations}
@@ -216,7 +216,7 @@ bwk_bbox_sf <- read_sf(
 ## Spatial filters using spatial binary predicates
 
 In addition to the filters above, you can use logical operations to restrict your area of interest.
-For example, features can be selected by intersection with another geo-object.
+For example, features can be selected by intersection with another geographical object.
 
 ### Intersects a point
 

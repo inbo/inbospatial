@@ -67,7 +67,7 @@ The full documentation for the \code{WFS} standard can be consulted from
 }
 \details{
 See
-\url{https://inbo.github.io/tutorials/tutorials/spatial_wfs_services/}
+\url{https://tutorials.inbo.be/tutorials/spatial_wfs_services/}
 for more information.
 }
 \examples{

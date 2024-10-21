@@ -41,7 +41,7 @@
 #' @importFrom assertthat assert_that is.string
 #'
 #' @details See
-#' \url{https://inbo.github.io/tutorials/tutorials/spatial_wfs_services/}
+#' \url{https://tutorials.inbo.be/tutorials/spatial_wfs_services/}
 #'  for more information.
 #' @family topics on using web services
 #'
