@@ -13,7 +13,6 @@ Iliffe
 KMI
 LCC
 Landschaptypen
-linter
 MULTIPOLYGON
 MULTSURFACE
 NNB
@@ -50,11 +49,13 @@ edn
 fl
 forestnature
 futureproof
+geoserver
 grbmap
 habitatlabels
 habitatmap
 inbospatial
 landschapstypen
+linter
 natte
 natuurparels
 natuurtypen
