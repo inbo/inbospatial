@@ -34,3 +34,7 @@ reference:
 - title: Functions to explore properties of coordinate reference systems
   contents:
   - has_concept("functions to explore properties of coordinate reference systems")
+
+template:
+  bootstrap: 5
+

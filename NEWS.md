@@ -1,5 +1,9 @@
 # inbospatial 0.0.3
 
+## Bug fixes
+
+* fix parsing of `geoTIFF` part from `mht` files (internal function)
+
 # inbospatial 0.0.2
 
 ## New functions
