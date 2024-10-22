@@ -68,7 +68,7 @@ get_coverage_wcs <- function(
   # constrain version | wcs
   if (wcs == "dhmv") {
     # warn incompatible versions
-    if (!(version %in% c("1.0.0", "2.0.1")) {
+    if ( !( version %in% c("1.0.0", "2.0.1") ) ) {
       message("WCS `DHMV` is only compatible with versions `1.0.0` or `2.0.1`.
         Consider using `version=\"2.0.1\"`")
     }
