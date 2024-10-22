@@ -60,10 +60,10 @@ Because, in fact, the `ows4R` package seems functional. In the tutorial mentione
 First, we need to load some packages.
 
 ```{r setup}
-require("httr")
-require("sf")
-require("ows4R")
-require("terra")
+library("httr")
+library("sf")
+library("ows4R")
+library("terra")
 ```
 
 We can connect a WCS client.
