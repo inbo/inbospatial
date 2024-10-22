@@ -1,6 +1,7 @@
 ---
 title: "Dissecting a WCS Query: DHMV Case Study."
 output: rmarkdown::html_vignette
+author: "Falk Mielke (falk.mielke@inbo.be)"
 vignette: >
   %\VignetteIndexEntry{spatial_dhmv_query}
   %\VignetteEngine{knitr::rmarkdown}
@@ -420,7 +421,7 @@ raster <- rast(tif_file)
 
 # The "`inbospatial`" Way
 
-My colleague [Hans Van Calster](https://github.com/hansvancalster) had been facing the same problems with related API's a year earlier, and he wrote a function for it in [the \`inbospatial\` package](https://github.com/inbo/inbospatial).
+Colleague [Hans Van Calster](https://github.com/hansvancalster) had been facing the same problems with related API's a year earlier, and he wrote a function for it in [the \`inbospatial\` package](https://github.com/inbo/inbospatial).
 We now refined the `get_coverage_wcs()` procedure to solve the `mht` issue.
 
 Here is how to use it, for the same case as above:
@@ -465,7 +466,7 @@ The burden of choice!
 
 <a id="org575ca41"></a>
 
-# Post Mortem
+# *Post Mortem*
 
 The value of this vignette seems to be limited: in essence, it provides the specific query function arguments for elevation model queries with the `geo.api` of the Flemish digital services. Quite a niche use case.
 
