@@ -2,11 +2,14 @@
 
 ## Features
 
-* `get_coverage_wcs()` can now query data from the Digital Elevation Model, Flanders (DHMV, "Digitaal Hoogtemodel Vlaanderen").
+* `get_coverage_wcs()` can now query data from the 
+  Digital Elevation Model, Flanders 
+  (DHMV, ``Digitaal Hoogtemodel Vlaanderen``).
 
 ## Documentation
 
-* added `spatial_dhmv_query` vignette demonstrating WCS queries with and beyond `get_coverage_wcs()`
+* added `spatial_dhmv_query` vignette demonstrating WCS queries 
+  with and beyond `get_coverage_wcs()`
 
 ## Bug fixes
 

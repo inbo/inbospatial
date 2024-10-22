@@ -25,7 +25,7 @@ Flemish government agencies host a lot of useful web services and data. Some of 
 -   <https://www.vlaanderen.be/datavindplaats/catalogus>
 
 
-This vignette demonstrates the **query of elevation data from the Digital Elevation Model**, "Digitaal HoogteModel Vlaanderen" (DHMV). We will do it "the complicated way", assembling a web API query. [In the end](#orgd59526e), you will see how to use `inbospatial` to get the same result in a single function call.
+This vignette demonstrates the **query of elevation data from the Digital Elevation Model**, ``Digitaal HoogteModel Vlaanderen`` (DHMV). We will do it "the complicated way", assembling a web API query. [In the end](#orgd59526e), you will see how to use `inbospatial` to get the same result in a single function call.
 
 This vignette is somewhat related to, but goes beyond the use of Web Feature Services (WFS) for spatial data, [see this tutorial by Thierry Onkelinx](https://inbo.github.io/tutorials/tutorials/spatial_wfs_services). In particular, I will document some paths and workarounds to explore if errors occur in the default `ows4R` procedure.
 
@@ -55,7 +55,7 @@ Therefore, I ended up going back to the nitty-gritty aspects of WCS by **manuall
 
 Before revealing [the solution](#org803f24d), I will document the error and my path to working around it: the core problem was not trivial to see, and you might run into similar issues.
 
-Because, in fact, the `ows4R` package seems functional. In the tutorial mentioned above, [the `ows4R` package](https://cran.r-project.org/web/packages/ows4R/index.html) is used to query data from web services. However, `ows4R` cannot handle all niche server API's.
+Because, in fact, the `ows4R` package seems functional. In the tutorial mentioned above, [the `ows4R` package](https://cran.r-project.org/web/packages/ows4R/index.html) is used to query data from web services. However, `ows4R` cannot handle all niche server APIs.
 
 First, we need to load some packages.
 
@@ -266,7 +266,7 @@ Here is what I found:
 -   instead of subsetting, we can use a `bbox`&#x2026;
 -   &#x2026; but a `width` and `height` of the output image are mandatory; alternatively there are `resx` and `resy` (not shown)
 -   we must specify a `CRS` (`EPSG:31370`), optionally also a `response_crs`
--   the `format` is `GeoTIFF`; slashes are weird in URLs anyways
+-   the `format` is `GeoTIFF`; slashes are weird in URLs anyway
 
 After some more trial and error, I could construct working URLs in R and generalize this to a function.
 
@@ -421,7 +421,7 @@ raster <- rast(tif_file)
 
 # The "`inbospatial`" Way
 
-Colleague [Hans Van Calster](https://github.com/hansvancalster) had been facing the same problems with related API's a year earlier, and he wrote a function for it in [the \`inbospatial\` package](https://github.com/inbo/inbospatial).
+Colleague [Hans Van Calster](https://github.com/hansvancalster) had been facing the same problems with related APIs a year earlier, and he wrote a function for it in [the \`inbospatial\` package](https://github.com/inbo/inbospatial).
 We now refined the `get_coverage_wcs()` procedure to solve the `mht` issue.
 
 Here is how to use it, for the same case as above:
@@ -446,10 +446,10 @@ hopo_raster <- get_coverage_wcs(
 plot(hopo_raster, col = gray.colors(256))
 ```
 
-The function gives you quite some options of API's to query data from.
+The function gives you quite some options of APIs to query data from.
 
 
-| **wcs**  | **layername**           | **reference** |
+| **wcs**  | **layer name**           | **reference** |
 |------------------- |--------------------------------- |---- |
 | dtm  | `EL.GridCoverage.DTM` | [here](https://www.vlaanderen.be/datavindplaats/catalogus/hoogte-dtm)  |
 | dsm  | `EL.GridCoverage.DSM` | [here](https://www.vlaanderen.be/datavindplaats/catalogus/hoogte-dsm)  |
@@ -459,7 +459,7 @@ The function gives you quite some options of API's to query data from.
 
 At a quick glance, we found that the `dtm` wcs seems to include canopy points, which is not according to definition; see here: <https://www.neonscience.org/resources/learning-hub/tutorials/chm-dsm-dtm> A general advice is to confirm your data for a region you know.
 
-In addition, there are `oi-omz` and `oi-omw` for "zummer" and winter orthomosaic images.
+In addition, there are `oi-omz` and `oi-omw` for "zummer" and winter ortho-mosaic images.
 
 The burden of choice!
 
@@ -479,7 +479,7 @@ In retrospective, the initial issue was worsened by unfavorable circumstances.
 -   `ows4R` retrieved a file and produced an error; another error was only thrown downstream. Neither `ows4R`, nor `terra`, `sf`, `rasterio`, or `qgis` were able to handle `mht` files. This lack of support questions the API's design choice of packing and sending an `mht`.
 -   Documentation for the `geo.api` is lacking (or I did not find it); in particularly I missed usage examples, vignettes, or tests.
 
-The colleagues at "Digitaal Vlaanderen" or the DHMV group certainly had enough work on their table, yet more documentation would be desirable. Same for `ows4R`, judging by their [github issue list](https://github.com/eblondel/ows4R/issues) (see e.g. [this one](https://github.com/eblondel/ows4R/issues/114)). On the other hand, [QGIS is free- and open source](https://en.wikipedia.org/wiki/QGIS), its queries seem to be well maintained and are accessible, errors are transparent, I could have read the source code - a good example piece of software.
+The colleagues at ``Digitaal Vlaanderen`` or the DHMV group certainly had enough work on their table, yet more documentation would be desirable. Same for `ows4R`, judging by their [github issue list](https://github.com/eblondel/ows4R/issues) (see e.g. [this one](https://github.com/eblondel/ows4R/issues/114)). On the other hand, [QGIS is free- and open source](https://en.wikipedia.org/wiki/QGIS), its queries seem to be well maintained and are accessible, errors are transparent, I could have read the source code - a good example piece of software.
 
 
 Yet in general, if you run into issues like this, do not hesitate to contact support or [file a github issue](https://github.com/eblondel/ows4R/issues/114).
