@@ -449,7 +449,7 @@ plot(hopo_raster, col = gray.colors(256))
 The function gives you quite some options of APIs to query data from.
 
 
-| **wcs**  | **layer name**           | **reference** |
+| **WCS**  | **layer name**           | **reference** |
 |------------------- |--------------------------------- |---- |
 | dtm  | `EL.GridCoverage.DTM` | [here](https://www.vlaanderen.be/datavindplaats/catalogus/hoogte-dtm)  |
 | dsm  | `EL.GridCoverage.DSM` | [here](https://www.vlaanderen.be/datavindplaats/catalogus/hoogte-dsm)  |
@@ -457,7 +457,7 @@ The function gives you quite some options of APIs to query data from.
 | dhmv | `DHMVII_DTM_1m`       | [here](https://metadata.vlaanderen.be/srv/dut/catalog.search#/metadata/f52b1a13-86bc-4b64-8256-88cc0d1a8735)  |
 | dhmv | `DHMVII_DSM_1m`       | [here](https://metadata.vlaanderen.be/srv/dut/catalog.search#/metadata/0da2e5e4-6886-426b-bb82-c0ffe6faeff6)  |
 
-At a quick glance, we found that the `dtm` wcs seems to include canopy points, which is not according to definition; see here: <https://www.neonscience.org/resources/learning-hub/tutorials/chm-dsm-dtm> A general advice is to confirm your data for a region you know.
+At a quick glance, we found that the `dtm` WCS seems to include canopy points, which is not according to definition; see here: <https://www.neonscience.org/resources/learning-hub/tutorials/chm-dsm-dtm> A general advice is to confirm your data for a region you know.
 
 In addition, there are `oi-omz` and `oi-omw` for "zummer" and winter ortho-mosaic images.
 
@@ -474,7 +474,7 @@ However, this is also a story of tracing errors in existing tools, and scraping 
 
 Can we actually trace the error back to a source? It was pure co-incidence that QGIS provided a working link, or are there general strategies?
 
-In retrospective, the initial issue was worsened by unfavorable circumstances.
+In retrospective, the initial issue was worsened by unfavourable circumstances.
 
 -   `ows4R` retrieved a file and produced an error; another error was only thrown downstream. Neither `ows4R`, nor `terra`, `sf`, `rasterio`, or `qgis` were able to handle `mht` files. This lack of support questions the API's design choice of packing and sending an `mht`.
 -   Documentation for the `geo.api` is lacking (or I did not find it); in particularly I missed usage examples, vignettes, or tests.
