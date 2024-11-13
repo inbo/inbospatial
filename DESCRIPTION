@@ -7,6 +7,8 @@ Authors@R: c(
            comment = c(ORCID = "0000-0001-8595-8426", affiliation = "Research Institute for Nature and Forest (INBO)")),
     person("Floris", "Vanderhaeghe", , "floris.vanderhaeghe@inbo.be", role = "ctb",
            comment = c(ORCID = "0000-0002-6378-6229", affiliation = "Research Institute for Nature and Forest (INBO)")),
+    person("Falk", "Mielke", , "falk.mielke@inbo.be", role = "ctb",
+           comment = c(ORCID = "0000-0003-3229-0981", affiliation = "Research Institute for Nature and Forest (INBO)")),
     person("Research Institute for Nature and Forest (INBO)", , , "info@inbo.be", role = c("cph", "fnd"))
   )
 Description: Useful R functions developed at the Research Institute for
@@ -31,6 +33,7 @@ Suggests:
     leaflet.extras,
     leaflet.extras2,
     mapview,
+    ows4R,
     rmarkdown,
     waldo
 VignetteBuilder: 

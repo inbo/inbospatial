@@ -4,7 +4,7 @@
 #' from which it is read with `terra::rast()` - if needed reprojected -
 #' and returned as a `SpatRaster`object
 #'
-#' @param wcs One of `"dtm"`, `"dsm"`, `"omz"`, `"omw"`
+#' @param wcs One of `"dtm"`, `"dsm"`, `"omz"`, `"omw"`, `"dhmv"`
 #' @param bbox An object of class bbox of length 4.
 #' @param layername Character string; name of the layer
 #' @param resolution Output resolution in meters
@@ -20,7 +20,8 @@
 #'   - `"omw"`: orthophotomosaic winter images Flanders
 #'   - `"dtm"`: digital terrain model Flanders
 #'   - `"dsm"`: digital surface model Flanders
-#' See [metadata Vlaanderen](https://metadata.vlaanderen.be/metadatacenter/srv/dut/catalog.search#/search?keyword=OGC:WCS) for more information # nolint: line_length_linter.
+#'   - `"dhmv"`: digital elevation model Flanders (contains dtm and dsm data)
+#' See [metadata Vlaanderen](https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS) for more information # nolint: line_length_linter.
 #'
 #' @importFrom sf st_as_sf st_transform st_coordinates
 #' @importFrom terra rast `res<-` project
@@ -46,35 +47,56 @@
 #' }
 #'
 get_coverage_wcs <- function(
-    wcs = c("dtm", "dsm", "omz", "omw"),
+    wcs = c("dtm", "dsm", "omz", "omw", "dhmv"),
     bbox,
     layername,
     resolution,
-    wcs_crs = "EPSG:4258",
+    wcs_crs = c("EPSG:4258", "EPSG:31370"),
     output_crs = "EPSG:31370",
     bbox_crs = "EPSG:31370",
     version = c("1.0.0", "2.0.1"),
     ...) {
+
   # prelim check
   version <- match.arg(version)
+  wcs <- tolower(wcs) # case insensitive wcs
   wcs <- match.arg(wcs)
   wcs_crs <- match.arg(wcs_crs)
   bbox_crs <- match.arg(bbox_crs)
+
+
+  # constrain version | wcs
+  if (wcs == "dhmv") {
+    # warn incompatible versions
+    if (!(version %in% c("1.0.0", "2.0.1"))) {
+      message("WCS `DHMV` is only compatible with versions `1.0.0` or `2.0.1`.
+        Consider using `version=\"2.0.1\"`")
+    }
+    # recommend crs specification
+    if (wcs_crs != "EPSG:31370") {
+      message("WCS `DHMV` only supports CRS Belgian Lambert 72 (`EPSG:31370`).
+        Consider specifying `wcs_csr=\"EPSG:31370\"`")
+    }
+  }
 
   # set url
   wcs <- switch(wcs,
     omz = "https://geo.api.vlaanderen.be/oi-omz/wcs",
     omw = "https://geo.api.vlaanderen.be/oi-omw/wcs",
     dtm = "https://geo.api.vlaanderen.be/el-dtm/wcs",
-    dsm = "https://geo.api.vlaanderen.be/el-dsm/wcs"
+    dsm = "https://geo.api.vlaanderen.be/el-dsm/wcs",
+    dhmv = "https://geo.api.vlaanderen.be/DHMV/wcs"
   )
 
+  # data type assertions
   assert_that(is.character(layername))
   assert_that(is.character(output_crs))
   assert_that(inherits(bbox, "bbox"))
 
-  assert_that(is.numeric(resolution))
+  # resolution <=0 will give a `404`
+  assert_that(is.numeric(resolution) && resolution > 0)
 
+  # assemble the bounding box
   matrix(bbox, ncol = 2, byrow = TRUE) |>
     as.data.frame() |>
     st_as_sf(coords = c("V1", "V2"), crs = bbox_crs) |>
@@ -83,9 +105,10 @@ get_coverage_wcs <- function(
     as.vector() -> bbox
   names(bbox) <- c("xmin", "xmax", "ymin", "ymax")
 
-  # build url request
+  # prepare url request
   url <- parse_url(wcs)
 
+  # variant: version 2.0.1
   if (version == "2.0.1") {
     epsg_code <- str_extract(wcs_crs, "\\d+")
     url$query <- list(
@@ -114,17 +137,21 @@ get_coverage_wcs <- function(
       RESPONSE_CRS = wcs_crs,
       ...
     )
-    request <- build_url(url)
-    file <- tempfile(fileext = ".mht")
-    x <- GET(
-      url = request,
-      write_disk(file)
-    )
-    # multipart file extract tif part
-    unpack_mht(file)
-    file <- str_replace(file, "mht", "tif")
-  }
 
+    # build and run the http request
+    request <- build_url(url)
+    mht_file <- tempfile(fileext = ".mht")
+    http_response <- GET(
+      url = request,
+      write_disk(mht_file)
+    )
+
+    # multipart file extract tif part
+    tif_file <- unpack_mht(mht_file)
+  } # /version 2.0.1
+
+
+  # variant: version 1.0.0
   if (version == "1.0.0") {
     url$query <- list(
       SERVICE = "WCS",
@@ -145,34 +172,41 @@ get_coverage_wcs <- function(
       RESPONSE_CRS = wcs_crs,
       ...
     )
+
+    # build and run the http request
     request <- build_url(url)
-    file <- tempfile(fileext = ".tif")
-    x <- GET(
+    tif_file <- tempfile(fileext = ".tif")
+    http_response <- GET(
       url = request,
-      write_disk(file)
+      write_disk(tif_file)
     )
   }
 
-  stop_for_status(x)
+  # raise http errors
+  stop_for_status(http_response)
 
-  raster <- rast(file)
+  # assemble the spatial raster
+  raster <- rast(tif_file)
   template <- project(raster, output_crs)
   res(template) <- resolution
   raster <- project(raster, template)
+
   return(raster)
 }
 
 
-#' Unpack or extract the `tif` file part from an `mht` file
+#' Unpack or extract the `tif` file part from an `mht` file.
 #'
 #' This helper function is needed on some `WCS` services from which an `mht`
-#' file is downloaded rather than a `tif` file
+#' file is downloaded rather than a `tif` file; returns the path to the `tif`
 #'
 #' @param path A path to the `mht` file
 #'
 #' @importFrom readr read_lines_raw read_lines read_file_raw write_file
 #' @importFrom assertthat assert_that
 #' @importFrom stringr str_detect str_replace
+#'
+#' @return tif_path the path to the extracted geoTIFF.
 #'
 #' @keywords internal
 #'
@@ -195,8 +229,10 @@ unpack_mht <- function(path) {
   pos_end <- length(raw_vector) - (length(lines_raw[end + 1]) + 1)
 
   tif <- raw_vector[pos_start:pos_end]
+  tif_path <- str_replace(path, "mht", "tif")
   write_file(
     tif,
-    str_replace(path, "mht", "tif")
+    tif_path
   )
+  return(tif_path)
 }
