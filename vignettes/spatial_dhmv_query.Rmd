@@ -139,8 +139,7 @@ hopo_boxed <- OWSUtils$toBBOX(
 
 I will write the file to disk:
 
-```{r, eval=FALSE}
-
+```{r, error=TRUE}
 mht_file <- tempfile(fileext = ".mht")
 
 tryCatch({
@@ -150,15 +149,6 @@ tryCatch({
     )
   }, error = function(err) message(err)
 )
-
-raster <- rast(mht_file)
-
-## to solve the errors above, see below, or use:
-# nolint start
-# tif_file <- inbospatial:::unpack_mht(mht_file)
-# raster <- rast(tif_file)
-# plot(raster, col = gray.colors(256))
-# nolint end
 ```
 
 &#x2026; or, maybe not. The function fails, somehow.
@@ -277,7 +267,6 @@ Here is what I found:
 After some more trial and error, I could construct working URLs in R and generalize this to a function.
 
 ```{r}
-
 get_elevation_wcs <- function(x, y, range_m = 1, tiff_file = NULL) {
   # Please note that this function lacks a lot of
   # assertions and documentation.
@@ -353,7 +342,6 @@ Your browser might detect that the file is an `mht`, or not.
 Here is an example of how to build a query with the current version of DHMV:
 
 ```{r}
-
 url <- parse_url("https://geo.api.vlaanderen.be/DHMV/wcs")
 
 # the query parameters which worked in QGIS
@@ -386,8 +374,8 @@ response <- GET(url = request,
 With the `mht` specifications [found online](https://docs.fileformat.com/web/mht), it is possible to create an unpacking function, which has become part of this very package.
 
 ```{r}
-require("readr")
-require("stringr")
+library("readr")
+library("stringr")
 
 unpack_mht <- function(mht_filepath) {
   lines_raw <- read_lines_raw(mht_filepath)
@@ -414,8 +402,8 @@ This way you get the elevation data extracted:
 
 ```{r}
 tif_file <- unpack_mht(mht_file)
-
 raster <- rast(tif_file)
+plot(raster, col = gray.colors(256))
 ```
 
 
@@ -430,15 +418,12 @@ We now refined the `get_coverage_wcs()` procedure to solve the `mht` issue.
 Here is how to use it, for the same case as above:
 
 ```{r}
-require("sf")
-require("inbospatial")
-
 bbox <- sf::st_bbox(
    c(xmin = 148000, xmax = 149000, ymin = 208000, ymax = 209000),
    crs = sf::st_crs(31370)
 )
-hopo_raster <- get_coverage_wcs(
-  wcs = "DHMV",
+hopo_raster <- inbospatial::get_coverage_wcs(
+  wcs = "dhmv",
   bbox = bbox,
   layername = "DHMVII_DTM_1m",
   version = "2.0.1",
