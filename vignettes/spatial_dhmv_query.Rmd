@@ -27,7 +27,7 @@ Flemish government agencies host a lot of useful web services and data. Some of 
 
 This vignette demonstrates the **query of elevation data from the Digital Elevation Model**, ``Digitaal HoogteModel Vlaanderen`` (DHMV). We will do it "the complicated way", assembling a web API query. [In the end](#orgd59526e), you will see how to use `inbospatial` to get the same result in a single function call.
 
-This vignette is somewhat related to, but goes beyond the use of Web Feature Services (WFS) for spatial data, [see this tutorial by Thierry Onkelinx](https://inbo.github.io/tutorials/tutorials/spatial_wfs_services). In particular, I will document some paths and workarounds to explore if errors occur in the default `ows4R` procedure.
+This vignette is somewhat related to, but goes beyond the use of Web Feature Services (WFS) for spatial data, [see this tutorial by Thierry Onkelinx](https://tutorials.inbo.be/tutorials/spatial_wfs_services/). In particular, I will document some paths and workarounds to explore if errors occur in the default `ows4R` procedure.
 
 **TL;DR:** see the `?inbospatial:get_coverage_wcs` function to query DHMV (or other WCS) data of a given point in Flanders. An example can be found below.
 
@@ -42,9 +42,9 @@ The purpose of the code below is to query elevation data for an arbitrary locati
 
 Unfortunately, documentation about the API is sparse, so let's hope it complies with given standards.
 
-We will use Web Coverage Services (WCS), as standardized by the Open Geospatial Consortium (OGC). More info on these services can be found [in the "Geocomputation with R" book, for example](https://r.geocompx.org/read-write#geographic-web-services). The go-to R package for WCS is `ows4R` by Emmanuel Blondel and contributors, [available on github](https://eblondel.github.io/ows4R).
+We will use Web Coverage Services (WCS), as standardized by the Open Geospatial Consortium (OGC). More info on these services can be found [in the "Geocomputation with R" book, for example](https://r.geocompx.org/read-write#geographic-web-services). The go-to R package for WCS is `ows4R` by Emmanuel Blondel and contributors, [available on github](https://eblondel.github.io/ows4R/).
 
-Unfortunately, neither the geocomputation book's example, nor the vignette in [the `ows4R` package](https://eblondel.github.io/ows4R/articles/wcs.html), nor [the INBO tutorial](https://inbo.github.io/tutorials/tutorials/spatial_wfs_services) could be transferred to the DHMV use case. The code simply did not work.
+Unfortunately, neither the geocomputation book's example, nor the vignette in [the `ows4R` package](https://eblondel.github.io/ows4R/articles/wcs.html), nor [the INBO tutorial](https://tutorials.inbo.be/tutorials/spatial_wfs_services/) could be transferred to the DHMV use case. The code simply did not work.
 
 Therefore, I ended up going back to the nitty-gritty aspects of WCS by **manually building a query**.
 
@@ -55,15 +55,18 @@ Therefore, I ended up going back to the nitty-gritty aspects of WCS by **manuall
 
 Before revealing [the solution](#org803f24d), I will document the error and my path to working around it: the core problem was not trivial to see, and you might run into similar issues.
 
-Because, in fact, the `ows4R` package seems functional. In the tutorial mentioned above, [the `ows4R` package](https://cran.r-project.org/web/packages/ows4R/index.html) is used to query data from web services. However, `ows4R` cannot handle all niche server APIs.
+Because, in fact, the `ows4R` package seems functional. In the tutorial mentioned above, [the `ows4R` package](https://CRAN.R-project.org/package=ows4R) is used to query data from web services. However, `ows4R` cannot handle all niche server APIs.
 
 First, we need to load some packages.
 
 ```{r setup}
 library("httr")
 library("sf")
-library("ows4R")
 library("terra")
+if (!requireNamespace("ows4R", quietly = TRUE)) {
+  install.packages("ows4R")
+}
+library("ows4R")
 ```
 
 We can connect a WCS client.
@@ -214,7 +217,7 @@ How about **[QGIS](https://qgis.org)?** *"Spatial Without Compromise"*, they adv
 
 However, QGIS can actually connect to WCS directly. This does not help much if you need the data in R. Yet, why not.
 
-Look and behold: QGIS can actually connect to <https://geo.api.vlaanderen.be/DHMV/wcs> and query elevation data for Flanders; good indication that the `geo.api` is, somehow, functional. I could zoom and move, export images. I could even export the data. I stopped exporting the data when it threatened to entirely filled my tiny system partition (the raster data is more than 100GB) - good confirmation that we want web services for this.
+Look and behold: QGIS can actually connect to <`https://geo.api.vlaanderen.be/DHMV/wcs`> and query elevation data for Flanders; good indication that the WCS is, somehow, functional. I could zoom and move, export images. I could even export the data. I stopped exporting the data when it threatened to entirely fill my tiny system partition (the raster data is more than 100GB) - good confirmation that we want web services for this.
 
 And, luckily, at some careless map movement, I received an error output from QGIS. With it, QGIS gave me a working URL to query DHMV: 
 
