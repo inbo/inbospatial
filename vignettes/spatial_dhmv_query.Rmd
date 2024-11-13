@@ -44,7 +44,7 @@ Unfortunately, documentation about the API is sparse, so let's hope it complies 
 
 We will use Web Coverage Services (WCS), as standardized by the Open Geospatial Consortium (OGC). More info on these services can be found [in the "Geocomputation with R" book, for example](https://r.geocompx.org/read-write#geographic-web-services). The go-to R package for WCS is `ows4R` by Emmanuel Blondel and contributors, [available on github](https://eblondel.github.io/ows4R).
 
-Unfortunately, neither the geocomputation book's example, nor the vignette in [the `ows4R` package](https://eblondel.github.io/ows4R/articles/wcs.html), nor [the INBO tutorial](https://inbo.github.io/tutorials/tutorials/spatial_wfs_services) could be transferred to the DHMV usecase. The code simply did not work.
+Unfortunately, neither the geocomputation book's example, nor the vignette in [the `ows4R` package](https://eblondel.github.io/ows4R/articles/wcs.html), nor [the INBO tutorial](https://inbo.github.io/tutorials/tutorials/spatial_wfs_services) could be transferred to the DHMV use case. The code simply did not work.
 
 Therefore, I ended up going back to the nitty-gritty aspects of WCS by **manually building a query**.
 
@@ -69,14 +69,17 @@ library("terra")
 We can connect a WCS client.
 
 ```{r}
-WCS <- WCSClient$new("https://geo.api.vlaanderen.be/DHMV/wcs", "2.0.1", logger = "INFO")
+wcs <- WCSClient$new(
+  "https://geo.api.vlaanderen.be/DHMV/wcs", "2.0.1",
+  logger = "INFO"
+)
 ```
 
 
 We can easily query the capabilities:
 
 ```{r}
-caps <- WCS$getCapabilities()
+caps <- wcs$getCapabilities()
 ```
 
 This would grab the same info as you can find in this xml file: <https://geo.api.vlaanderen.be/DHMV/wcs?service=WCS&request=getcapabilities>
@@ -101,7 +104,7 @@ dtm_smry
 
 ```{r}
 # Get description from the WCS client
-dtm_des <- WCS$describeCoverage(feature)
+dtm_des <- wcs$describeCoverage(feature)
 dtm_des
 ```
 
@@ -142,17 +145,17 @@ tryCatch({
     bbox = hopo_boxed,
     filename = mht_file
     )
-  }, error = function (err) {message(err)}
+  }, error = function(err) message(err)
 )
 
 raster <- rast(mht_file)
 
 ## to solve the errors above, see below, or use:
-# require("inbospatial")
-# tif_file <- unpack_mht(mht_file)
+# nolint start
+# tif_file <- inbospatial:::unpack_mht(mht_file)
 # raster <- rast(tif_file)
-# 
 # plot(raster, col = gray.colors(256))
+# nolint end
 ```
 
 &#x2026; or, maybe not. The function fails, somehow.
@@ -180,7 +183,7 @@ Still, the downloaded file is unreadable. Subtle symptom: even if one adjusts th
 
 Opening the file with a text editor such as [vim](https://www.vim.org), we see an XML part, some generic binary stuff, some hints that this [should be a GML](https://en.wikipedia.org/wiki/Geography_Markup_Language).
 
-There are [sample geotiffs online](https://github.com/mommermi/geotiff_sample/blob/master/sample.tif), and they look different, or maybe not. Gml is clearly not geotiff, except maybe for the binary part (which I tried to extract, to no avail).
+There are [sample geoTIFFs online](https://github.com/mommermi/geotiff_sample/blob/master/sample.tif), and they look different, or maybe not. GML is clearly not geoTIFF, except maybe for the binary part (which I tried to extract, to no avail).
 
 The file does not download with an extension on the author's OS and browser. 
 On a different OS, the browser automatically extended it with ".mht".
@@ -211,7 +214,7 @@ How about **[QGIS](https://qgis.org)?** *"Spatial Without Compromise"*, they adv
 
 However, QGIS can actually connect to WCS directly. This does not help much if you need the data in R. Yet, why not.
 
-Look and behold: qgis can actually connect to <https://geo.api.vlaanderen.be/DHMV/wcs> and query elevation data for Flanders; good indication that the `geo.api` is, somehow, functional. I could zoom and move, export images. I could even export the data. I stopped exporting the data when it threatened to entirely filled my tiny system partition (the raster data is more than 100GB) - good confirmation that we want web services for this.
+Look and behold: QGIS can actually connect to <https://geo.api.vlaanderen.be/DHMV/wcs> and query elevation data for Flanders; good indication that the `geo.api` is, somehow, functional. I could zoom and move, export images. I could even export the data. I stopped exporting the data when it threatened to entirely filled my tiny system partition (the raster data is more than 100GB) - good confirmation that we want web services for this.
 
 And, luckily, at some careless map movement, I received an error output from QGIS. With it, QGIS gave me a working URL to query DHMV: 
 
@@ -277,39 +280,39 @@ get_elevation_wcs <- function(x, y, range_m = 1, tiff_file = NULL) {
   # assertions and documentation.
 
   # get bbox
-  bbox = paste(x - range_m, x + range_m,
+  bbox <- paste(x - range_m, x + range_m,
                y - range_m, y + range_m,
                sep = ",")
 
   # the URL components
-  base_url = "https://geo.api.vlaanderen.be"
-  endpoint = "/DHMV/wcs"
+  base_url <- "https://geo.api.vlaanderen.be"
+  endpoint <- "/DHMV/wcs" # nolint: absolute_path_linter
 
   # the query parameters which worked in QGIS
-  elevation_query = list(
+  elevation_query <- list(
     service = "WCS",
     version = "1.0.0",
     request = "GetCoverage",
     format = "GeoTIFF",
     coverage = "DHMVII_DTM_1m",
     bbox = bbox,
-    width = 2*range_m,
-    height = 2*range_m,
+    width = 2 * range_m,
+    height = 2 * range_m,
     crs = "EPSG:31370"
   )
 
   # get wcs data
   if (is.null(tiff_file)) {
-    tiff_file = tempfile(fileext = ".tiff")
+    tiff_file <- tempfile(fileext = ".tiff")
   }
-  res = GET(url = modify_url(base_url, path = endpoint),
-            query = elevation_query,
-            write_disk(tiff_file))
+  GET(url = modify_url(base_url, path = endpoint),
+      query = elevation_query,
+      write_disk(tiff_file))
   # note: saving this to a file is optional,
   # but might prevent double download or loss of data
 
   # re-read raster file
-  data = rast(tiff_file)
+  data <- rast(tiff_file)
 
   return(data)
 
@@ -407,12 +410,9 @@ unpack_mht <- function(mht_filepath) {
 This way you get the elevation data extracted:
 
 ```{r}
-
 tif_file <- unpack_mht(mht_file)
 
 raster <- rast(tif_file)
-# plot(raster, col = gray.colors(256))
-
 ```
 
 
