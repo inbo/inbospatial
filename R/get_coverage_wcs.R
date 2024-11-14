@@ -223,7 +223,7 @@ unpack_mht <- function(path) {
   raw_vector <- read_file_raw(path)
 
   assert_that(any(str_detect(lines_char, "image/tiff")))
-  start <- which(str_detect(lines_char, "^II\\*"))
+  start <- which(str_detect(lines_char, "^(II|MM)\\*"))
   end <- length(lines_raw) - 1
   pos_start <- length(unlist(lines_raw[1:(start - 1)])) + start
   pos_end <- length(raw_vector) - (length(lines_raw[end + 1]) + 1)
