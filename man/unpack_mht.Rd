@@ -2,16 +2,19 @@
 % Please edit documentation in R/get_coverage_wcs.R
 \name{unpack_mht}
 \alias{unpack_mht}
-\title{Unpack or extract the \code{tif} file part from an \code{mht} file}
+\title{Unpack or extract the \code{tif} file part from an \code{mht} file.}
 \usage{
 unpack_mht(path)
 }
 \arguments{
 \item{path}{A path to the \code{mht} file}
 }
+\value{
+tif_path the path to the extracted geoTIFF.
+}
 \description{
 This helper function is needed on some \code{WCS} services from which an \code{mht}
-file is downloaded rather than a \code{tif} file
+file is downloaded rather than a \code{tif} file; returns the path to the \code{tif}
 }
 \details{
 Need three ways to read in the \code{mht} file to get the \code{tif} file out.

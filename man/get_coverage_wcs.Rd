@@ -5,11 +5,11 @@
 \title{Get a layer from a web coverage service within a bounding box}
 \usage{
 get_coverage_wcs(
-  wcs = c("dtm", "dsm", "omz", "omw"),
+  wcs = c("dtm", "dsm", "omz", "omw", "dhmv"),
   bbox,
   layername,
   resolution,
-  wcs_crs = "EPSG:4258",
+  wcs_crs = c("EPSG:4258", "EPSG:31370"),
   output_crs = "EPSG:31370",
   bbox_crs = "EPSG:31370",
   version = c("1.0.0", "2.0.1"),
@@ -17,7 +17,7 @@ get_coverage_wcs(
 )
 }
 \arguments{
-\item{wcs}{One of \code{"dtm"}, \code{"dsm"}, \code{"omz"}, \code{"omw"}}
+\item{wcs}{One of \code{"dtm"}, \code{"dsm"}, \code{"omz"}, \code{"omw"}, \code{"dhmv"}}
 
 \item{bbox}{An object of class bbox of length 4.}
 
@@ -42,7 +42,7 @@ A \code{SpatRaster} object
 \description{
 The function sends a query to a WCS service, downloads it to a temporary file
 from which it is read with \code{terra::rast()} - if needed reprojected -
-and returned as a \code{SpatRaster}object
+and returned as a \code{SpatRaster} object
 }
 \details{
 The following WCS services can currently be used:
@@ -51,7 +51,9 @@ The following WCS services can currently be used:
 \item \code{"omw"}: orthophotomosaic winter images Flanders
 \item \code{"dtm"}: digital terrain model Flanders
 \item \code{"dsm"}: digital surface model Flanders
-See \href{https://metadata.vlaanderen.be/metadatacenter/srv/dut/catalog.search#/search?keyword=OGC:WCS}{metadata Vlaanderen} for more information # nolint: line_length_linter.
+\item \code{"dhmv"}: digital elevation model Flanders (contains dtm and dsm data)
+For more information, see metadata Vlaanderen:
+https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS
 }
 }
 \examples{

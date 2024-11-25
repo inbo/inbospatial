@@ -6,7 +6,7 @@
 #' The request is made up of key-value pairs and additional key-value pairs can
 #' be passed to the function.
 #' The full documentation for the `WFS` standard can be consulted from
-#' \url{https://www.ogc.org/standard/wfs/}.
+#' \url{https://www.ogc.org/publications/standard/wfs/}.
 #'
 #' @param wfs Web address for the service which you want to query features from
 #' @param version Version number for the service.
@@ -18,7 +18,8 @@
 #' Pass this as a named vector with names `"xmin"`, `"xmax"`, `"ymin"`,
 #' `"ymax"`.
 #' @param filter Optional
-#' [standard OGC filter](https://www.ogc.org/standard/filter/) specification
+#' [standard OGC filter](https://www.ogc.org/publications/standard/filter/)
+#' specification
 #' @param cql_filter Optional
 #' [Contextual Query Language](https://portal.ogc.org/files/96288) filter.
 #' This currently only works if the `WFS` is hosted on a `GeoServer`.
@@ -40,7 +41,7 @@
 #' @importFrom assertthat assert_that is.string
 #'
 #' @details See
-#' \url{https://inbo.github.io/tutorials/tutorials/spatial_wfs_services/}
+#' \url{https://tutorials.inbo.be/tutorials/spatial_wfs_services/}
 #'  for more information.
 #' @family topics on using web services
 #'
@@ -187,6 +188,7 @@ store_as_gml <- function(content, ...) {
   UseMethod("store_as_gml", content)
 }
 
+#' @export
 store_as_gml.raw <- function(
     content, destfile = tempfile(fileext = "gml"), ...) {
   writeBin(content, destfile, useBytes = TRUE)
