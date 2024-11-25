@@ -90,7 +90,7 @@ This would grab the same info as you can find in this xml file: <https://geo.api
 Note that the *capabilities* xml holds a lot of valuable information:
 
 -   First and foremost, search it for `CoverageID`; in this case, I was interested in `DHMVII_DTM_1m`: grid coverage of the LIDAR elevation data for Flanders.
--   We can also find that the Coordinate Reference System (CRS) `crsSupported` is [`r sf::st_crs("EPSG:31370")$Name`](https://epsg.io/31370). Always good to know.
+-   We can also find that the Coordinate Reference System (CRS) `crsSupported` is [`r sf::st_crs("EPSG:31370")$Name`](https://epsg.org/crs_31370/BD72-Belgian-Lambert-72.html). Always good to know.
 -   Finally, the capabilities xml provides a `version`: 2.0.1 at the time of writing. Yet keep that in mind for a bit.
 
 The "capabilities" are, per OGC standards, your go-to place for finding WCS documentation.
