@@ -1,6 +1,9 @@
+url: https://inbo.github.io/inbospatial/
+
 template:
   bootstrap: 5
   light-switch: false
+
 navbar:
   title: ~
   type: default

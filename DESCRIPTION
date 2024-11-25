@@ -15,7 +15,7 @@ Description: Useful R functions developed at the Research Institute for
     Nature and Forest (INBO) for dealing with spatial raster or vector
     data.
 License: MIT + file LICENSE
-URL: https://github.com/inbo/inbospatial
+URL: https://github.com/inbo/inbospatial, https://inbo.github.io/inbospatial
 BugReports: https://github.com/inbo/inbospatial/issues
 Imports: 
     assertthat,
