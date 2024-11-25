@@ -1,0 +1,10 @@
+pandoc: '3.5'
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles:
+  spatial_dhmv_query: spatial_dhmv_query.html
+  wfs_wcs: wfs_wcs.html
+last_built: 2024-11-25T16:07Z
+urls:
+  reference: https://inbo.github.io/inbospatial/reference
+  article: https://inbo.github.io/inbospatial/articles
