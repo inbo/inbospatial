@@ -16,7 +16,7 @@ Description: Useful R functions developed at the Research Institute for
     data.
 License: MIT + file LICENSE
 URL: https://github.com/inbo/inbospatial,
-    https://inbo.github.io/inbospatial
+    https://inbo.github.io/inbospatial/
 BugReports: https://github.com/inbo/inbospatial/issues
 Imports: 
     assertthat,
