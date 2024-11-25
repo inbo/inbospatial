@@ -42,7 +42,7 @@ A \code{SpatRaster} object
 \description{
 The function sends a query to a WCS service, downloads it to a temporary file
 from which it is read with \code{terra::rast()} - if needed reprojected -
-and returned as a \code{SpatRaster}object
+and returned as a \code{SpatRaster} object
 }
 \details{
 The following WCS services can currently be used:
@@ -52,7 +52,8 @@ The following WCS services can currently be used:
 \item \code{"dtm"}: digital terrain model Flanders
 \item \code{"dsm"}: digital surface model Flanders
 \item \code{"dhmv"}: digital elevation model Flanders (contains dtm and dsm data)
-See \href{https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS}{metadata Vlaanderen} for more information # nolint: line_length_linter.
+For more information, see metadata Vlaanderen:
+https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS
 }
 }
 \examples{

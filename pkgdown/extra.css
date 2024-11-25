@@ -24,9 +24,13 @@ a:hover {
 
 .navbar,
 .navbar-brand,
-.nav-link,
+.navbar .nav-link,
 .nav-text.text-muted {
   color: #ffffff !important;
+}
+
+.nav-link {
+  color: #5e5e5e !important;
 }
 
 .nav-pills li.active>a, .nav-pills li>a:hover {

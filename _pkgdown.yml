@@ -1,11 +1,14 @@
+url: https://inbo.github.io/inbospatial/
+
 template:
   bootstrap: 5
   light-switch: false
+
 navbar:
   title: ~
   type: default
   structure:
-    left:  [intro, reference, news, tutorials, contributing]
+    left:  [intro, reference, articles, tutorials, news, contributing]
     right: [search, github]
 
 authors:

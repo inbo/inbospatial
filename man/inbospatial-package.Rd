@@ -12,6 +12,7 @@ Useful R functions developed at the Research Institute for Nature and Forest (IN
 Useful links:
 \itemize{
   \item \url{https://github.com/inbo/inbospatial}
+  \item \url{https://inbo.github.io/inbospatial/}
   \item Report bugs at \url{https://github.com/inbo/inbospatial/issues}
 }
 

@@ -24,4 +24,7 @@ repository-code: https://github.com/inbo/inbospatial/
 type: software
 abstract: "Useful R functions developed at the Research Institute for Nature and Forest
   (INBO) for dealing with spatial raster or vector data."
+identifiers:
+- type: url
+  value: https://inbo.github.io/inbospatial/
 version: 0.0.3

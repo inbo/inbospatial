@@ -5,9 +5,9 @@ bibentry(
   title = "inbospatial: A Collection of Useful R Functions for Spatial Data. Version 0.0.3",
   author = c( author = c(person(given = "Hans", family = "Van Calster"))),
   year = 2024,
-  url = "https://github.com/inbo/inbospatial/",
+  url = "https://inbo.github.io/inbospatial/",
   abstract = "Useful R functions developed at the Research Institute for Nature and Forest (INBO) for dealing with spatial raster or vector data.",
-  textVersion = "Van Calster, Hans (2024) inbospatial: A Collection of Useful R Functions for Spatial Data. Version 0.0.3. https://github.com/inbo/inbospatial/",
+  textVersion = "Van Calster, Hans (2024) inbospatial: A Collection of Useful R Functions for Spatial Data. Version 0.0.3. https://inbo.github.io/inbospatial/",
   keywords = "spatial; geospatial; utilities; GIS; raster; vector",
 )
 # end checklist entry

@@ -25,7 +25,7 @@ Flemish government agencies host a lot of useful web services and data. Some of 
 -   <https://www.vlaanderen.be/datavindplaats/catalogus>
 
 
-This vignette demonstrates the **query of elevation data from the Digital Elevation Model**, ``Digitaal HoogteModel Vlaanderen`` (DHMV). We will do it "the complicated way", assembling a web API query. [In the end](#orgd59526e), you will see how to use `inbospatial` to get the same result in a single function call.
+This vignette demonstrates the **query of elevation data from the Digital Elevation Model**, ``Digitaal HoogteModel Vlaanderen`` (DHMV). We will do it "the complicated way", assembling a Web Coverage Service (WCS) query. [In the end](#orgd59526e), you will see how to use `inbospatial` to get the same result in a single function call.
 
 This vignette is somewhat related to, but goes beyond the use of Web Feature Services (WFS) for spatial data, [see this tutorial by Thierry Onkelinx](https://tutorials.inbo.be/tutorials/spatial_wfs_services/). In particular, I will document some paths and workarounds to explore if errors occur in the default `ows4R` procedure.
 
@@ -40,7 +40,7 @@ The purpose of the code below is to query elevation data for an arbitrary locati
 
 -   <https://www.vlaanderen.be/datavindplaats/catalogus/wcs-digitaal-hoogtemodel-vlaanderen>
 
-Unfortunately, documentation about the API is sparse, so let's hope it complies with given standards.
+Unfortunately, documentation about the WCS is sparse, so let's hope it complies with given standards.
 
 We will use Web Coverage Services (WCS), as standardized by the Open Geospatial Consortium (OGC). More info on these services can be found [in the "Geocomputation with R" book, for example](https://r.geocompx.org/read-write#geographic-web-services). The go-to R package for WCS is `ows4R` by Emmanuel Blondel and contributors, [available on github](https://eblondel.github.io/ows4R/).
 
@@ -55,7 +55,7 @@ Therefore, I ended up going back to the nitty-gritty aspects of WCS by **manuall
 
 Before revealing [the solution](#org803f24d), I will document the error and my path to working around it: the core problem was not trivial to see, and you might run into similar issues.
 
-Because, in fact, the `ows4R` package seems functional. In the tutorial mentioned above, [the `ows4R` package](https://CRAN.R-project.org/package=ows4R) is used to query data from web services. However, `ows4R` cannot handle all niche server APIs.
+Because, in fact, the `ows4R` package seems functional. In the tutorial mentioned above, [the `ows4R` package](https://CRAN.R-project.org/package=ows4R) is used to query data from web services. However, `ows4R` cannot handle all niche server interfaces.
 
 First, we need to load some packages.
 
@@ -90,10 +90,10 @@ This would grab the same info as you can find in this xml file: <https://geo.api
 Note that the *capabilities* xml holds a lot of valuable information:
 
 -   First and foremost, search it for `CoverageID`; in this case, I was interested in `DHMVII_DTM_1m`: grid coverage of the LIDAR elevation data for Flanders.
--   We can also find that the Coordinate Reference System (CRS) `crsSupported` is EPSG:31370, aka. [Belgian Lambert 72](https://epsg.io/31370). Always good to know.
+-   We can also find that the Coordinate Reference System (CRS) `crsSupported` is [`r sf::st_crs("EPSG:31370")$Name`](https://epsg.org/crs_31370/BD72-Belgian-Lambert-72.html). Always good to know.
 -   Finally, the capabilities xml provides a `version`: 2.0.1 at the time of writing. Yet keep that in mind for a bit.
 
-The "capabilities" are, per OGC standards, your go-to place for finding API documentation.
+The "capabilities" are, per OGC standards, your go-to place for finding WCS documentation.
 
 In R, we can receive further information conveniently via `ows4R`. This works via the "coverage summary" &#x2026;
 
@@ -252,7 +252,7 @@ Compare this to the (unsuccessful) `ows4R` attempt:
 | format              | image/tiff                        |
 | request             | GetCoverage                       |
 
-You can selectively shuffle and adjust components, generalizing the working query and learning about the WCS API. Which feels a bit like [fuzzing](https://en.wikipedia.org/wiki/Fuzzing) the `geo.api`.
+You can selectively shuffle and adjust components, generalizing the working query and learning about the WCS interface. Which feels a bit like [fuzzing](https://en.wikipedia.org/wiki/Fuzzing) the WCS.
 
 Here is what I found:
 
@@ -325,9 +325,9 @@ extract(test_raster, cbind(x_test, y_test))[[1]]
 ```
 
 
-Voila! We can now get the elevation of a given location in Flanders via DHMV web services.
+Voilà! We can now get the elevation of a given location in Flanders via DHMV web services.
 
-Major grain of salt: we could not use the latest version, `v2.0.1`, of the DHMV API.
+Major grain of salt: we could not use the latest version, `v2.0.1`, of the DHMV WCS.
 This is not a minor limitation, and should be taken seriously: old versions become obsolete, break, or stop data updates.
 
 
@@ -412,7 +412,7 @@ plot(raster, col = gray.colors(256))
 
 # The "`inbospatial`" Way
 
-Colleague [Hans Van Calster](https://github.com/hansvancalster) had been facing the same problems with related APIs a year earlier, and he wrote a function for it in [the \`inbospatial\` package](https://github.com/inbo/inbospatial).
+Colleague [Hans Van Calster](https://github.com/hansvancalster) had been facing the same problems with related WCS layers a year earlier, and he wrote a function for it in [the \`inbospatial\` package](https://github.com/inbo/inbospatial).
 We now refined the `get_coverage_wcs()` procedure to solve the `mht` issue.
 
 Here is how to use it, for the same case as above:
@@ -434,7 +434,7 @@ hopo_raster <- inbospatial::get_coverage_wcs(
 plot(hopo_raster, col = gray.colors(256))
 ```
 
-The function gives you quite some options of APIs to query data from.
+The function gives you quite some options of WCS layers to query data from.
 
 
 | **WCS**  | **layer name**           | **reference** |
@@ -456,25 +456,29 @@ The burden of choice!
 
 # *Post Mortem*
 
-The value of this vignette seems to be limited: in essence, it provides the specific query function arguments for elevation model queries with the `geo.api` of the Flemish digital services. Quite a niche use case.
+  The value of this vignette seems to be limited: in essence, it provides the specific query function arguments for elevation model queries with the `geo.api` WCS of the Flemish digital services. Quite a niche use case.
 
 However, this is also a story of tracing errors in existing tools, and scraping other tools for hints.
 
 Can we actually trace the error back to a source? It was pure co-incidence that QGIS provided a working link, or are there general strategies?
+As colleague [@florisvdh pointed out,](https://github.com/inbo/inbospatial/pull/14#discussion_r1853858729) [QGIS](https://github.com/qgis/QGIS) generally has good heuristics to infer a web service URL, and choose parameter values which work. 
+Once a web service layer is successfully loaded in QGIS, one can inspect URLs and metadata in the layer properties.
+The QGIS dialogue to add a web service layer is also helpful in exploring available layers of a web service.
+
 
 In retrospective, the initial issue was worsened by unfavourable circumstances.
 
--   `ows4R` retrieved a file and produced an error; another error was only thrown downstream. Neither `ows4R`, nor `terra`, `sf`, `rasterio`, or `qgis` were able to handle `mht` files. This lack of support questions the API's design choice of packing and sending an `mht`.
--   Documentation for the `geo.api` is lacking (or I did not find it); in particularly I missed usage examples, vignettes, or tests.
+-   `ows4R` retrieved a file and produced an error; another error was only thrown downstream. Neither `ows4R`, nor `terra`, `sf`, `rasterio`, or `qgis` were able to handle `mht` files. This lack of support questions the WCS design choice of packing and sending an `mht`.
+-   Documentation for the `geo.api.vlaanderen.be` WCS is lacking (or I did not find it); in particularly I missed usage examples, vignettes, or tests.
 
 The colleagues at ``Digitaal Vlaanderen`` or the DHMV group certainly had enough work on their table, yet more documentation would be desirable. Same for `ows4R`, judging by their [github issue list](https://github.com/eblondel/ows4R/issues) (see e.g. [this one](https://github.com/eblondel/ows4R/issues/114)). On the other hand, [QGIS is free- and open source](https://en.wikipedia.org/wiki/QGIS), its queries seem to be well maintained and are accessible, errors are transparent, I could have read the source code - a good example piece of software.
 
 
 Yet in general, if you run into issues like this, do not hesitate to contact support or [file a github issue](https://github.com/eblondel/ows4R/issues/114).
-You should not need to fuzz an API.
+You should not need to fuzz a WCS.
 
 
-Thank you for reading, and may all your spatial API queries be successful!
+Thank you for reading, and may all your spatial queries be successful!
 
 
 # Table of Contents
