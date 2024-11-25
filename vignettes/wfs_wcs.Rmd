@@ -148,23 +148,16 @@ This is a list of all KMI stations.
 You can plot it with `leaflet` or `mapview` to see the stations on a map and learn that -for instance- Ukkel has code 6447.
 So let's extract the maximum daily temperatures for Ukkel starting from the year 2000.
 
-```{r kmi}
-kmi_synop <- NULL
-tryCatch( {
-  kmi_synop <- get_feature_wfs(
-    wfs = kmi,
-    layername = "synop:synop_data",
-    property_name = paste("code", "timestamp", "temp_max",
-      "the_geom",
-      sep = ","
-    ),
-    cql_filter = "((code = 6447) AND (temp_max IS NOT NULL) AND
+```{r kmi, error=TRUE}
+kmi_synop <- get_feature_wfs(
+  wfs = kmi,
+  layername = "synop:synop_data",
+  property_name = paste(
+    "code", "timestamp", "temp_max", "the_geom",
+    sep = ","
+  ),
+  cql_filter = "((code = 6447) AND (temp_max IS NOT NULL) AND
     (timestamp >= '2000-01-01 00:00:00.000'))"
-  )
-}, error = function(err) {
-  message("KMI temperature query for Ukkel failed:")
-  message(conditionMessage(err))
-}
 )
 
 kmi_synop
