@@ -2,7 +2,7 @@
 #'
 #' The function sends a query to a WCS service, downloads it to a temporary file
 #' from which it is read with `terra::rast()` - if needed reprojected -
-#' and returned as a `SpatRaster`object
+#' and returned as a `SpatRaster` object
 #'
 #' @param wcs One of `"dtm"`, `"dsm"`, `"omz"`, `"omw"`, `"dhmv"`
 #' @param bbox An object of class bbox of length 4.
@@ -21,7 +21,8 @@
 #'   - `"dtm"`: digital terrain model Flanders
 #'   - `"dsm"`: digital surface model Flanders
 #'   - `"dhmv"`: digital elevation model Flanders (contains dtm and dsm data)
-#' See [metadata Vlaanderen](https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS) for more information # nolint: line_length_linter.
+#' For more information, see metadata Vlaanderen:
+#'   https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS
 #'
 #' @importFrom sf st_as_sf st_transform st_coordinates
 #' @importFrom terra rast `res<-` project
