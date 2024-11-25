@@ -462,8 +462,8 @@ However, this is also a story of tracing errors in existing tools, and scraping 
 
 Can we actually trace the error back to a source? It was pure co-incidence that QGIS provided a working link, or are there general strategies?
 As colleague [@florisvdh pointed out,](https://github.com/inbo/inbospatial/pull/14#discussion_r1853858729) [QGIS](https://github.com/qgis/QGIS) generally has good heuristics to infer a web service URL, and choose parameter values which work. 
-Once a web service layer is succesfully loaded in QGIS, one can inspect URLs and metadata in the layer properties.
-The QGIS dialog to add a webservice layer is also helpful in exploring available layers of a web service. 
+Once a web service layer is successfully loaded in QGIS, one can inspect URLs and metadata in the layer properties.
+The QGIS dialogue to add a web service layer is also helpful in exploring available layers of a web service.
 
 
 In retrospective, the initial issue was worsened by unfavourable circumstances.
