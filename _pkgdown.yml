@@ -1,12 +1,12 @@
 template:
   bootstrap: 5
-  light-switch: false
+  light-switch: true
 navbar:
   title: ~
   type: default
   structure:
-    left:  [intro, reference, news, tutorials, contributing]
-    right: [search, github]
+    left:  [intro, reference, articles, tutorials, news, contributing]
+    right: [search, github, lightswitch]
 
 authors:
   Research Institute for Nature and Forest (INBO):
