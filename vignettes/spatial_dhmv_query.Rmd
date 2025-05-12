@@ -134,7 +134,7 @@ hopo_boxed <- OWSUtils$toBBOX(
   xmax = x_test + range_m,
   ymin = y_test - range_m,
   ymax = y_test + range_m
-  )
+)
 ```
 
 I will write the file to disk:
@@ -146,8 +146,8 @@ tryCatch({
   dtm_data <- dtm_smry$getCoverage(
     bbox = hopo_boxed,
     filename = mht_file
-    )
-  }, error = function(err) message(err)
+  )
+}, error = function(err) message(err)
 )
 ```
 
@@ -272,9 +272,11 @@ get_elevation_wcs <- function(x, y, range_m = 1, tiff_file = NULL) {
   # assertions and documentation.
 
   # get bbox
-  bbox <- paste(x - range_m, x + range_m,
-               y - range_m, y + range_m,
-               sep = ",")
+  bbox <- paste(
+    x - range_m, x + range_m,
+    y - range_m, y + range_m,
+    sep = ","
+  )
 
   # the URL components
   base_url <- "https://geo.api.vlaanderen.be"
@@ -367,8 +369,10 @@ mht_file <- tempfile(fileext = ".mht")
 print(request)
 print(mht_file)
 
-response <- GET(url = request,
-          write_disk(mht_file))
+response <- GET(
+  url = request,
+  write_disk(mht_file)
+)
 ```
 
 With the `mht` specifications [found online](https://docs.fileformat.com/web/mht), it is possible to create an unpacking function, which has become part of this very package.
@@ -419,8 +423,8 @@ Here is how to use it, for the same case as above:
 
 ```{r}
 bbox <- sf::st_bbox(
-   c(xmin = 148000, xmax = 149000, ymin = 208000, ymax = 209000),
-   crs = sf::st_crs(31370)
+  c(xmin = 148000, xmax = 149000, ymin = 208000, ymax = 209000),
+  crs = sf::st_crs(31370)
 )
 hopo_raster <- inbospatial::get_coverage_wcs(
   wcs = "dhmv",
