@@ -219,19 +219,19 @@ get_coverage_wcs <- function(
 #' possibly a bug or edge case in `write_lines()`
 #' Therefore, also `read_file_raw()` needed to extract from the raw vector
 unpack_mht <- function(path) {
-  lines_raw <- read_lines_raw(path)
-  lines_char <- suppressWarnings(read_lines(path))
-  raw_vector <- read_file_raw(path)
+  lines_raw <- readr::read_lines_raw(path)
+  lines_char <- suppressWarnings(readr::read_lines(path, progress = FALSE))
+  raw_vector <- readr::read_file_raw(path)
 
-  assert_that(any(str_detect(lines_char, "image/tiff")))
-  start <- which(str_detect(lines_char, "^(II|MM)\\*"))
+  assertthat::assert_that(any(stringr::str_detect(lines_char, "image/tiff")))
+  start <- which(stringr::str_detect(lines_char, "^(II|MM)\\*"))
   end <- length(lines_raw) - 1
   pos_start <- length(unlist(lines_raw[1:(start - 1)])) + start
   pos_end <- length(raw_vector) - (length(lines_raw[end + 1]) + 1)
 
   tif <- raw_vector[pos_start:pos_end]
-  tif_path <- str_replace(path, "mht", "tif")
-  write_file(
+  tif_path <- stringr::str_replace(path, "mht", "tif")
+  readr::write_file(
     tif,
     tif_path
   )
