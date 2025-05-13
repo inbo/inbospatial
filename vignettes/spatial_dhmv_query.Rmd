@@ -63,9 +63,6 @@ First, we need to load some packages.
 library("httr")
 library("sf")
 library("terra")
-# if (!requireNamespace("ows4R", quietly = TRUE)) {
-#   install.packages("ows4R")
-# }
 library("ows4R")
 ```
 
@@ -398,7 +395,7 @@ unpack_mht <- function(path) {
     tif,
     tif_path
   )
-  return(tif_path)
+  tif_path
 }
 ```
 
