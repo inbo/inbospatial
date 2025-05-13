@@ -34,7 +34,7 @@ Pass this as a named vector with names \code{"xmin"}, \code{"xmax"}, \code{"ymin
 \code{"ymax"}.}
 
 \item{filter}{Optional
-\href{https://www.ogc.org/publications/standard/filter/}{standard OGC filter}
+\href{https://www.ogc.org/standards/filter/}{standard OGC filter}
 specification}
 
 \item{cql_filter}{Optional
@@ -63,7 +63,7 @@ features that are requested.
 The request is made up of key-value pairs and additional key-value pairs can
 be passed to the function.
 The full documentation for the \code{WFS} standard can be consulted from
-\url{https://www.ogc.org/publications/standard/wfs/}.
+\url{https://www.ogc.org/standards/wfs/}.
 }
 \details{
 See

@@ -6,7 +6,7 @@
 #' The request is made up of key-value pairs and additional key-value pairs can
 #' be passed to the function.
 #' The full documentation for the `WFS` standard can be consulted from
-#' \url{https://www.ogc.org/standard/wfs/}.
+#' \url{https://www.ogc.org/standards/wfs/}.
 #'
 #' @param wfs Web address for the service which you want to query features from
 #' @param version Version number for the service.
@@ -18,7 +18,7 @@
 #' Pass this as a named vector with names `"xmin"`, `"xmax"`, `"ymin"`,
 #' `"ymax"`.
 #' @param filter Optional
-#' [standard OGC filter](https://www.ogc.org/standard/filter/)
+#' [standard OGC filter](https://www.ogc.org/standards/filter/)
 #' specification
 #' @param cql_filter Optional
 #' [Contextual Query Language](https://portal.ogc.org/files/96288) filter.
