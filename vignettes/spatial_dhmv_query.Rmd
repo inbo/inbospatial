@@ -189,7 +189,7 @@ Well, there is advanced software to open GeoTIFF'esque files. Or geography marku
 
 First, if R failed, Python might work.
 
-```{python}
+```
 import rasterio
 import rasterio.plot
 
