@@ -63,16 +63,13 @@ First, we need to load some packages.
 library("httr")
 library("sf")
 library("terra")
-if (!requireNamespace("ows4R", quietly = TRUE)) {
-  install.packages("ows4R")
-}
 library("ows4R")
 ```
 
 We can connect a WCS client.
 
 ```{r}
-wcs <- WCSClient$new(
+wcs <- ows4R::WCSClient$new(
   "https://geo.api.vlaanderen.be/DHMV/wcs", "2.0.1",
   logger = "INFO"
 )
@@ -129,7 +126,7 @@ x_test <- 148600
 y_test <- 208900
 range_m <- 2 # (+/- m)
 
-hopo_boxed <- OWSUtils$toBBOX(
+hopo_boxed <- ows4R::OWSUtils$toBBOX(
   xmin = x_test - range_m,
   xmax = x_test + range_m,
   ymin = y_test - range_m,
@@ -344,7 +341,7 @@ Your browser might detect that the file is an `mht`, or not.
 Here is an example of how to build a query with the current version of DHMV:
 
 ```{r}
-url <- parse_url("https://geo.api.vlaanderen.be/DHMV/wcs")
+url <- httr::parse_url("https://geo.api.vlaanderen.be/DHMV/wcs")
 
 # the query parameters which worked in QGIS
 url$query <- list(
@@ -360,7 +357,7 @@ url$query <- list(
   RESPONSE_CRS = "EPSG:31370"
 )
 
-request <- build_url(url)
+request <- httr::build_url(url)
 
 
 # get wcs data
@@ -369,7 +366,7 @@ mht_file <- tempfile(fileext = ".mht")
 print(request)
 print(mht_file)
 
-response <- GET(
+response <- httr::GET(
   url = request,
   write_disk(mht_file)
 )
@@ -381,23 +378,24 @@ With the `mht` specifications [found online](https://docs.fileformat.com/web/mht
 library("readr")
 library("stringr")
 
-unpack_mht <- function(mht_filepath) {
-  lines_raw <- read_lines_raw(mht_filepath)
-  lines_char <- suppressWarnings(read_lines(mht_filepath))
-  raw_vector <- read_file_raw(mht_filepath)
+unpack_mht <- function(path) {
+  lines_raw <- readr::read_lines_raw(path)
+  lines_char <- suppressWarnings(readr::read_lines(path, progress = FALSE))
+  raw_vector <- readr::read_file_raw(path)
 
-  start <- which(str_detect(lines_char, "^II\\*"))
+  assertthat::assert_that(any(stringr::str_detect(lines_char, "image/tiff")))
+  start <- which(stringr::str_detect(lines_char, "^(II|MM)\\*"))
   end <- length(lines_raw) - 1
   pos_start <- length(unlist(lines_raw[1:(start - 1)])) + start
   pos_end <- length(raw_vector) - (length(lines_raw[end + 1]) + 1)
 
   tif <- raw_vector[pos_start:pos_end]
-  tif_path <- str_replace(mht_filepath, "mht", "tif")
-  write_file(
+  tif_path <- stringr::str_replace(path, "mht", "tif")
+  readr::write_file(
     tif,
     tif_path
   )
-  return(tif_path)
+  tif_path
 }
 ```
 
@@ -406,7 +404,7 @@ This way you get the elevation data extracted:
 
 ```{r}
 tif_file <- unpack_mht(mht_file)
-raster <- rast(tif_file)
+raster <- terra::rast(tif_file)
 plot(raster, col = gray.colors(256))
 ```
 
