@@ -33,7 +33,7 @@ The tutorial takes a more hands-on coding approach to getting data from a WFS, w
 
 ## Simple use case without filter
 
-As a test case, we will query municipal boundaries of Flanders from the "Provisional Reference Municipal Boundaries" (`VRBG`, `Voorlopig ReferentieBestand Gemeentegrenzen`), which is available via an API on the `vlaanderen.be` website.
+As a test case, we will query provincial boundaries of Flanders from a layer of the "Provisional Reference of Municipal Boundaries" (`VRBG`, `Voorlopig ReferentieBestand Gemeentegrenzen`), which is available via an API on the `vlaanderen.be` website.
 
 ```{r provinces}
 wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
