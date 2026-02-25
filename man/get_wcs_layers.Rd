@@ -13,7 +13,7 @@ get_wcs_layers(
 \arguments{
 \item{wcs}{One of \code{"dtm"}, \code{"dsm"}, \code{"omz"}, \code{"omw"}, \code{"dhmv"}}
 
-\item{version}{\code{WCS} version to be used. Default is \code{"1.0.0"}.}
+\item{version}{\code{WCS} version to be used. Default is \verb{1.0.0}.}
 
 \item{...}{Additional key-value pairs passed on to the \code{WCS} query}
 }

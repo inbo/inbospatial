@@ -5,9 +5,7 @@
 #' the names of the available layers, their descriptions, and
 #' their resolutions.
 #'
-#' @param wcs One of `"dtm"`, `"dsm"`, `"omz"`, `"omw"`, `"dhmv"`
-#' @param version `WCS` version to be used. Default is `"1.0.0"`.
-#' @param ... Additional key-value pairs passed on to the `WCS` query
+#' @inheritParams get_coverage_wcs
 #'
 #' @details The following WCS services can currently be used:
 #'   - `"omz"`: orthophotomosaic summer images Flanders
@@ -20,7 +18,7 @@
 #'
 #' @importFrom assertthat assert_that
 #' @importFrom httr parse_url build_url GET stop_for_status content
-#' @importFrom xml2 read_xml xml_ns_strip xml_find_all xml_find_first xml_text
+#' @importFrom xml2 read_xml xml_find_all xml_find_first xml_text
 #' @importFrom stringr str_extract str_to_lower
 #'
 #' @export
@@ -68,7 +66,7 @@ get_wcs_layers <- function(
   # raise http errors
   stop_for_status(http_response)
 
-  # parse the xml response (skipping the unreliable xml_ns_strip)
+  # parse the xml response
   xml_data <- read_xml(content(http_response, as = "text", encoding = "UTF-8"))
 
   # Helper function to extract text bypassing namespaces

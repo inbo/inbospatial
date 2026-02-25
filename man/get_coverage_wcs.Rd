@@ -32,7 +32,7 @@ May involve reprojection.}
 
 \item{bbox_crs}{CRS in which bbox coordinates are passed}
 
-\item{version}{\code{WCS} version to be used.}
+\item{version}{\code{WCS} version to be used. Default is \verb{1.0.0}.}
 
 \item{...}{Additional key-value pairs passed on to the \code{WCS} query}
 }

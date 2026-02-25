@@ -12,7 +12,7 @@
 #' @param output_crs Output CRS.
 #' May involve reprojection.
 #' @param bbox_crs CRS in which bbox coordinates are passed
-#' @param version `WCS` version to be used.
+#' @param version `WCS` version to be used. Default is `1.0.0`.
 #' @param ... Additional key-value pairs passed on to the `WCS` query
 #'
 #' @details The following WCS services can currently be used:
