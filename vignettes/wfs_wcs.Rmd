@@ -294,4 +294,26 @@ dtm <- get_coverage_wcs(
 terra::plot(dtm)
 ```
 
+And another example using the `Hillshade` layer from the "dhmv": digital elevation model Flanders:
+
+```{r dhmv-example}
+hill <- get_coverage_wcs(
+  "dhmv",
+  bbox = bbox,
+  layername = "DHMV_II_HILL_25cm",
+  resolution = 0.25,
+  wcs_crs = "EPSG:31370"
+  )
+plot(hill)
+```
+
+
+To know which layers are available in a given WCS service, you can use the following code:
+
+```{r}
+get_wcs_layers(wcs = "dhmv") |>
+  knitr::kable()
+```
+
+
 More details on WCS can be found in the `spatial_dhmv_query.Rmd` vignette.
