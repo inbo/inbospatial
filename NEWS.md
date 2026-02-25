@@ -1,5 +1,10 @@
 # inbospatial 0.0.4
 
+## Features
+
+* New function `get_wcs_layers()` to see which layers (name and description)
+  are available for a given `WCS` service.
+
 ## Bug fixes
 
 * A parameter setting in the `unpack_mht(path)` function 
