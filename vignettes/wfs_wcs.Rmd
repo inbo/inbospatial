@@ -303,7 +303,7 @@ hill <- get_coverage_wcs(
   layername = "DHMV_II_HILL_25cm",
   resolution = 0.25,
   wcs_crs = "EPSG:31370"
-  )
+)
 plot(hill)
 ```
 
