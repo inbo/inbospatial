@@ -91,6 +91,7 @@ vlaanderen <- get_feature_wfs(
 Other topics on using web services: 
 \code{\link{add_wms_be_cartoweb}()},
 \code{\link{add_wmts_nl_brt}()},
-\code{\link{get_coverage_wcs}()}
+\code{\link{get_coverage_wcs}()},
+\code{\link{get_wcs_layers}()}
 }
 \concept{topics on using web services}

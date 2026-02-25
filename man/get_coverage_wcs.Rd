@@ -75,6 +75,7 @@ get_coverage_wcs(
 Other topics on using web services: 
 \code{\link{add_wms_be_cartoweb}()},
 \code{\link{add_wmts_nl_brt}()},
-\code{\link{get_feature_wfs}()}
+\code{\link{get_feature_wfs}()},
+\code{\link{get_wcs_layers}()}
 }
 \concept{topics on using web services}
