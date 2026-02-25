@@ -9,7 +9,8 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-6378-6229", affiliation = "Research Institute for Nature and Forest (INBO)")),
     person("Falk", "Mielke", , "falk.mielke@inbo.be", role = "ctb",
            comment = c(ORCID = "0000-0003-3229-0981", affiliation = "Research Institute for Nature and Forest (INBO)")),
-    person("Research Institute for Nature and Forest (INBO)", , , "info@inbo.be", role = c("cph", "fnd"))
+    person("Research Institute for Nature and Forest (INBO)", , , "info@inbo.be", role = c("cph", "fnd"),
+           comment = c(ROR = "00j54wy13"))
   )
 Description: Useful R functions developed at the Research Institute for
     Nature and Forest (INBO) for dealing with spatial raster or vector
@@ -45,4 +46,4 @@ Config/checklist/keywords: spatial; geospatial; utilities; GIS; raster;
 Encoding: UTF-8
 Language: en-GB
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
