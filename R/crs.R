@@ -46,6 +46,7 @@ scalefactor_lcc <- function(par_deg, par1_deg, par2_deg) {
 #' Calculate the cone constant for a normal LCC projection
 #'
 #' @keywords internal
+#' @noRd
 coneconst_lcc <- function(par1, par2) {
   log(
     cos(par1) / cos(par2)
