@@ -304,7 +304,7 @@ hill <- get_coverage_wcs(
   resolution = 0.25,
   wcs_crs = "EPSG:31370"
 )
-plot(hill)
+terra::plot(hill)
 ```
 
 
