@@ -1,9 +1,7 @@
 description: Configuration file for checklist::check_pkg()
 package: yes
 allowed:
-  warnings:
-  - motivation: documentation is ok, even if not exported
-    value: 'documented but unexported functions: coneconst_lcc, require_pkgs, unpack_mht'
+  warnings: []
   notes:
   - motivation: will not be submitted to CRAN
     value: |-
@@ -22,6 +20,7 @@ required:
 - folder conventions
 - license
 - lintr
+- organisation
 - repository secret
 - spelling
 spelling:
@@ -29,3 +28,4 @@ spelling:
   ignore:
   - .github
   - LICENSE.md
+pak: []
