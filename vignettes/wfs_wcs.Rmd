@@ -2,7 +2,7 @@
 title: "Example use cases to get data from web feature or web coverage services."
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{wfs_wcs}
+  %\VignetteIndexEntry{Example use cases to get data from web feature or web coverage services.}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

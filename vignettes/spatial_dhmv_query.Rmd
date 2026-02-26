@@ -3,7 +3,7 @@ title: "Dissecting a WCS Query: DHMV Case Study."
 output: rmarkdown::html_vignette
 author: "Falk Mielke (falk.mielke@inbo.be)"
 vignette: >
-  %\VignetteIndexEntry{spatial_dhmv_query}
+  %\VignetteIndexEntry{Dissecting a WCS Query: DHMV Case Study.}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
