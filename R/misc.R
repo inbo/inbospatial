@@ -18,6 +18,7 @@
 #' @importFrom assertthat
 #' assert_that
 #' @keywords internal
+#' @noRd
 require_pkgs <- function(pkgs) {
   assert_that(is.character(pkgs))
   available <- vapply(

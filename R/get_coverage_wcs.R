@@ -210,6 +210,7 @@ get_coverage_wcs <- function(
 #' @return tif_path the path to the extracted geoTIFF.
 #'
 #' @keywords internal
+#' @noRd
 #'
 #' @details Need three ways to read in the `mht` file to get the `tif` file out.
 #' `read_lines()` cannot read all lines due to embedded `nulls`.
