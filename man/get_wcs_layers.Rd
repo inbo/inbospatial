@@ -23,8 +23,7 @@ A \code{data.frame} object with columns \code{layername} and \code{description}.
 \description{
 The function sends a \code{GetCapabilities} query to a WCS service,
 parses the XML response, and returns a \code{data.frame} containing
-the names of the available layers, their descriptions, and
-their resolutions.
+the names of the available layers and their descriptions.
 }
 \details{
 The following WCS services can currently be used:

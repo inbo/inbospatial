@@ -2,8 +2,7 @@
 #'
 #' The function sends a `GetCapabilities` query to a WCS service,
 #' parses the XML response, and returns a `data.frame` containing
-#' the names of the available layers, their descriptions, and
-#' their resolutions.
+#' the names of the available layers and their descriptions.
 #'
 #' @inheritParams get_coverage_wcs
 #'
@@ -47,7 +46,7 @@ get_wcs_layers <- function(
     omw = "https://geo.api.vlaanderen.be/oi-omw/wcs",
     dtm = "https://geo.api.vlaanderen.be/el-dtm/wcs",
     dsm = "https://geo.api.vlaanderen.be/el-dsm/wcs",
-    dhmv = "https://geo.api.vlaanderen.be/DHMV/wcs"
+    dhmv = "https://geo.api.vlaanderen.be/dhmv/wcs"
   )
 
   # prepare url request

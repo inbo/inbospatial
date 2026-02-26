@@ -86,7 +86,7 @@ get_coverage_wcs <- function(
     omw = "https://geo.api.vlaanderen.be/oi-omw/wcs",
     dtm = "https://geo.api.vlaanderen.be/el-dtm/wcs",
     dsm = "https://geo.api.vlaanderen.be/el-dsm/wcs",
-    dhmv = "https://geo.api.vlaanderen.be/DHMV/wcs"
+    dhmv = "https://geo.api.vlaanderen.be/dhmv/wcs"
   )
 
   # data type assertions
