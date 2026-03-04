@@ -4,7 +4,8 @@
 #' from which it is read with `terra::rast()` - if needed reprojected -
 #' and returned as a `SpatRaster` object
 #'
-#' @param wcs One of `"dtm"`, `"dsm"`, `"omz"`, `"omw"`, `"dhmv"`
+#' @param wcs One of `"dtm"`, `"dsm"`, `"omz"`, `"omw"`, `"dhmv"`,
+#'  `"mercatornet"`
 #' @param bbox An object of class bbox of length 4.
 #' @param layername Character string; name of the layer
 #' @param resolution Output resolution in meters
@@ -21,6 +22,8 @@
 #'   - `"dtm"`: digital terrain model Flanders
 #'   - `"dsm"`: digital surface model Flanders
 #'   - `"dhmv"`: digital elevation model Flanders (contains dtm and dsm data)
+#'   - `"mercatornet"`: Publieke Download Service van Vlaamse Overheid -
+#'     beleidsdomein Omgeving - samenwerkingsverband MercatorNet
 #' For more information, see metadata Vlaanderen:
 #'   https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS
 #'
@@ -48,7 +51,7 @@
 #' }
 #'
 get_coverage_wcs <- function(
-    wcs = c("dtm", "dsm", "omz", "omw", "dhmv"),
+    wcs = c("dtm", "dsm", "omz", "omw", "dhmv", "mercatornet"),
     bbox,
     layername,
     resolution,
@@ -66,33 +69,48 @@ get_coverage_wcs <- function(
   bbox_crs <- match.arg(bbox_crs)
 
 
-  # constrain version | wcs
-  if (wcs == "dhmv") {
-    # warn incompatible versions
-    if (!(version %in% c("1.0.0", "2.0.1"))) {
-      message("WCS `DHMV` is only compatible with versions `1.0.0` or `2.0.1`.
-        Consider using `version=\"2.0.1\"`")
-    }
-    # recommend crs specification
-    if (wcs_crs != "EPSG:31370") {
-      message("WCS `DHMV` only supports CRS Belgian Lambert 72 (`EPSG:31370`).
-        Consider specifying `wcs_csr=\"EPSG:31370\"`")
-    }
-  }
-
-  # set url
-  wcs <- switch(wcs,
-    omz = "https://geo.api.vlaanderen.be/oi-omz/wcs",
-    omw = "https://geo.api.vlaanderen.be/oi-omw/wcs",
-    dtm = "https://geo.api.vlaanderen.be/el-dtm/wcs",
-    dsm = "https://geo.api.vlaanderen.be/el-dsm/wcs",
-    dhmv = "https://geo.api.vlaanderen.be/dhmv/wcs"
+  # warn for wcs specifics
+  problems <- character()
+  problems <- c(
+    problems,
+    sprintf(
+      "WCS `%s` only supports CRS Belgian Lambert 72 (`EPSG:31370`).
+      Consider specifying `wcs_csr=\"EPSG:31370\"`",
+      wcs
+    )[wcs %in% c("dhmv", "mercatornet") & wcs_crs != "EPSG:31370"]
   )
+  problems <- c(
+    problems,
+    sprintf(
+      "WCS `%s` doesn't yet work for version %s.
+      Please switch to version 1.0.0.",
+      wcs,
+      version
+    )[wcs %in% c("mercatornet") & version == "2.0.1"]
+  )
+  if (length(problems) > 0) {
+    warning(paste(problems, collapse = "\n\n"), call. = FALSE)
+  }
 
   # data type assertions
   assert_that(is.character(layername))
   assert_that(is.character(output_crs))
   assert_that(inherits(bbox, "bbox"))
+
+  # check if layername is available
+  layernames <- get_wcs_layers(wcs = wcs, version = version)$layername
+  assert_that(
+    layername %in% layernames,
+    msg = sprintf(
+      "%s is not in available layernames for this WCS: %s",
+      layername,
+      paste(layernames, collapse = ", ")
+    )
+  )
+
+  # set url
+  wcs_url <- get_wcs_url(wcs)
+
 
   # resolution <=0 will give a `404`
   assert_that(is.numeric(resolution) && resolution > 0)
@@ -107,7 +125,7 @@ get_coverage_wcs <- function(
   names(bbox) <- c("xmin", "xmax", "ymin", "ymax")
 
   # prepare url request
-  url <- parse_url(wcs)
+  url <- parse_url(wcs_url)
 
   # variant: version 2.0.1
   if (version == "2.0.1") {
@@ -169,7 +187,7 @@ get_coverage_wcs <- function(
       ),
       RESX = resolution,
       RESY = resolution,
-      FORMAT = "geoTIFF",
+      FORMAT = ifelse(wcs == "mercatornet", "image/tiff", "geoTIFF"),
       RESPONSE_CRS = wcs_crs,
       ...
     )
@@ -237,4 +255,32 @@ unpack_mht <- function(path) {
     tif_path
   )
   return(tif_path)
+}
+
+#' Get WCS URL
+#'
+#' @description
+#' Maps a short service name to its corresponding Web Coverage Service (WCS) URL
+#'
+#'
+#' @inheritParams get_coverage_wcs
+#'
+#' @return A character string containing the full URL.
+#'
+#' @keywords internal
+#' @noRd
+get_wcs_url <- function(wcs) {
+  switch(
+    wcs,
+    omz = "https://geo.api.vlaanderen.be/oi-omz/wcs",
+    omw = "https://geo.api.vlaanderen.be/oi-omw/wcs",
+    dtm = "https://geo.api.vlaanderen.be/el-dtm/wcs",
+    dsm = "https://geo.api.vlaanderen.be/el-dsm/wcs",
+    dhmv = "https://geo.api.vlaanderen.be/dhmv/wcs",
+    mercatornet = paste0(
+      "https://www.mercator.vlaanderen.be/",
+      "raadpleegdienstenmercatorpubliek/wcs"
+    ),
+    stop("Unknown WCS service provided: ", wcs, call. = FALSE)
+  )
 }

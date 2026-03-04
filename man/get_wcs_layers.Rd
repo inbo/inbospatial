@@ -5,13 +5,14 @@
 \title{Get available layers from a web coverage service}
 \usage{
 get_wcs_layers(
-  wcs = c("dtm", "dsm", "omz", "omw", "dhmv"),
+  wcs = c("dtm", "dsm", "omz", "omw", "dhmv", "mercatornet"),
   version = c("1.0.0", "2.0.1"),
   ...
 )
 }
 \arguments{
-\item{wcs}{One of \code{"dtm"}, \code{"dsm"}, \code{"omz"}, \code{"omw"}, \code{"dhmv"}}
+\item{wcs}{One of \code{"dtm"}, \code{"dsm"}, \code{"omz"}, \code{"omw"}, \code{"dhmv"},
+\code{"mercatornet"}}
 
 \item{version}{\code{WCS} version to be used. Default is \verb{1.0.0}.}
 
@@ -33,6 +34,8 @@ The following WCS services can currently be used:
 \item \code{"dtm"}: digital terrain model Flanders
 \item \code{"dsm"}: digital surface model Flanders
 \item \code{"dhmv"}: digital elevation model Flanders (contains dtm and dsm data)
+\item \code{"mercatornet"}: Publieke Download Service van Vlaamse Overheid -
+beleidsdomein Omgeving - samenwerkingsverband MercatorNet
 For more information, see metadata Vlaanderen:
 https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS
 }

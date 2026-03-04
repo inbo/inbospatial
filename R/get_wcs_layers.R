@@ -12,6 +12,8 @@
 #'   - `"dtm"`: digital terrain model Flanders
 #'   - `"dsm"`: digital surface model Flanders
 #'   - `"dhmv"`: digital elevation model Flanders (contains dtm and dsm data)
+#'   - `"mercatornet"`: Publieke Download Service van Vlaamse Overheid -
+#'     beleidsdomein Omgeving - samenwerkingsverband MercatorNet
 #' For more information, see metadata Vlaanderen:
 #'   https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS
 #'
@@ -30,7 +32,7 @@
 #' }
 #'
 get_wcs_layers <- function(
-    wcs = c("dtm", "dsm", "omz", "omw", "dhmv"),
+    wcs = c("dtm", "dsm", "omz", "omw", "dhmv", "mercatornet"),
     version = c("1.0.0", "2.0.1"),
     ...) {
 
@@ -40,14 +42,8 @@ get_wcs_layers <- function(
   wcs <- match.arg(wcs)
 
   # set url
-  wcs_url <- switch(
-    wcs,
-    omz = "https://geo.api.vlaanderen.be/oi-omz/wcs",
-    omw = "https://geo.api.vlaanderen.be/oi-omw/wcs",
-    dtm = "https://geo.api.vlaanderen.be/el-dtm/wcs",
-    dsm = "https://geo.api.vlaanderen.be/el-dsm/wcs",
-    dhmv = "https://geo.api.vlaanderen.be/dhmv/wcs"
-  )
+  wcs_url <- get_wcs_url(wcs)
+
 
   # prepare url request
   url <- parse_url(wcs_url)
