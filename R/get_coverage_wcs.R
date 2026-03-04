@@ -22,8 +22,8 @@
 #'   - `"dtm"`: digital terrain model Flanders
 #'   - `"dsm"`: digital surface model Flanders
 #'   - `"dhmv"`: digital elevation model Flanders (contains dtm and dsm data)
-#'   - `"mercatornet"`: Publieke Download Service van Vlaamse Overheid -
-#'     beleidsdomein Omgeving - samenwerkingsverband MercatorNet
+#'   - `"mercatornet"`: Public Download Service Flemish Government -
+#'     department environment - cooperation `MercatorNet`
 #' For more information, see metadata Vlaanderen:
 #'   https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS
 #'

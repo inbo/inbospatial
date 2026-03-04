@@ -53,8 +53,8 @@ The following WCS services can currently be used:
 \item \code{"dtm"}: digital terrain model Flanders
 \item \code{"dsm"}: digital surface model Flanders
 \item \code{"dhmv"}: digital elevation model Flanders (contains dtm and dsm data)
-\item \code{"mercatornet"}: Publieke Download Service van Vlaamse Overheid -
-beleidsdomein Omgeving - samenwerkingsverband MercatorNet
+\item \code{"mercatornet"}: Public Download Service Flemish Government -
+department environment - cooperation \code{MercatorNet}
 For more information, see metadata Vlaanderen:
 https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS
 }
