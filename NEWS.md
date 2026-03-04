@@ -4,6 +4,8 @@
 
 * New function `get_wcs_layers()` to see which layers (name and description)
   are available for a given `WCS` service.
+* `get_coverage_wcs()` can now query data from the
+  `"MercatorNet"` service.
 
 ## Bug fixes
 
