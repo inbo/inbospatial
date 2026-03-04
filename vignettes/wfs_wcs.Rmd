@@ -264,6 +264,25 @@ Above, we covered Web Feature Services (WFS), which are many kinds of vector dat
 Another common geographical data type are grid-like or "raster" data, which you can retrieve via *Web Coverage Services (WCS)*.
 Behold, there is a `get_coverage_wcs()` available for some of the web services we regularly use at INBO.
 
+To know which layers are available in the WCS service, you can use the following code which is based on the `get_wcs_layers()` function.
+Here we apply the function to all of the supported WCS services and gather everything in a single table:
+
+```{r}
+wcs <- c("dtm", "dsm", "omz", "omw", "dhmv", "mercatornet")
+
+list_of_dfs <- lapply(wcs, function(x) {
+  df <- get_wcs_layers(x)
+  df <- cbind(wcs = x, df)
+  return(df)
+})
+
+wcs_layers_df <- do.call(rbind, list_of_dfs)
+
+wcs_layers_df |>
+  knitr::kable()
+```
+
+
 Below the example of a false-colour infrared image.
 The three bands of the image are visualized using `terra::plotRGB`.
 
@@ -294,7 +313,7 @@ dtm <- get_coverage_wcs(
 terra::plot(dtm)
 ```
 
-And another example using the `Hillshade` layer from the "dhmv": digital elevation model Flanders:
+Another example using the `Hillshade` layer from the "dhmv": digital elevation model Flanders:
 
 ```{r dhmv-example}
 hill <- get_coverage_wcs(
@@ -307,12 +326,21 @@ hill <- get_coverage_wcs(
 terra::plot(hill)
 ```
 
+Finally an example extracting total nitrogen deposition in 2025 at 1 km resolution from the `mercatorNet` service.
+Be careful here that you pass the resolution as 1000 meters, i.e. the units of the `wcs_crs`.
+We increased the bounding box in this example to a 10 km x 10 km square.
 
-To know which layers are available in a given WCS service, you can use the following code:
+```{r mercatornet-example}
+bbox[c("xmax", "ymax")] <- bbox[c("xmax", "ymax")] + 10000
 
-```{r}
-get_wcs_layers(wcs = "dhmv") |>
-  knitr::kable()
+total_nitrogen <- get_coverage_wcs(
+  "mercatornet",
+  bbox = bbox,
+  layername = "hh:hh_vlops_tmd_1km_25MZ23M517",
+  resolution = 1000,
+  wcs_crs = "EPSG:31370"
+)
+terra::plot(total_nitrogen)
 ```
 
 
