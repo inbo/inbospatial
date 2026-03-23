@@ -61,10 +61,7 @@ check_ogc_collection <- function(url, collection) {
 #'
 #' @description
 #' `get_feature_ogc()` provides a modern alternative to `get_feature_wfs()`. It
-#' retrieves vector data from an OGC API Features service using a highly
-#' optimized custom pagination loop. By natively requesting and parsing
-#' compressed GeoPackages over HTTP headers, it bypasses standard GDAL overhead
-#' for massive performance gains.
+#' retrieves vector data from an OGC API Features service.
 #'
 #' @param url A character string with the base URL of the OGC API (the landing
 #'   page).
@@ -102,7 +99,7 @@ check_ogc_collection <- function(url, collection) {
 #' # Base URL for the Digitaal Vlaanderen Wegenregister (Road Register)
 #' api_url <- "https://geo.api.vlaanderen.be/Wegenregister/ogc/features/v1"
 #'
-#' # 1. Basic usage: Fetch 10 road segments (Triggers the Fast Path GeoPackage download)
+#' # 1. Basic usage: Fetch 10 road segments
 #' roads_sample <- get_feature_ogc(
 #'   url = api_url,
 #'   collection = "Wegsegment",
@@ -126,7 +123,7 @@ check_ogc_collection <- function(url, collection) {
 #' hist_url <- "https://geo.api.vlaanderen.be/HistLandgebruik/ogc/features/v1"
 #'
 #' # 3. Attribute Selection:
-#' # Fetch only specific columns to reduce the download size
+#' # Fetch only specific columns
 #' ferraris_lite <- get_feature_ogc(
 #'   url = hist_url,
 #'   collection = "Lgbrk1778",
@@ -135,7 +132,7 @@ check_ogc_collection <- function(url, collection) {
 #' )
 #'
 #' # 4. Advanced CQL2 Attribute Filtering:
-#' # Filter features directly on the server (e.g., only fetch roads that are realized)
+#' # Filter features directly on the server
 #' roads_filtered <- get_feature_ogc(
 #'   url = api_url,
 #'   collection = "Wegsegment",
