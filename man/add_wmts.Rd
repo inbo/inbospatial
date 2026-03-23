@@ -10,7 +10,7 @@ add_wmts_nl_brt(map, layer = c("standaard", "grijs", "pastel", "water"), ...)
 add_wmts_nl_ortho(map, ...)
 }
 \arguments{
-\item{map}{a map widget object created from \code{\link[leaflet]{leaflet}()}}
+\item{map}{a map widget object created from \code{\link[leaflet:leaflet]{leaflet()}}}
 
 \item{layer}{String that defines which layer to use, if the function supports
 more than one.

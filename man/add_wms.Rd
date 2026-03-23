@@ -131,7 +131,7 @@ add_wms_nlnb_natuurtypen(
 )
 }
 \arguments{
-\item{map}{a map widget object created from \code{\link[leaflet]{leaflet}()}}
+\item{map}{a map widget object created from \code{\link[leaflet:leaflet]{leaflet()}}}
 
 \item{layer}{String that defines which layer to use, if the function supports
 more than one.
@@ -144,7 +144,7 @@ The first value is used if missing.}
 \item{...}{Further arguments passed to \code{\link[leaflet:map-layers]{leaflet::addWMSTiles()}} or
 \code{\link[leaflet.extras2:addWMS]{leaflet.extras2::addWMS()}}.}
 
-\item{popupOptions}{A Vector of \code{\link[leaflet]{popupOptions}} to provide popups}
+\item{popupOptions}{A Vector of \code{\link[leaflet:popupOptions]{popupOptions()}} to provide popups}
 
 \item{add_wms_legend}{Logical.
 Is a legend to be added for this WMS?
