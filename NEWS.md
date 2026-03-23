@@ -2,6 +2,7 @@
 
 ## Features
 
+* New function `get_feature_ogc()` to query `OGC API` features
 * New function `get_wcs_layers()` to see which layers (name and description)
   are available for a given `WCS` service.
 * `get_coverage_wcs()` can now query data from the
