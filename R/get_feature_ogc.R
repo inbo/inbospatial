@@ -184,10 +184,10 @@ apply_bbox_param <- function(req, bbox) {
 }
 
 
-#' Attach datetime, properties, and cql_filter query parameters
+#' Attach `datetime`, `properties`, and `cql_filter` query parameters
 #'
 #' @param req An `httr2_request` object.
-#' @param datetime,properties,cql_filter See [get_feature_ogc()].
+#' @inheritParams get_feature_ogc
 #' @return The modified `httr2_request` object.
 #' @noRd
 apply_optional_params <- function(req, datetime, properties, cql_filter) {
@@ -216,7 +216,7 @@ apply_optional_params <- function(req, datetime, properties, cql_filter) {
 
 #' Perform one HTTP request and return its features as an sf object
 #'
-#' Writes the raw GeoPackage response to a temp file, reads it with sf, and
+#' Writes the raw `GeoPackage` response to a temp file, reads it with sf, and
 #' deletes the temp file immediately to keep disk usage low.
 #'
 #' @param resp An `httr2_response` object.
@@ -255,10 +255,10 @@ extract_next_url <- function(resp) {
 }
 
 
-#' Trim, subset columns, and reproject a collected sf object
+#' Trim, subset columns, and re-project a collected sf object
 #'
-#' @param feature_data An `sf` object produced by `rbind`-ing all pages.
-#' @param limit,properties,crs See [get_feature_ogc()].
+#' @param feature_data An `sf` object produced by `rbind-ing` all pages.
+#' @inheritParams get_features_ogc
 #' @return The post-processed `sf` object.
 #' @noRd
 postprocess_features <- function(feature_data, limit, properties, crs) {
