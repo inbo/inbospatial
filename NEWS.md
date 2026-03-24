@@ -13,6 +13,7 @@
 * A parameter setting in the `unpack_mht(path)` function 
   of `get_coverage_wcs.R` produced unwanted empty line break output, 
   which is now suppressed.
+* The `unpack_mht()` function has been rewritten to make it more robust.
 
 # inbospatial 0.0.3
 
