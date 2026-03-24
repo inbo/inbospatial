@@ -32,3 +32,5 @@ inst/doc
 libs
 output
 renv/library
+/doc/
+/Meta/

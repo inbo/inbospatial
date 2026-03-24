@@ -14,3 +14,5 @@
 ^man-roxygen$
 ^organisation.yml$
 ^pkgdown$
+^doc$
+^Meta$
