@@ -29,6 +29,7 @@
 #'
 #' @return An `sf` (simple feature) object.
 #' @export
+#' @family topics on using web services
 #'
 #' @importFrom assertthat assert_that is.string is.number
 #' @importFrom sf read_sf st_bbox st_transform st_crs st_as_sfc
@@ -292,6 +293,7 @@ postprocess_features <- function(feature_data, limit, properties, crs) {
 #'
 #' @return `TRUE` invisibly if the collection exists, otherwise throws an error.
 #' @export
+#' @family topics on using web services
 #'
 #' @importFrom assertthat assert_that is.string
 #' @importFrom jsonlite read_json
