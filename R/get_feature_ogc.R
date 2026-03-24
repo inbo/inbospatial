@@ -32,7 +32,12 @@
 #'
 #' @importFrom assertthat assert_that is.string is.number
 #' @importFrom sf read_sf st_bbox st_transform st_crs st_as_sfc
-#' @importFrom httr2 request req_url_query req_perform resp_body_raw resp_headers
+#' @importFrom httr2
+#' request
+#' req_url_query
+#' req_perform
+#' resp_body_raw
+#' resp_headers
 #'
 #' @examples
 #' \dontrun{
@@ -47,7 +52,7 @@
 #' )
 #'
 #' # 2. Spatial Filtering & CRS Transformation:
-#' # Fetch features within a WGS84 bounding box and project to Belgian Lambert 72
+#' # Fetch features within a WGS84 bounding box and project to Belgian Lambert72
 #' my_bbox <- sf::st_bbox(
 #'   c(xmin = 4.39, ymin = 51.21, xmax = 4.40, ymax = 51.22),
 #'   crs = sf::st_crs(4326)
@@ -81,9 +86,9 @@
 #' )
 #' }
 get_feature_ogc <- function(
-    url, collection, bbox = NULL, datetime = NULL,
-    properties = NULL, cql_filter = NULL, limit = NULL,
-    crs = NULL, quiet = TRUE, ...
+  url, collection, bbox = NULL, datetime = NULL,
+  properties = NULL, cql_filter = NULL, limit = NULL,
+  crs = NULL, quiet = TRUE, ...
 ) {
 
   # Validate inputs & Check Collection
@@ -194,7 +199,7 @@ get_feature_ogc <- function(
       if (length(next_link_str) > 0) {
         # Extract the URL from inside the angle brackets: <https://...>
         # Example format: <https://...startIndex=20000>; rel="next"; type="..."
-        next_url <- sub('.*<([^>]+)>.*', '\\1', next_link_str[1])
+        next_url <- sub(".*<([^>]+)>.*", "\\1", next_link_str[1])
 
         # OGC APIs sometimes use encoded ampersands in the link header
         # (e.g., &amp;) which can break the next request. Safely decode them:
@@ -276,8 +281,10 @@ check_ogc_collection <- function(url, collection) {
       sprintf(
         paste0(
           "Could not connect to or parse the OGC API at '%s'.",
-          "\nCheck the URL or your network connection."),
-        collections_url),
+          "\nCheck the URL or your network connection."
+        ),
+        collections_url
+      ),
       call. = FALSE
     )
   })

@@ -235,10 +235,10 @@ unpack_mht <- function(path) {
   # 1. Match start of tiff part ^(II|MM)\*
   # Can be little or big endian
   # Look for \nII* (0x0a + 49 49 2a) or \nMM* (0x0a + 4d 4d 2a)
-  match_II <- grepRaw(as.raw(c(0x0a, 0x49, 0x49, 0x2a)), raw_vector)[1]
-  match_MM <- grepRaw(as.raw(c(0x0a, 0x4d, 0x4d, 0x2a)), raw_vector)[1]
+  match_ii <- grepRaw(as.raw(c(0x0a, 0x49, 0x49, 0x2a)), raw_vector)[1]
+  match_mm <- grepRaw(as.raw(c(0x0a, 0x4d, 0x4d, 0x2a)), raw_vector)[1]
 
-  valid_matches <- c(match_II, match_MM)
+  valid_matches <- c(match_ii, match_mm)
   valid_matches <- valid_matches[!is.na(valid_matches)]
 
   if (length(valid_matches) > 0) {
@@ -246,8 +246,10 @@ unpack_mht <- function(path) {
     pos_start <- min(valid_matches) + 1
   } else {
     # Edge case: If it's on the very first line of the file (no preceding \n)
-    if (all(raw_vector[1:3] == as.raw(c(0x49, 0x49, 0x2a))) ||
-        all(raw_vector[1:3] == as.raw(c(0x4d, 0x4d, 0x2a)))) {
+    if (
+      all(raw_vector[1:3] == as.raw(c(0x49, 0x49, 0x2a))) ||
+      all(raw_vector[1:3] == as.raw(c(0x4d, 0x4d, 0x2a)))
+    ) {
       pos_start <- 1
     } else {
       stop("Could not find TIFF header (II* or MM*) at the start of any line.")
@@ -257,7 +259,9 @@ unpack_mht <- function(path) {
   # 2. Drop the last line
   # MHT files end with a boundary string that usually starts with two hyphens
   # We search for \n-- to safely find the closing boundary and cut the file.
-  boundary_matches <- grepRaw(as.raw(c(0x0a, 0x2d, 0x2d)), raw_vector, all = TRUE)
+  boundary_matches <- grepRaw(
+    as.raw(c(0x0a, 0x2d, 0x2d)), raw_vector, all = TRUE
+  )
 
   if (length(boundary_matches) > 0) {
     pos_end <- tail(boundary_matches, 1) - 1

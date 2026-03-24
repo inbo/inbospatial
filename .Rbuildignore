@@ -1,6 +1,7 @@
 ^.*\.Rproj$
 ^CITATION\.cff$
 ^LICENSE.md$
+^Meta$
 ^README\.Rmd$
 ^\.Rproj\.user$
 ^\.github$
@@ -10,9 +11,8 @@
 ^checklist.yml$
 ^codecov\.yml$
 ^data-raw$
+^doc$
 ^docs$
 ^man-roxygen$
 ^organisation.yml$
 ^pkgdown$
-^doc$
-^Meta$

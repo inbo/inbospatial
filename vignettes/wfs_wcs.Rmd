@@ -90,8 +90,9 @@ We only show the latter.
 
 ```{r}
 system.time({
-  provinces2 <- read_sf(paste0("OAPIF:", ogc_vrbg),
-                        layer = "Refprv"
+  provinces2 <- read_sf(
+    paste0("OAPIF:", ogc_vrbg),
+    layer = "Refprv"
   )
 })
 
@@ -212,7 +213,7 @@ waldo::compare(prov_fields, prov_fields_sf)
 Another example of a WFS API is the Belgian Royal Meteorological Institute (KMI, `Koninklijk Meteorologisch Instituut van België`).
 Details can be [found here](https://opendata.meteo.be/service/wfs?request=GetCapabilities), [and here](https://publish.geo.be/geonetwork/f0ow2say/api/records/RMI_AWS_WFS).
 
-To our knowlegde, an `OGC APi features` service is not available for this vector data source.
+To our knowledge, an `OGC APi features` service is not available for this vector data source.
 
 
 ```{r stations}
@@ -322,7 +323,7 @@ For example, features can be selected by intersection with another geographical 
 
 ### Intersects a point
 
-As a proof of concept, we can directly query bwk parameters at a specific location.
+As a proof of concept, we can directly query parameters at a specific location.
 
 ```{r}
 ogc_bwk <- "https://geo.api.vlaanderen.be/BWK/ogc/features/v1"

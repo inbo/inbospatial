@@ -70,7 +70,7 @@ roads_sample <- get_feature_ogc(
 )
 
 # 2. Spatial Filtering & CRS Transformation:
-# Fetch features within a WGS84 bounding box and project to Belgian Lambert 72
+# Fetch features within a WGS84 bounding box and project to Belgian Lambert72
 my_bbox <- sf::st_bbox(
   c(xmin = 4.39, ymin = 51.21, xmax = 4.40, ymax = 51.22),
   crs = sf::st_crs(4326)
