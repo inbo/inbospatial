@@ -51,7 +51,9 @@ get_wcs_layers(wcs = "omz", version = "2.0.1")
 Other topics on using web services: 
 \code{\link{add_wms_be_cartoweb}()},
 \code{\link{add_wmts_nl_brt}()},
+\code{\link{check_ogc_collection}()},
 \code{\link{get_coverage_wcs}()},
+\code{\link{get_feature_ogc}()},
 \code{\link{get_feature_wfs}()}
 }
 \concept{topics on using web services}

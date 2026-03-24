@@ -55,9 +55,11 @@ The following WCS services can currently be used:
 \item \code{"dhmv"}: digital elevation model Flanders (contains dtm and dsm data)
 \item \code{"mercatornet"}: Public Download Service Flemish Government -
 department environment - cooperation \code{MercatorNet}
-For more information, see metadata Vlaanderen:
-https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS
 }
+
+For more information, see metadata Vlaanderen:
+
+\url{https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS}
 }
 \examples{
 \dontrun{
@@ -78,6 +80,8 @@ get_coverage_wcs(
 Other topics on using web services: 
 \code{\link{add_wms_be_cartoweb}()},
 \code{\link{add_wmts_nl_brt}()},
+\code{\link{check_ogc_collection}()},
+\code{\link{get_feature_ogc}()},
 \code{\link{get_feature_wfs}()},
 \code{\link{get_wcs_layers}()}
 }

@@ -24,8 +24,10 @@
 #'   - `"dhmv"`: digital elevation model Flanders (contains dtm and dsm data)
 #'   - `"mercatornet"`: Public Download Service Flemish Government -
 #'     department environment - cooperation `MercatorNet`
+#'
 #' For more information, see metadata Vlaanderen:
-#'   https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS
+#'
+#'   <https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS>
 #'
 #' @importFrom sf st_as_sf st_transform st_coordinates
 #' @importFrom terra rast `res<-` project

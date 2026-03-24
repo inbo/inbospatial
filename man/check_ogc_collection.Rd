@@ -29,3 +29,13 @@ check
 check <- try(check_ogc_collection(api_url, "foutieve_laag"))
 }
 }
+\seealso{
+Other topics on using web services: 
+\code{\link{add_wms_be_cartoweb}()},
+\code{\link{add_wmts_nl_brt}()},
+\code{\link{get_coverage_wcs}()},
+\code{\link{get_feature_ogc}()},
+\code{\link{get_feature_wfs}()},
+\code{\link{get_wcs_layers}()}
+}
+\concept{topics on using web services}

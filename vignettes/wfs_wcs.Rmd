@@ -325,7 +325,7 @@ For example, features can be selected by intersection with another geographical 
 
 As a proof of concept, we can directly query parameters at a specific location.
 
-```{r}
+```{r intersect-point}
 ogc_bwk <- "https://geo.api.vlaanderen.be/BWK/ogc/features/v1"
 
 x_lam <- 173995
