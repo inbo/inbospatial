@@ -1,71 +1,3 @@
-#' Check if a collection exists in an OGC API Features service
-#'
-#' @description
-#' A lightweight helper function that queries the `/collections` endpoint of an
-#' OGC API using JSON. It verifies if a specified collection exists and provides
-#' a helpful error message with valid names if it does not.
-#'
-#' @param url A character string with the base URL of the OGC API.
-#' @param collection A character string with the ID of the collection to check.
-#'
-#' @return `TRUE` invisibly if the collection exists, otherwise throws an error.
-#' @export
-#'
-#' @importFrom assertthat assert_that is.string
-#' @importFrom jsonlite read_json
-#' @examples
-#'  \dontrun{
-#' api_url <- "https://geo.api.vlaanderen.be/Wegenregister/ogc/features/v1"
-#' check <- check_ogc_collection(api_url, "Wegsegment")
-#' check
-#'
-#' # An informative error is thrown when collection does not exist
-#' check <- try(check_ogc_collection(api_url, "foutieve_laag"))
-#' }
-check_ogc_collection <- function(url, collection) {
-  assertthat::assert_that(
-    assertthat::is.string(url),
-    assertthat::is.string(collection)
-  )
-
-  # Ensure clean base URL
-  url <- sub("/+$", "", url)
-  collections_url <- sprintf("%s/collections?f=json", url)
-
-  # Fetch JSON metadata
-  api_meta <- tryCatch({
-    jsonlite::read_json(collections_url)
-  }, error = function(e) {
-    stop(
-      sprintf(
-        paste0(
-          "Could not connect to or parse the OGC API at '%s'.",
-          "\nCheck the URL or your network connection."),
-        collections_url),
-      call. = FALSE
-    )
-  })
-
-  # Extract available collection IDs
-  available_collections <- sapply(api_meta$collections, function(x) x$id)
-
-  if (!collection %in% available_collections) {
-    stop(
-      sprintf(
-        paste0(
-          "Collection '%s' not found in this OGC API.",
-          "\nValid available collections are:\n  - %s"
-        ),
-        collection,
-        paste(available_collections, collapse = "\n  - ")
-      ),
-      call. = FALSE
-    )
-  }
-
-  invisible(TRUE)
-}
-
 #' Download features from an OGC API Features service
 #'
 #' @description
@@ -93,14 +25,14 @@ check_ogc_collection <- function(url, collection) {
 #'   CRS.
 #' @param quiet Logical. Should the download progress be suppressed? Defaults to
 #'   `TRUE`.
-#' @param ... Additional arguments passed on to `sf::read_sf()`.
+#' @param ... Additional name-value pairs passed on to `httr2::req_url_query`.
 #'
 #' @return An `sf` (simple feature) object.
 #' @export
 #'
 #' @importFrom assertthat assert_that is.string is.number
 #' @importFrom sf read_sf st_bbox st_transform st_crs st_as_sfc
-#' @importFrom httr2 request req_url_query req_perform resp_body_raw resp_header
+#' @importFrom httr2 request req_url_query req_perform resp_body_raw resp_headers
 #'
 #' @examples
 #' \dontrun{
@@ -210,6 +142,9 @@ get_feature_ogc <- function(
     )
   }
 
+  # any additional name-value pairs
+  req <- req |> httr2::req_url_query(...)
+
   # Custom Pagination Loop
   if (!quiet) message("Connecting via optimized GeoPackage pagination...")
 
@@ -228,7 +163,7 @@ get_feature_ogc <- function(
     writeBin(httr2::resp_body_raw(resp), tmp_file)
 
     # Read the data via sf
-    page_data <- sf::read_sf(tmp_file, quiet = quiet, ...)
+    page_data <- sf::read_sf(tmp_file, quiet = quiet)
     unlink(tmp_file) # Clean up tempfile immediately to save disk space
 
     # Check if empty (e.g., query returned 0 features)
@@ -296,4 +231,73 @@ get_feature_ogc <- function(
   }
 
   return(feature_data)
+}
+
+
+#' Check if a collection exists in an OGC API Features service
+#'
+#' @description
+#' A lightweight helper function that queries the `/collections` endpoint of an
+#' OGC API using JSON. It verifies if a specified collection exists and provides
+#' a helpful error message with valid names if it does not.
+#'
+#' @param url A character string with the base URL of the OGC API.
+#' @param collection A character string with the ID of the collection to check.
+#'
+#' @return `TRUE` invisibly if the collection exists, otherwise throws an error.
+#' @export
+#'
+#' @importFrom assertthat assert_that is.string
+#' @importFrom jsonlite read_json
+#' @examples
+#'  \dontrun{
+#' api_url <- "https://geo.api.vlaanderen.be/Wegenregister/ogc/features/v1"
+#' check <- check_ogc_collection(api_url, "Wegsegment")
+#' check
+#'
+#' # An informative error is thrown when collection does not exist
+#' check <- try(check_ogc_collection(api_url, "foutieve_laag"))
+#' }
+check_ogc_collection <- function(url, collection) {
+  assertthat::assert_that(
+    assertthat::is.string(url),
+    assertthat::is.string(collection)
+  )
+
+  # Ensure clean base URL
+  url <- sub("/+$", "", url)
+  collections_url <- sprintf("%s/collections?f=json", url)
+
+  # Fetch JSON metadata
+  api_meta <- tryCatch({
+    jsonlite::read_json(collections_url)
+  }, error = function(e) {
+    stop(
+      sprintf(
+        paste0(
+          "Could not connect to or parse the OGC API at '%s'.",
+          "\nCheck the URL or your network connection."),
+        collections_url),
+      call. = FALSE
+    )
+  })
+
+  # Extract available collection IDs
+  available_collections <- sapply(api_meta$collections, function(x) x$id)
+
+  if (!collection %in% available_collections) {
+    stop(
+      sprintf(
+        paste0(
+          "Collection '%s' not found in this OGC API.",
+          "\nValid available collections are:\n  - %s"
+        ),
+        collection,
+        paste(available_collections, collapse = "\n  - ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  invisible(TRUE)
 }
