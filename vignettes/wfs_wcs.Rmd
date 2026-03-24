@@ -1,8 +1,8 @@
 ---
-title: "Example use cases to get data from web feature or web coverage services."
+title: "Example use cases to get vector or raster data from web services."
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Example use cases to get data from web feature or web coverage services.}
+  %\VignetteIndexEntry{Example use cases to get vector or raster data from web services.}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -22,20 +22,56 @@ library(inbospatial)
 
 # Introduction
 
-A WFS or Web Feature Service allows you to download vector spatial data from the web.
-A WCS or Web Coverage Service is similar, but is used for raster spatial data.
-In this vignette, we will show how to the functions `get_feature_wfs()` and `get_coverage_wcs()` can be used to get data into your R session from these services.
+Spatial web services allow you to seamlessly pull remote spatial data directly into your R session without manually downloading, unzipping, and managing local files.
 
-For a more in-depth explanation about WFS services, we refer to [the INBO tutorial about WFS](https://tutorials.inbo.be/tutorials/spatial_wfs_services/){target="_BLANK"}.
-The tutorial takes a more hands-on coding approach to getting data from a WFS, whereas in this vignette much of the coding stuff is hidden away in the `get_feature_wfs()` function.
+Historically, the OGC (Open Geospatial Consortium) established standards like WFS (Web Feature Service) for downloading vector data and WCS (Web Coverage Service) for downloading raster data.
+Recently, these older protocols are being actively replaced by the modern, RESTful OGC API framework.
+For instance, OGC API Features is the direct, optimized successor to WFS.
 
-# WFS examples
+In this vignette, we will show how the functions `get_feature_wfs()`, `get_coverage_wcs()`, and the newly added `get_feature_ogc()` can be used to easily fetch data from these services.
+
+For a more in-depth explanation about the underlying mechanics of these services, we refer to the INBO tutorial about  [WFS](https://tutorials.inbo.be/tutorials/spatial_wfs_services/){target="_BLANK"} and the vignette about [WCS](spatial_dhmv_query.html).
+The tutorial and vignette take a more hands-on coding approach to manually crafting HTTP requests, whereas in this vignette, much of that complex logic is hidden away safely inside the `inbospatial` functions.
+
+# Overview of Spatial Web Services
+
+Depending on whether you need to actually download the raw data for spatial analysis, or merely view it as a background map, different web services are used.
+The table below outlines the most common services, their data types, and how they map to the `inbospatial` package.
+
+| Service Standard | Successor / Modern API | GIS Data Type | Primary Purpose | `inbospatial` Function |
+| :--- | :--- | :--- | :--- | :--- |
+| **WFS** (Web Feature Service) | OGC API Features | Vector (Points, Lines, Polygons) | **Data Retrieval** | `get_feature_wfs()` |
+| **WCS** (Web Coverage Service) | OGC API Coverages | Raster (Gridded/Cell data) | **Data Retrieval** | `get_coverage_wcs()` |
+| **OGC API Features** | *Current Standard* | Vector (Points, Lines, Polygons) | **Data Retrieval** | `get_feature_ogc()` |
+| **WMS** (Web Map Service) | OGC API Maps | Raster (Rendered Image) | **Visualization** | `add_wms_*()` |
+| **WMTS** (Web Map Tile Service) | OGC API Tiles | Vector or Raster Tiles | **Visualization** | `add_wmts_*()` |
+
+# Vector data examples
+
+This section demonstrates both `get_feature_ogc()` and `get_feature_wfs`.
+When you have the choice, `get_feature_ogc()` is preferred due to better performance and automatic pagination.
+Because spatial servers often limit how much data you can download in a single go, automatic pagination allows the function to detect when more data is available and quietly make follow-up requests until the entire dataset is successfully retrieved for you.
 
 ## Simple use case without filter
 
 As a test case, we will query provincial boundaries of Flanders from a layer of the "Provisional Reference of Municipal Boundaries" (`VRBG`, `Voorlopig ReferentieBestand Gemeentegrenzen`), which is available via an API on the `vlaanderen.be` website.
 
-```{r provinces}
+```{r provinces-ogc}
+ogc_vrbg <- "https://geo.api.vlaanderen.be/VRBG2025/ogc/features/v1/"
+
+system.time({
+  provinces <- get_feature_ogc(
+    url = ogc_vrbg,
+    collection = "Refprv",
+    crs = "EPSG:31370"
+  )
+})
+
+provinces
+```
+
+
+```{r provinces-wfs, eval=FALSE}
 wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
 
 provinces <- get_feature_wfs(
@@ -48,11 +84,16 @@ provinces
 ```
 
 You can achieve (almost) the same result using a combination of `sf::read_sf()` and `sf::st_transform()`.
+For `WFS`, you need to prefix the url with `"WFS:"`.
+For `OGC API features`, you need to prefix the url with "`OAPIF`".
+We only show the latter.
 
 ```{r}
-provinces2 <- read_sf(paste0("WFS:", wfs_vrbg),
-  layer = "VRBG:Refprv"
-)
+system.time({
+  provinces2 <- read_sf(paste0("OAPIF:", ogc_vrbg),
+                        layer = "Refprv"
+  )
+})
 
 waldo::compare(provinces, provinces2,
   x_arg = "inbospatial", y_arg = "sf",
@@ -60,8 +101,17 @@ waldo::compare(provinces, provinces2,
 )
 ```
 
-Both methods yield the same result.
-Note however that for other examples, you may notice substantial differences, most notably for field specifications.
+We notice some differences, but nothing substantial.
+Going via `sf::read_sf` has added an extra field `id` and renamed `SHAPE` to `geometry`.
+
+Timings do differ substantially.
+The `get_feature_ogc()` function should be faster than `sf::read_sf`, because the `OAPIF` method (which is passed on to `GDAL`) relies on the `geoJSON` file format whereas `get_feature_ogc()` collects the data as a `geopackage`.
+The latter is a binary file format whereas the former is a text format.
+A binary format is much smaller and therefore can be downloaded faster.
+It's possible that not all providers of `OGC API features` have implemented `geopackage` as an export option.
+If that is the case, you can try `read_sf()` with `OAPIF` instead.
+
+For `WFS`, you may notice other differences as well, most notably for field specifications.
 The reason for such differences is that `get_feature_wfs()` retrieves whatever information that is identified from the WFS request - in the same way as you would paste the request in the browser.
 This result is then saved temporarily to a `.GML` file and read with `sf::read_sf()`.
 Passing the WFS directly to the `dsn` argument of `sf::read_sf`, on the other hand, will translate the request to a form that will pass through [the GDAL WFS driver](https://gdal.org/en/latest/drivers/vector/wfs.html), which handles field specifications by reading them from a `DescribeFeatureType` request:
@@ -73,55 +123,84 @@ Passing the WFS directly to the `dsn` argument of `sf::read_sf`, on the other ha
 CQL, the "Common Query Language" ([see here, for example](https://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html)), provides a way to filter WFS data.
 The syntax of [CQL is comparable to SQL](https://www.webcomand.com/docs/language/cql/cql_vs_sql/), yet there are differences in data types and structures.
 
-You can provide and apply filters in `get_feature_wfs()` via the `cql_filter` argument.
+You can provide and apply filters in `get_feature_ogc()` or `get_feature_wfs()` via the `cql_filter` argument.
 
-```{r prov}
+```{r west-vlaanderen-ogc}
+ogc_vrbg <- "https://geo.api.vlaanderen.be/VRBG2025/ogc/features/v1/"
+
+west_vlaanderen <- get_feature_ogc(
+  url = ogc_vrbg,
+  collection = "Refprv",
+  cql_filter = "NAAM='West-Vlaanderen'",
+  crs = "EPSG:31370"
+)
+
+west_vlaanderen
+```
+
+
+```{r west-vlaanderen-wfs, eval=FALSE}
 wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
 
-prov <- get_feature_wfs(
+west_vlaanderen_wfs <- get_feature_wfs(
   wfs = wfs_vrbg,
   layername = "VRBG:Refprv",
   cql_filter = "NAAM='West-Vlaanderen'"
 )
 
-prov
+west_vlaanderen_wfs
 ```
 
 Here, we could have also used `sf::read_sf()` in combination with an [OGR SQL query](https://gdal.org/en/latest/user/ogr_sql_dialect.html):
 
 ```{r}
-prov2 <- read_sf(paste0("WFS:", wfs_vrbg),
+west_vlaanderen2 <- read_sf(paste0("OAPIF:", ogc_vrbg),
   query = "SELECT * FROM Refprv WHERE NAAM='West-Vlaanderen'"
 )
 
-waldo::compare(prov, prov2)
+waldo::compare(west_vlaanderen, west_vlaanderen2)
 ```
 
-Both methods yield the same result.
+As before, we notice some differences in naming of the fields and the addition of an extra field `id` when using `read_sf()`.
 
 ## Request a subset of fields
 
 Instead of querying the complete data table, one can select a subset of variables (fields).
+The function `get_feature_ogc()` provides the `properties` argument for it, which accepts a character vector of field names (the field containing the geometry is always returned).
 The function `get_feature_wfs()` provides the `property_name` keyword for it, which accepts a string of comma-separated field names.
 Note that field names are capitalized on this particular geoserver.
 
-```{r prov-fields}
+```{r prov-fields-ogc}
+ogc_vrbg <- "https://geo.api.vlaanderen.be/VRBG2025/ogc/features/v1/"
+
+prov_fields <- get_feature_ogc(
+  url = ogc_vrbg,
+  collection = "Refprv",
+  crs = "EPSG:31370",
+  properties = c("NAAM", "NUTS2")
+)
+
+prov_fields
+```
+
+
+```{r prov-fields-wfs, eval=FALSE}
 wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
 
-prov_fields <- get_feature_wfs(
+prov_fields_wfs <- get_feature_wfs(
   wfs = wfs_vrbg,
   layername = "VRBG:Refprv",
   crs = "EPSG:31370",
   property_name = paste("NAAM", "NUTS2", "SHAPE", sep = ",")
 )
 
-prov_fields
+prov_fields_wfs
 ```
 
 Again, we can use `sf::read_sf()` in combination with an [OGR SQL query](https://gdal.org/en/latest/user/ogr_sql_dialect.html):
 
 ```{r}
-prov_fields_sf <- read_sf(paste0("WFS:", wfs_vrbg),
+prov_fields_sf <- read_sf(paste0("OAPIF:", ogc_vrbg),
   query = "SELECT NAAM, NUTS2 FROM Refprv"
 )
 
@@ -132,6 +211,9 @@ waldo::compare(prov_fields, prov_fields_sf)
 
 Another example of a WFS API is the Belgian Royal Meteorological Institute (KMI, `Koninklijk Meteorologisch Instituut van België`).
 Details can be [found here](https://opendata.meteo.be/service/wfs?request=GetCapabilities), [and here](https://publish.geo.be/geonetwork/f0ow2say/api/records/RMI_AWS_WFS).
+
+To our knowlegde, an `OGC APi features` service is not available for this vector data source.
+
 
 ```{r stations}
 kmi <- "https://opendata.meteo.be/service/wfs"
@@ -169,26 +251,46 @@ kmi_synop
 Few analyses will require a whole countries' data, even if the country is as small as Belgium.
 Hence, it might be useful by restricting the data you query with a bounding box.
 This works as follows, using a `bbox` with the elements `xmin`, `ymin`, `xmax`, and `ymax`.
+For `get_feature_ogc()` you can also provide an object of class `bbox` (recommended) instead of the named vector.
+Note: OGC APIs generally expect the `bbox` coordinates to be in WGS84 (EPSG:4326).
+If you pass a `bbox` object with another coordinate reference system it will be automatically transformed to WGS84.
 
-```{r bwk-bbox}
-wfs_bwk <-
-  "https://geo.api.vlaanderen.be/BWK/wfs"
+```{r bwk-bbox-ogc}
+ogc_bwk <- "https://geo.api.vlaanderen.be/BWK/ogc/features/v1"
 
-bwk_bbox <- get_feature_wfs(
+bbox <- c(xmin = 142600, ymin = 153800, xmax = 146000, ymax = 156900)
+bbox <- st_bbox(bbox, crs = st_crs(31370))
+
+bwk_bbox_ogc <- get_feature_ogc(
+  url = ogc_bwk,
+  collection = "Bwkhab",
+  crs = "EPSG:31370",
+  bbox = bbox
+)
+
+bwk_bbox_ogc
+
+sf::st_geometry(bwk_bbox_ogc) |> plot()
+```
+
+
+
+```{r bwk-bbox-wfs, eval=FALSE}
+wfs_bwk <- "https://geo.api.vlaanderen.be/BWK/wfs"
+
+bwk_bbox_wfs <- get_feature_wfs(
   wfs = wfs_bwk,
   layername = "BWK:Bwkhab",
   crs = "EPSG:31370",
   bbox = c(xmin = 142600, ymin = 153800, xmax = 146000, ymax = 156900)
 )
 
-bwk_bbox
-```
+bwk_bbox_wfs
 
-This returns a `MULTISURFACE` geometry type.
-We can use a couple of `sf` functions to cast this to regular polygons:
+#This returns a `MULTISURFACE` geometry type.
+#We can use a couple of `sf` functions to cast this to regular polygons:
 
-```{r}
-bwk_bbox %>%
+bwk_bbox_wfs %>%
   st_cast("GEOMETRYCOLLECTION") %>%
   st_collection_extract("POLYGON") %>%
   st_geometry() %>%
@@ -199,13 +301,13 @@ This can also be done using the `wkt_filter` argument from `sf::read_sf`.
 
 ```{r eval=FALSE}
 bwk_bbox_sf <- read_sf(
-  paste0("WFS:", wfs_bwk),
-  layer = "BWK:Bwkhab",
-  wkt_filter = st_as_text(
-    st_as_sfc(
+  paste0("OAPIF:", ogc_bwk),
+  layer = "Bwkhab",
+  wkt_filter = sf::st_as_text(
+    sf::st_as_sfc(
       st_bbox(
         c(xmin = 142600, ymin = 153800, xmax = 146000, ymax = 156900),
-        crs = st_crs(31370)
+        crs = sf::st_crs(31370)
       )
     )
   )
@@ -220,47 +322,44 @@ For example, features can be selected by intersection with another geographical 
 
 ### Intersects a point
 
-As a proof of concept, we can directly query soil parameters at a specific location.
+As a proof of concept, we can directly query bwk parameters at a specific location.
 
 ```{r}
-wfs_soiltypes <-
-  "https://www.dov.vlaanderen.be/geoserver/bodemkaart/bodemtypes/wfs"
+ogc_bwk <- "https://geo.api.vlaanderen.be/BWK/ogc/features/v1"
 
 x_lam <- 173995
 y_lam <- 212093
 
-soil_type <- get_feature_wfs(
-  wfs = wfs_soiltypes,
-  layername = "bodemkaart:bodemtypes",
+bwk_type <- get_feature_ogc(
+  url = ogc_bwk,
+  collection = "Bwkhab",
   crs = "EPSG:31370",
   cql_filter = sprintf(
-    "INTERSECTS(geom,POINT(%s %s))",
+    "S_INTERSECTS(SHAPE,POINT(%s %s))",
     x_lam, y_lam
-  )
+  ),
+  `filter-crs` = "http://www.opengis.net/def/crs/EPSG/0/31370",
 )
 
-soil_type
+bwk_type
 ```
 
 In theory, this should also be possible "the `sf` way".
-However, `sf` filters after query (which takes a long time), and the code below does not work correctly.
+However, `sf` filters after query (which takes a long time).
 
 ```{r eval=FALSE}
-soil_type_sf <- read_sf(
-  paste0("WFS:", wfs_soiltypes),
-  query = "SELECT * FROM bodemtypes",
-  wkt_filter = sprintf(
-    "ST_Intersects(geom,ST_Point(%s, %s))",
-    x_lam, y_lam
-  )
+bwk_type_sf <- sf::read_sf(
+  dsn = paste0("OAPIF:", ogc_bwk),
+  layer = "Bwkhab",
+  wkt_filter = sprintf("POINT(%s %s)", x_lam, y_lam)
 )
 
-soil_type_sf
+bwk_type_sf
 ```
 
-# WCS examples
+# Raster data examples
 
-Above, we covered Web Feature Services (WFS), which are many kinds of vector data.
+Above, we covered `OGC API features` and Web Feature Services (WFS), which are vector data.
 Another common geographical data type are grid-like or "raster" data, which you can retrieve via *Web Coverage Services (WCS)*.
 Behold, there is a `get_coverage_wcs()` available for some of the web services we regularly use at INBO.
 
