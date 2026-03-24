@@ -248,7 +248,7 @@ unpack_mht <- function(path) {
     # Edge case: If it's on the very first line of the file (no preceding \n)
     if (
       all(raw_vector[1:3] == as.raw(c(0x49, 0x49, 0x2a))) ||
-      all(raw_vector[1:3] == as.raw(c(0x4d, 0x4d, 0x2a)))
+        all(raw_vector[1:3] == as.raw(c(0x4d, 0x4d, 0x2a)))
     ) {
       pos_start <- 1
     } else {

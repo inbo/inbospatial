@@ -90,8 +90,6 @@ get_feature_ogc <- function(
   properties = NULL, cql_filter = NULL, limit = NULL,
   crs = NULL, quiet = TRUE, ...
 ) {
-
-  # Validate inputs & Check Collection
   assertthat::assert_that(
     assertthat::is.string(url),
     assertthat::is.string(collection),
@@ -101,33 +99,98 @@ get_feature_ogc <- function(
   url <- sub("/+$", "", url)
   check_ogc_collection(url, collection)
 
-  # Build the base request
-  page_size <- 10000
+  req <- build_ogc_request(
+    url, collection, bbox, datetime, properties, cql_filter, limit, ...
+  )
+
+  if (!quiet) message("Connecting via optimized GeoPackage pagination...")
+
+  next_url     <- req$url
+  results_list <- list()
+  total_fetched <- 0L
+
+  while (!is.null(next_url)) {
+    if (!quiet) message("Fetching page: ", next_url)
+
+    resp      <- httr2::request(next_url) |> httr2::req_perform()
+    page_data <- fetch_ogc_page(resp, quiet)
+
+    if (nrow(page_data) == 0L) {
+      if (length(results_list) == 0L) return(page_data)
+      break
+    }
+
+    results_list  <- c(results_list, list(page_data))
+    total_fetched <- total_fetched + nrow(page_data)
+
+    reached_limit <- !is.null(limit) && total_fetched >= limit
+    if (reached_limit) break
+
+    next_url <- extract_next_url(resp)
+  }
+
+  feature_data <- do.call(rbind, results_list)
+  postprocess_features(feature_data, limit, properties, crs)
+}
+
+
+# -- Helpers -------------------------------------------------------------------
+
+#' Build the initial httr2 request with all OGC query parameters
+#'
+#' @inheritParams get_feature_ogc
+#' @return An `httr2_request` object.
+#' @noRd
+build_ogc_request <- function(
+  url, collection, bbox, datetime, properties, cql_filter, limit, ...
+) {
+  page_size <- 10000L
   if (!is.null(limit)) {
     assertthat::assert_that(assertthat::is.number(limit))
-    page_size <- as.integer(min(limit, 10000))
+    page_size <- as.integer(min(limit, 10000L))
   }
 
   req <- httr2::request(sprintf("%s/collections/%s/items", url, collection)) |>
     httr2::req_url_query(
-      f = "application/geopackage+sqlite3",
-      limit = page_size
+      f = "application/geopackage+sqlite3", limit = page_size
     )
 
-  # Apply OGC API query parameters
-  if (!is.null(bbox)) {
-    if (!inherits(bbox, "bbox")) {
-      names(bbox) <- c("xmin", "ymin", "xmax", "ymax")
-      bbox <- sf::st_bbox(bbox)
-    }
-    # Safely transform bbox to WGS84 for the API request if a CRS is attached
-    if (!is.na(sf::st_crs(bbox)) && sf::st_crs(bbox)$epsg != 4326) {
-      bbox <- sf::st_bbox(sf::st_transform(sf::st_as_sfc(bbox), 4326))
-    }
-    req <- req |>
-      httr2::req_url_query(bbox = paste(as.numeric(bbox), collapse = ","))
+  req <- apply_bbox_param(req, bbox)
+  req <- apply_optional_params(req, datetime, properties, cql_filter)
+  req |> httr2::req_url_query(...)
+}
+
+
+#' Attach a bbox query parameter, converting CRS to WGS84 when needed
+#'
+#' @param req An `httr2_request` object.
+#' @param bbox A bbox object, a numeric vector of length 4, or `NULL`.
+#' @return The modified `httr2_request` object.
+#' @noRd
+apply_bbox_param <- function(req, bbox) {
+  if (is.null(bbox)) return(req)
+
+  if (!inherits(bbox, "bbox")) {
+    names(bbox) <- c("xmin", "ymin", "xmax", "ymax")
+    bbox <- sf::st_bbox(bbox)
   }
 
+  needs_transform <- !is.na(sf::st_crs(bbox)) && sf::st_crs(bbox)$epsg != 4326
+  if (needs_transform) {
+    bbox <- sf::st_bbox(sf::st_transform(sf::st_as_sfc(bbox), 4326))
+  }
+
+  req |> httr2::req_url_query(bbox = paste(as.numeric(bbox), collapse = ","))
+}
+
+
+#' Attach datetime, properties, and cql_filter query parameters
+#'
+#' @param req An `httr2_request` object.
+#' @param datetime,properties,cql_filter See [get_feature_ogc()].
+#' @return The modified `httr2_request` object.
+#' @noRd
+apply_optional_params <- function(req, datetime, properties, cql_filter) {
   if (!is.null(datetime)) {
     assertthat::assert_that(assertthat::is.string(datetime))
     req <- req |> httr2::req_url_query(datetime = datetime)
@@ -143,99 +206,77 @@ get_feature_ogc <- function(
     assertthat::assert_that(assertthat::is.string(cql_filter))
     req <- req |> httr2::req_url_query(
       `filter-lang` = "cql2-text",
-      filter = cql_filter
+      filter        = cql_filter
     )
   }
 
-  # any additional name-value pairs
-  req <- req |> httr2::req_url_query(...)
+  req
+}
 
-  # Custom Pagination Loop
-  if (!quiet) message("Connecting via optimized GeoPackage pagination...")
 
-  next_url <- req$url
-  results_list <- list()
-  total_fetched <- 0
+#' Perform one HTTP request and return its features as an sf object
+#'
+#' Writes the raw GeoPackage response to a temp file, reads it with sf, and
+#' deletes the temp file immediately to keep disk usage low.
+#'
+#' @param resp An `httr2_response` object.
+#' @param quiet Passed through to [sf::read_sf()].
+#' @return An `sf` object (possibly with zero rows).
+#' @noRd
+fetch_ogc_page <- function(resp, quiet) {
+  tmp_file <- tempfile(fileext = ".gpkg")
+  on.exit(unlink(tmp_file), add = TRUE)
 
-  while (!is.null(next_url)) {
-    if (!quiet) message("Fetching page: ", next_url)
+  writeBin(httr2::resp_body_raw(resp), tmp_file)
+  sf::read_sf(tmp_file, quiet = quiet)
+}
 
-    # Execute request
-    resp <- httr2::request(next_url) |> httr2::req_perform()
 
-    # Save binary GeoPackage payload to tempfile
-    tmp_file <- tempfile(fileext = ".gpkg")
-    writeBin(httr2::resp_body_raw(resp), tmp_file)
+#' Extract the URL of the next page from a Link response header
+#'
+#' Handles multiple `link` headers, encoded ampersands (`&amp;`), and the
+#' standard `<url>; rel="next"` format.
+#'
+#' @param resp An `httr2_response` object.
+#' @return A character string with the next URL, or `NULL` if there is none.
+#' @noRd
+extract_next_url <- function(resp) {
+  headers   <- httr2::resp_headers(resp)
+  all_links <- unlist(headers[names(headers) == "link"])
 
-    # Read the data via sf
-    page_data <- sf::read_sf(tmp_file, quiet = quiet)
-    unlink(tmp_file) # Clean up tempfile immediately to save disk space
+  if (length(all_links) == 0L) return(NULL)
 
-    # Check if empty (e.g., query returned 0 features)
-    if (nrow(page_data) == 0) {
-      if (length(results_list) == 0) return(page_data) # Return empty sf object
-      break
-    }
+  next_link_str <- all_links[grepl('rel="next"', all_links)]
 
-    results_list[[length(results_list) + 1]] <- page_data
-    total_fetched <- total_fetched + nrow(page_data)
+  if (length(next_link_str) == 0L) return(NULL)
 
-    if (!is.null(limit) && total_fetched >= limit) {
-      break
-    }
+  next_url <- sub(".*<([^>]+)>.*", "\\1", next_link_str[[1L]])
+  gsub("&amp;", "&", next_url)
+}
 
-    # Extract the "next" link from the HTTP headers safely
-    headers <- httr2::resp_headers(resp)
 
-    # Grab ALL headers named "link"
-    all_links <- unlist(headers[names(headers) == "link"])
-
-    next_url <- NULL
-
-    if (length(all_links) > 0) {
-      # Find the specific link header that contains rel="next"
-      next_link_str <- all_links[grepl('rel="next"', all_links)]
-
-      if (length(next_link_str) > 0) {
-        # Extract the URL from inside the angle brackets: <https://...>
-        # Example format: <https://...startIndex=20000>; rel="next"; type="..."
-        next_url <- sub(".*<([^>]+)>.*", "\\1", next_link_str[1])
-
-        # OGC APIs sometimes use encoded ampersands in the link header
-        # (e.g., &amp;) which can break the next request. Safely decode them:
-        next_url <- gsub("&amp;", "&", next_url)
-      }
-    }
-  }
-
-  # Compile and Post-Process Data
-  # Combine all chunks into one sf object
-  feature_data <- do.call(rbind, results_list)
-
-  # Trim excess rows if the final page pushed us over the exact limit
+#' Trim, subset columns, and reproject a collected sf object
+#'
+#' @param feature_data An `sf` object produced by `rbind`-ing all pages.
+#' @param limit,properties,crs See [get_feature_ogc()].
+#' @return The post-processed `sf` object.
+#' @noRd
+postprocess_features <- function(feature_data, limit, properties, crs) {
   if (!is.null(limit) && nrow(feature_data) > limit) {
     feature_data <- feature_data[seq_len(limit), ]
   }
 
-  # Handle properties subsetting locally if the server ignored it
-  # (This is standard behavior when servers export to GeoPackage)
-  if (!is.null(properties) && nrow(feature_data) > 0) {
-    # Identify the active geometry column
-    geom_col <- attr(feature_data, "sf_column")
-
-    # Intersect with actual names to prevent errors if the user made a typo
-    valid_props <- intersect(properties, names(feature_data))
-
-    # Subset the sf dataframe, keeping the selected properties + the geometry
+  if (!is.null(properties) && nrow(feature_data) > 0L) {
+    geom_col     <- attr(feature_data, "sf_column")
+    valid_props  <- intersect(properties, names(feature_data))
     feature_data <- feature_data[, c(valid_props, geom_col), drop = FALSE]
   }
 
-  # Transform CRS if requested
-  if (!is.null(crs) && nrow(feature_data) > 0) {
+  if (!is.null(crs) && nrow(feature_data) > 0L) {
     feature_data <- sf::st_transform(feature_data, crs)
   }
 
-  return(feature_data)
+  feature_data
 }
 
 
@@ -269,11 +310,9 @@ check_ogc_collection <- function(url, collection) {
     assertthat::is.string(collection)
   )
 
-  # Ensure clean base URL
-  url <- sub("/+$", "", url)
-  collections_url <- sprintf("%s/collections?f=json", url)
+  url              <- sub("/+$", "", url)
+  collections_url  <- sprintf("%s/collections?f=json", url)
 
-  # Fetch JSON metadata
   api_meta <- tryCatch({
     jsonlite::read_json(collections_url)
   }, error = function(e) {
@@ -289,7 +328,6 @@ check_ogc_collection <- function(url, collection) {
     )
   })
 
-  # Extract available collection IDs
   available_collections <- sapply(api_meta$collections, function(x) x$id)
 
   if (!collection %in% available_collections) {
