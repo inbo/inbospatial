@@ -19,3 +19,13 @@ A lightweight helper function that queries the \verb{/collections} endpoint of a
 OGC API using JSON. It verifies if a specified collection exists and provides
 a helpful error message with valid names if it does not.
 }
+\examples{
+ \dontrun{
+api_url <- "https://geo.api.vlaanderen.be/Wegenregister/ogc/features/v1"
+check <- check_ogc_collection(api_url, "Wegsegment")
+check
+
+# An informative error is thrown when collection does not exist
+check <- try(check_ogc_collection(api_url, "foutieve_laag"))
+}
+}

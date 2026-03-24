@@ -32,8 +32,7 @@ be in WGS84 (EPSG:4326).}
 interval (e.g., \code{"2018-02-12T23:20:50Z"} or
 \code{"2018-02-12T00:00:00Z/2018-03-18T12:31:12Z"}).}
 
-\item{properties}{A character vector of specific column names to return.
-Reduces download size if you only need a few attributes.}
+\item{properties}{A character vector of specific column names to return.}
 
 \item{cql_filter}{A character string containing a CQL2-text filter to apply
 attribute or complex spatial filtering on the server.}
@@ -73,7 +72,7 @@ roads_sample <- get_feature_ogc(
 # 2. Spatial Filtering & CRS Transformation:
 # Fetch features within a WGS84 bounding box and project to Belgian Lambert 72
 my_bbox <- sf::st_bbox(
-  c(xmin = 4.39, ymin = 51.21, xmax = 4.40, ymax = 51.22),
+  c(xmin = 4.39, ymin = 51.21, xmax = 4.50, ymax = 51.50),
   crs = sf::st_crs(4326)
 )
 roads_bbox <- get_feature_ogc(

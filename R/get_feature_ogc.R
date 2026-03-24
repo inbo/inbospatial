@@ -13,6 +13,15 @@
 #'
 #' @importFrom assertthat assert_that is.string
 #' @importFrom jsonlite read_json
+#' @examples
+#'  \dontrun{
+#' api_url <- "https://geo.api.vlaanderen.be/Wegenregister/ogc/features/v1"
+#' check <- check_ogc_collection(api_url, "Wegsegment")
+#' check
+#'
+#' # An informative error is thrown when collection does not exist
+#' check <- try(check_ogc_collection(api_url, "foutieve_laag"))
+#' }
 check_ogc_collection <- function(url, collection) {
   assertthat::assert_that(
     assertthat::is.string(url),
@@ -74,7 +83,6 @@ check_ogc_collection <- function(url, collection) {
 #'   interval (e.g., `"2018-02-12T23:20:50Z"` or
 #'   `"2018-02-12T00:00:00Z/2018-03-18T12:31:12Z"`).
 #' @param properties A character vector of specific column names to return.
-#'   Reduces download size if you only need a few attributes.
 #' @param cql_filter A character string containing a CQL2-text filter to apply
 #'   attribute or complex spatial filtering on the server.
 #' @param limit Numeric. Maximum number of features to retrieve. If `NULL`
@@ -146,7 +154,7 @@ get_feature_ogc <- function(
     crs = NULL, quiet = TRUE, ...
 ) {
 
-  # 1. Validate inputs & Check Collection -------------------------------------
+  # Validate inputs & Check Collection
   assertthat::assert_that(
     assertthat::is.string(url),
     assertthat::is.string(collection),
@@ -156,7 +164,7 @@ get_feature_ogc <- function(
   url <- sub("/+$", "", url)
   check_ogc_collection(url, collection)
 
-  # 2. Build the Base Request -------------------------------------------------
+  # Build the base request
   page_size <- 10000
   if (!is.null(limit)) {
     assertthat::assert_that(assertthat::is.number(limit))
@@ -169,7 +177,7 @@ get_feature_ogc <- function(
       limit = page_size
     )
 
-  # 3. Apply OGC API Query Parameters -----------------------------------------
+  # Apply OGC API query parameters
   if (!is.null(bbox)) {
     if (!inherits(bbox, "bbox")) {
       names(bbox) <- c("xmin", "ymin", "xmax", "ymax")
@@ -202,7 +210,7 @@ get_feature_ogc <- function(
     )
   }
 
-  # 4. Custom Pagination Loop -------------------------------------------------
+  # Custom Pagination Loop
   if (!quiet) message("Connecting via optimized GeoPackage pagination...")
 
   next_url <- req$url
@@ -236,23 +244,31 @@ get_feature_ogc <- function(
       break
     }
 
-    # Extract the "next" link from the HTTP Link header
-    link_header <- httr2::resp_header(resp, "Link")
+    # Extract the "next" link from the HTTP headers safely
+    headers <- httr2::resp_headers(resp)
+
+    # Grab ALL headers named "link"
+    all_links <- unlist(headers[names(headers) == "link"])
+
     next_url <- NULL
 
-    if (!is.null(link_header)) {
-      # Split by comma in case of multiple links (e.g., rel="alternate", rel="next")
-      links <- strsplit(link_header, ",")[[1]]
-      next_link_str <- links[grepl('rel="next"', links)]
+    if (length(all_links) > 0) {
+      # Find the specific link header that contains rel="next"
+      next_link_str <- all_links[grepl('rel="next"', all_links)]
 
       if (length(next_link_str) > 0) {
         # Extract the URL from inside the angle brackets: <https://...>
+        # Example format: <https://...startIndex=20000>; rel="next"; type="..."
         next_url <- sub('.*<([^>]+)>.*', '\\1', next_link_str[1])
+
+        # OGC APIs sometimes use encoded ampersands in the link header
+        # (e.g., &amp;) which can break the next request. Safely decode them:
+        next_url <- gsub("&amp;", "&", next_url)
       }
     }
   }
 
-  # 5. Compile and Post-Process Data ------------------------------------------
+  # Compile and Post-Process Data
   # Combine all chunks into one sf object
   feature_data <- do.call(rbind, results_list)
 
@@ -260,7 +276,6 @@ get_feature_ogc <- function(
   if (!is.null(limit) && nrow(feature_data) > limit) {
     feature_data <- feature_data[seq_len(limit), ]
   }
-
 
   # Handle properties subsetting locally if the server ignored it
   # (This is standard behavior when servers export to GeoPackage)
