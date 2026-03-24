@@ -68,7 +68,7 @@ library("ows4R")
 
 We can connect a WCS client.
 
-```{r}
+```{r wcs-client}
 wcs <- ows4R::WCSClient$new(
   "https://geo.api.vlaanderen.be/DHMV/wcs", "2.0.1",
   logger = "INFO"
@@ -78,7 +78,7 @@ wcs <- ows4R::WCSClient$new(
 
 We can easily query the capabilities:
 
-```{r}
+```{r capabilities}
 caps <- wcs$getCapabilities()
 ```
 
@@ -94,7 +94,7 @@ The "capabilities" are, per OGC standards, your go-to place for finding WCS docu
 
 In R, we can receive further information conveniently via `ows4R`. This works via the "coverage summary" &#x2026;
 
-```{r}
+```{r coverage-summary}
 feature <- "DHMVII_DTM_1m"
 dtm_smry <- caps$findCoverageSummaryById(feature, exact = TRUE)
 dtm_smry
@@ -102,7 +102,7 @@ dtm_smry
 
 &#x2026; and the coverage description.
 
-```{r}
+```{r coverage-description}
 # Get description from the WCS client
 dtm_des <- wcs$describeCoverage(feature)
 dtm_des
@@ -111,7 +111,7 @@ dtm_des
 
 Finally, it is important to know which dimensions are available: `LON/LAT`, `x/y`, or maybe `time`?
 
-```{r}
+```{r dimensions}
 dtm_dims <- dtm_smry$getDimensions()
 dtm_dims
 ```
@@ -121,7 +121,7 @@ So far, so good.
 
 Now, following the tutorials to get some real data:
 
-```{r}
+```{r testdata}
 x_test <- 148600
 y_test <- 208900
 range_m <- 2 # (+/- m)
@@ -136,7 +136,7 @@ hopo_boxed <- ows4R::OWSUtils$toBBOX(
 
 I will write the file to disk:
 
-```{r, error=TRUE}
+```{r write-mht-file, error=TRUE}
 mht_file <- tempfile(fileext = ".mht")
 
 tryCatch({
@@ -211,7 +211,7 @@ And, luckily, at some careless map movement, I received an error output from QGI
 -  `https://geo.api.vlaanderen.be/DHMV/wcs?SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&FORMAT=GeoTIFF&COVERAGE=DHMVII_DTM_1m&BBOX=162064,165735,170953,168882&CRS=EPSG:31370&RESPONSE_CRS=EPSG:31370&WIDTH=1622&HEIGHT=574`
 
 
-```{r echo=FALSE, out.width='90%'}
+```{r fig-qgis, echo=FALSE, out.width='90%'}
 knitr::include_graphics("../man/figures/qgis_lead.avif")
 ```
 
@@ -263,7 +263,7 @@ Here is what I found:
 
 After some more trial and error, I could construct working URLs in R and generalize this to a function.
 
-```{r}
+```{r get-elevation-wcs}
 get_elevation_wcs <- function(x, y, range_m = 1, tiff_file = NULL) {
   # Please note that this function lacks a lot of
   # assertions and documentation.
@@ -312,7 +312,7 @@ get_elevation_wcs <- function(x, y, range_m = 1, tiff_file = NULL) {
 
 Example usage:
 
-```{r}
+```{r usage}
 x_test <- 148600
 y_test <- 208900
 range_m <- 10 # (+/- m)
@@ -340,7 +340,7 @@ Your browser might detect that the file is an `mht`, or not.
 
 Here is an example of how to build a query with the current version of DHMV:
 
-```{r}
+```{r dhmv-query}
 url <- httr::parse_url("https://geo.api.vlaanderen.be/DHMV/wcs")
 
 # the query parameters which worked in QGIS
@@ -374,35 +374,61 @@ response <- httr::GET(
 
 With the `mht` specifications [found online](https://docs.fileformat.com/web/mht), it is possible to create an unpacking function, which has become part of this very package.
 
-```{r}
-library("readr")
-library("stringr")
-
+```{r unpack-mht}
 unpack_mht <- function(path) {
-  lines_raw <- readr::read_lines_raw(path)
-  lines_char <- suppressWarnings(readr::read_lines(path, progress = FALSE))
   raw_vector <- readr::read_file_raw(path)
 
-  assertthat::assert_that(any(stringr::str_detect(lines_char, "image/tiff")))
-  start <- which(stringr::str_detect(lines_char, "^(II|MM)\\*"))
-  end <- length(lines_raw) - 1
-  pos_start <- length(unlist(lines_raw[1:(start - 1)])) + start
-  pos_end <- length(raw_vector) - (length(lines_raw[end + 1]) + 1)
+  # 1. MATCH start of (geoTiff) big or little endian ^(II|MM)\*
+  # Look for \nII* (0x0a + 49 49 2a) or \nMM* (0x0a + 4d 4d 2a)
+  match_II <- grepRaw(as.raw(c(0x0a, 0x49, 0x49, 0x2a)), raw_vector)[1]
+  match_MM <- grepRaw(as.raw(c(0x0a, 0x4d, 0x4d, 0x2a)), raw_vector)[1]
+  
+  valid_matches <- c(match_II, match_MM)
+  valid_matches <- valid_matches[!is.na(valid_matches)]
 
+  if (length(valid_matches) > 0) {
+    # +1 to step over the newline character and start exactly at 'I' or 'M'
+    pos_start <- min(valid_matches) + 1 
+  } else {
+    # Edge case: If it's on the very first line of the file (no preceding \n)
+    if (all(raw_vector[1:3] == as.raw(c(0x49, 0x49, 0x2a))) ||
+        all(raw_vector[1:3] == as.raw(c(0x4d, 0x4d, 0x2a)))) {
+      pos_start <- 1
+    } else {
+      stop("Could not find TIFF header (II* or MM*) at the start of any line.")
+    }
+  }
+
+  # 2. Drop the last line
+  # MHT files end with a boundary string that usually starts with two hyphens
+  # We search for \n-- to safely find the closing boundary and cut the file there.
+  boundary_matches <- grepRaw(as.raw(c(0x0a, 0x2d, 0x2d)), raw_vector, all = TRUE)
+
+  if (length(boundary_matches) > 0) {
+    pos_end <- tail(boundary_matches, 1) - 1
+    # Check for Windows \r\n and step back one more byte if needed
+    if (raw_vector[pos_end] == as.raw(0x0d)) pos_end <- pos_end - 1
+  } else {
+    # Fallback if no boundary exists: chop at the last newline
+    newlines <- grepRaw(as.raw(0x0a), raw_vector, all = TRUE)
+    pos_end <- tail(newlines, 1) - 1
+    if (raw_vector[pos_end] == as.raw(0x0d)) pos_end <- pos_end - 1
+  }
+
+  # 3. Extract and Write
   tif <- raw_vector[pos_start:pos_end]
-  tif_path <- stringr::str_replace(path, "mht", "tif")
-  readr::write_file(
-    tif,
-    tif_path
-  )
-  tif_path
+  tif_path <- stringr::str_replace(path, "\\.mht$", ".tif")
+  
+  readr::write_file(tif, tif_path)
+  
+  return(tif_path)
 }
 ```
 
 
 This way you get the elevation data extracted:
 
-```{r}
+```{r unpack-it}
 tif_file <- unpack_mht(mht_file)
 raster <- terra::rast(tif_file)
 plot(raster, col = gray.colors(256))
@@ -419,7 +445,7 @@ We now refined the `get_coverage_wcs()` procedure to solve the `mht` issue.
 
 Here is how to use it, for the same case as above:
 
-```{r}
+```{r use-get-coverage-wcs}
 bbox <- sf::st_bbox(
   c(xmin = 148000, xmax = 149000, ymin = 208000, ymax = 209000),
   crs = sf::st_crs(31370)

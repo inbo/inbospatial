@@ -229,31 +229,53 @@ get_coverage_wcs <- function(
 #'
 #' @keywords internal
 #' @noRd
-#'
-#' @details Need three ways to read in the `mht` file to get the `tif` file out.
-#' `read_lines()` cannot read all lines due to embedded `nulls`.
-#' Therefore, also `read_lines_raw()` needed for positioning of `tif` part in
-#' file.
-#' `write_lines()` does not work correctly on `lines_raw[start:end]`
-#' possibly a bug or edge case in `write_lines()`
-#' Therefore, also `read_file_raw()` needed to extract from the raw vector
 unpack_mht <- function(path) {
-  lines_raw <- readr::read_lines_raw(path)
-  lines_char <- suppressWarnings(readr::read_lines(path, progress = FALSE))
   raw_vector <- readr::read_file_raw(path)
 
-  assertthat::assert_that(any(stringr::str_detect(lines_char, "image/tiff")))
-  start <- which(stringr::str_detect(lines_char, "^(II|MM)\\*"))
-  end <- length(lines_raw) - 1
-  pos_start <- length(unlist(lines_raw[1:(start - 1)])) + start
-  pos_end <- length(raw_vector) - (length(lines_raw[end + 1]) + 1)
+  # 1. Match start of tiff part ^(II|MM)\*
+  # Can be little or big endian
+  # Look for \nII* (0x0a + 49 49 2a) or \nMM* (0x0a + 4d 4d 2a)
+  match_II <- grepRaw(as.raw(c(0x0a, 0x49, 0x49, 0x2a)), raw_vector)[1]
+  match_MM <- grepRaw(as.raw(c(0x0a, 0x4d, 0x4d, 0x2a)), raw_vector)[1]
 
+  valid_matches <- c(match_II, match_MM)
+  valid_matches <- valid_matches[!is.na(valid_matches)]
+
+  if (length(valid_matches) > 0) {
+    # +1 to step over the newline character and start exactly at 'I' or 'M'
+    pos_start <- min(valid_matches) + 1
+  } else {
+    # Edge case: If it's on the very first line of the file (no preceding \n)
+    if (all(raw_vector[1:3] == as.raw(c(0x49, 0x49, 0x2a))) ||
+        all(raw_vector[1:3] == as.raw(c(0x4d, 0x4d, 0x2a)))) {
+      pos_start <- 1
+    } else {
+      stop("Could not find TIFF header (II* or MM*) at the start of any line.")
+    }
+  }
+
+  # 2. Drop the last line
+  # MHT files end with a boundary string that usually starts with two hyphens
+  # We search for \n-- to safely find the closing boundary and cut the file.
+  boundary_matches <- grepRaw(as.raw(c(0x0a, 0x2d, 0x2d)), raw_vector, all = TRUE)
+
+  if (length(boundary_matches) > 0) {
+    pos_end <- tail(boundary_matches, 1) - 1
+    # Check for Windows \r\n and step back one more byte if needed
+    if (raw_vector[pos_end] == as.raw(0x0d)) pos_end <- pos_end - 1
+  } else {
+    # Fallback if no boundary exists: chop at the last newline
+    newlines <- grepRaw(as.raw(0x0a), raw_vector, all = TRUE)
+    pos_end <- tail(newlines, 1) - 1
+    if (raw_vector[pos_end] == as.raw(0x0d)) pos_end <- pos_end - 1
+  }
+
+  # 3. Extract and Write
   tif <- raw_vector[pos_start:pos_end]
-  tif_path <- stringr::str_replace(path, "mht", "tif")
-  readr::write_file(
-    tif,
-    tif_path
-  )
+  tif_path <- stringr::str_replace(path, "\\.mht$", ".tif")
+
+  readr::write_file(tif, tif_path)
+
   return(tif_path)
 }
 
