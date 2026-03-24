@@ -48,7 +48,7 @@ CRS.}
 \item{quiet}{Logical. Should the download progress be suppressed? Defaults to
 \code{TRUE}.}
 
-\item{...}{Additional arguments passed on to \code{sf::read_sf()}.}
+\item{...}{Additional name-value pairs passed on to \code{httr2::req_url_query}.}
 }
 \value{
 An \code{sf} (simple feature) object.
