@@ -5,17 +5,12 @@
 
 <!-- badges: start -->
 
-[![Project Status: Concept – Minimal or no implementation has been done
-yet, or the repository is only intended to be a limited example, demo,
-or
-proof-of-concept.](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://opensource.org/license/mit)
+[![Project Status: Active – The project has reached a stable, usable
+state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/license/mit)
 [![Release](https://img.shields.io/github/release/inbo/inbospatial.svg)](https://github.com/inbo/inbospatial/releases)
-![GitHub](https://img.shields.io/github/license/inbo/inbospatial) [![R
-build
-status](https://github.com/inbo/inbospatial/workflows/check%20package%20on%20main/badge.svg)](https://github.com/inbo/inbospatial/actions)
+![GitHub](https://img.shields.io/github/license/inbo/inbospatial)
 ![r-universe
 name](https://inbo.r-universe.dev/badges/:name?color=c04384)
 ![r-universe package](https://inbo.r-universe.dev/badges/inbospatial)
