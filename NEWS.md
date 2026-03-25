@@ -1,4 +1,4 @@
-# inbospatial 0.0.4
+# inbospatial 0.1.0
 
 ## Features
 
