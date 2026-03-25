@@ -70,19 +70,6 @@ system.time({
 provinces
 ```
 
-
-```{r provinces-wfs, eval=FALSE}
-wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
-
-provinces <- get_feature_wfs(
-  wfs = wfs_vrbg,
-  layername = "VRBG:Refprv",
-  crs = "EPSG:31370"
-)
-
-provinces
-```
-
 You can achieve (almost) the same result using a combination of `sf::read_sf()` and `sf::st_transform()`.
 For `WFS`, you need to prefix the url with `"WFS:"`.
 For `OGC API features`, you need to prefix the url with "`OAPIF`".
@@ -112,6 +99,21 @@ A binary format is much smaller and therefore can be downloaded faster.
 It's possible that not all providers of `OGC API features` have implemented `geopackage` as an export option.
 If that is the case, you can try `read_sf()` with `OAPIF` instead.
 
+For reference, here is the code you would use for an equivalent `WFS` query:
+
+```{r provinces-wfs, eval=FALSE}
+wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
+
+provinces <- get_feature_wfs(
+  wfs = wfs_vrbg,
+  layername = "VRBG:Refprv",
+  crs = "EPSG:31370"
+)
+
+provinces
+```
+
+
 For `WFS`, you may notice other differences as well, most notably for field specifications.
 The reason for such differences is that `get_feature_wfs()` retrieves whatever information that is identified from the WFS request - in the same way as you would paste the request in the browser.
 This result is then saved temporarily to a `.GML` file and read with `sf::read_sf()`.
@@ -140,17 +142,6 @@ west_vlaanderen
 ```
 
 
-```{r west-vlaanderen-wfs, eval=FALSE}
-wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
-
-west_vlaanderen_wfs <- get_feature_wfs(
-  wfs = wfs_vrbg,
-  layername = "VRBG:Refprv",
-  cql_filter = "NAAM='West-Vlaanderen'"
-)
-
-west_vlaanderen_wfs
-```
 
 Here, we could have also used `sf::read_sf()` in combination with an [OGR SQL query](https://gdal.org/en/latest/user/ogr_sql_dialect.html):
 
@@ -163,6 +154,20 @@ waldo::compare(west_vlaanderen, west_vlaanderen2)
 ```
 
 As before, we notice some differences in naming of the fields and the addition of an extra field `id` when using `read_sf()`.
+
+For reference, here is the code you would use for an equivalent `WFS` query:
+
+```{r west-vlaanderen-wfs, eval=FALSE}
+wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
+
+west_vlaanderen_wfs <- get_feature_wfs(
+  wfs = wfs_vrbg,
+  layername = "VRBG:Refprv",
+  cql_filter = "NAAM='West-Vlaanderen'"
+)
+
+west_vlaanderen_wfs
+```
 
 ## Request a subset of fields
 
@@ -185,6 +190,19 @@ prov_fields
 ```
 
 
+
+Again, we can use `sf::read_sf()` in combination with an [OGR SQL query](https://gdal.org/en/latest/user/ogr_sql_dialect.html):
+
+```{r}
+prov_fields_sf <- read_sf(paste0("OAPIF:", ogc_vrbg),
+  query = "SELECT NAAM, NUTS2 FROM Refprv"
+)
+
+waldo::compare(prov_fields, prov_fields_sf)
+```
+
+For reference, here is the code you would use for an equivalent `WFS` query:
+
 ```{r prov-fields-wfs, eval=FALSE}
 wfs_vrbg <- "https://geo.api.vlaanderen.be/VRBG/wfs"
 
@@ -196,16 +214,6 @@ prov_fields_wfs <- get_feature_wfs(
 )
 
 prov_fields_wfs
-```
-
-Again, we can use `sf::read_sf()` in combination with an [OGR SQL query](https://gdal.org/en/latest/user/ogr_sql_dialect.html):
-
-```{r}
-prov_fields_sf <- read_sf(paste0("OAPIF:", ogc_vrbg),
-  query = "SELECT NAAM, NUTS2 FROM Refprv"
-)
-
-waldo::compare(prov_fields, prov_fields_sf)
 ```
 
 ## Meteorological data example
@@ -274,7 +282,24 @@ bwk_bbox_ogc
 sf::st_geometry(bwk_bbox_ogc) |> plot()
 ```
 
+This can also be done using the `wkt_filter` argument from `sf::read_sf`.
 
+```{r eval=FALSE}
+bwk_bbox_sf <- read_sf(
+  paste0("OAPIF:", ogc_bwk),
+  layer = "Bwkhab",
+  wkt_filter = sf::st_as_text(
+    sf::st_as_sfc(
+      st_bbox(
+        c(xmin = 142600, ymin = 153800, xmax = 146000, ymax = 156900),
+        crs = sf::st_crs(31370)
+      )
+    )
+  )
+)
+```
+
+For reference, here is the code you would use for an equivalent `WFS` query:
 
 ```{r bwk-bbox-wfs, eval=FALSE}
 wfs_bwk <- "https://geo.api.vlaanderen.be/BWK/wfs"
@@ -296,23 +321,6 @@ bwk_bbox_wfs %>%
   st_collection_extract("POLYGON") %>%
   st_geometry() %>%
   plot()
-```
-
-This can also be done using the `wkt_filter` argument from `sf::read_sf`.
-
-```{r eval=FALSE}
-bwk_bbox_sf <- read_sf(
-  paste0("OAPIF:", ogc_bwk),
-  layer = "Bwkhab",
-  wkt_filter = sf::st_as_text(
-    sf::st_as_sfc(
-      st_bbox(
-        c(xmin = 142600, ymin = 153800, xmax = 146000, ymax = 156900),
-        crs = sf::st_crs(31370)
-      )
-    )
-  )
-)
 ```
 
 
