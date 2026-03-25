@@ -19,14 +19,18 @@ License: MIT + file LICENSE
 URL: https://github.com/inbo/inbospatial,
     https://inbo.github.io/inbospatial/
 BugReports: https://github.com/inbo/inbospatial/issues
+Depends:
+    R (>= 4.1.0)
 Imports: 
     assertthat,
-    httr,
+    httr2,
+    jsonlite,
     magrittr,
     readr,
     sf,
     stringr,
     terra,
+    utils,
     xml2
 Suggests: 
     dplyr,

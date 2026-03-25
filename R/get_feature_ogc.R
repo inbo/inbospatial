@@ -106,14 +106,14 @@ get_feature_ogc <- function(
 
   if (!quiet) message("Connecting via optimized GeoPackage pagination...")
 
-  next_url     <- req$url
+  next_url <- req$url
   results_list <- list()
   total_fetched <- 0L
 
   while (!is.null(next_url)) {
     if (!quiet) message("Fetching page: ", next_url)
 
-    resp      <- httr2::request(next_url) |> httr2::req_perform()
+    resp <- httr2::request(next_url) |> httr2::req_perform()
     page_data <- fetch_ogc_page(resp, quiet)
 
     if (nrow(page_data) == 0L) {
@@ -121,7 +121,7 @@ get_feature_ogc <- function(
       break
     }
 
-    results_list  <- c(results_list, list(page_data))
+    results_list <- c(results_list, list(page_data))
     total_fetched <- total_fetched + nrow(page_data)
 
     reached_limit <- !is.null(limit) && total_fetched >= limit
@@ -137,7 +137,7 @@ get_feature_ogc <- function(
 
 # -- Helpers -------------------------------------------------------------------
 
-#' Build the initial httr2 request with all OGC query parameters
+#' Build the initial `httr2` request with all OGC query parameters
 #'
 #' @inheritParams get_feature_ogc
 #' @return An `httr2_request` object.

@@ -32,7 +32,11 @@
 #' @importFrom sf st_as_sf st_transform st_coordinates
 #' @importFrom terra rast `res<-` project
 #' @importFrom assertthat assert_that
-#' @importFrom httr parse_url build_url GET write_disk stop_for_status
+#' @importFrom httr2
+#' request
+#' req_url_query
+#' req_perform
+#' resp_check_status
 #' @importFrom stringr str_extract str_replace
 #'
 #' @export
@@ -69,7 +73,6 @@ get_coverage_wcs <- function(
   wcs <- match.arg(wcs)
   wcs_crs <- match.arg(wcs_crs)
   bbox_crs <- match.arg(bbox_crs)
-
 
   # warn for wcs specifics
   problems <- character()
@@ -113,7 +116,6 @@ get_coverage_wcs <- function(
   # set url
   wcs_url <- get_wcs_url(wcs)
 
-
   # resolution <=0 will give a `404`
   assert_that(is.numeric(resolution) && resolution > 0)
 
@@ -126,85 +128,67 @@ get_coverage_wcs <- function(
     as.vector() -> bbox
   names(bbox) <- c("xmin", "xmax", "ymin", "ymax")
 
-  # prepare url request
-  url <- parse_url(wcs_url)
-
   # variant: version 2.0.1
   if (version == "2.0.1") {
     epsg_code <- str_extract(wcs_crs, "\\d+")
-    url$query <- list(
-      SERVICE = "WCS",
-      VERSION = version,
-      REQUEST = "GetCoverage",
-      COVERAGEID = layername,
-      CRS = wcs_crs,
-      SUBSET = paste0(
-        "x,http://www.opengis.net/def/crs/EPSG/0/",
-        epsg_code, "(",
-        bbox[["xmin"]],
-        ",",
-        bbox[["xmax"]], ")"
-      ),
-      SUBSET = paste0(
-        "y,http://www.opengis.net/def/crs/EPSG/0/",
-        epsg_code,
-        "(",
-        bbox[["ymin"]],
-        ",",
-        bbox[["ymax"]], ")"
-      ),
-      SCALEFACTOR = resolution,
-      FORMAT = "image/tiff",
-      RESPONSE_CRS = wcs_crs,
-      ...
-    )
-
-    # build and run the http request
-    request <- build_url(url)
     mht_file <- tempfile(fileext = ".mht")
-    http_response <- GET(
-      url = request,
-      write_disk(mht_file)
-    )
+
+    request(wcs_url) |>
+      req_url_query(
+        SERVICE = "WCS",
+        VERSION = version,
+        REQUEST = "GetCoverage",
+        COVERAGEID = layername,
+        CRS = wcs_crs,
+        SUBSET = paste0(
+          "x,http://www.opengis.net/def/crs/EPSG/0/",
+          epsg_code, "(",
+          bbox[["xmin"]], ",", bbox[["xmax"]], ")"
+        ),
+        SUBSET = paste0(
+          "y,http://www.opengis.net/def/crs/EPSG/0/",
+          epsg_code, "(",
+          bbox[["ymin"]], ",", bbox[["ymax"]], ")"
+        ),
+        SCALEFACTOR = resolution,
+        FORMAT = "image/tiff",
+        RESPONSE_CRS = wcs_crs,
+        ...
+      ) |>
+      req_perform(path = mht_file) |>
+      resp_check_status()
 
     # multipart file extract tif part
     tif_file <- unpack_mht(mht_file)
   } # /version 2.0.1
 
-
   # variant: version 1.0.0
   if (version == "1.0.0") {
-    url$query <- list(
-      SERVICE = "WCS",
-      VERSION = version,
-      REQUEST = "GetCoverage",
-      COVERAGE = layername,
-      CRS = wcs_crs,
-      BBOX = paste(
-        bbox[["xmin"]],
-        bbox[["ymin"]],
-        bbox[["xmax"]],
-        bbox[["ymax"]],
-        sep = ","
-      ),
-      RESX = resolution,
-      RESY = resolution,
-      FORMAT = ifelse(wcs == "mercatornet", "image/tiff", "geoTIFF"),
-      RESPONSE_CRS = wcs_crs,
-      ...
-    )
-
-    # build and run the http request
-    request <- build_url(url)
     tif_file <- tempfile(fileext = ".tif")
-    http_response <- GET(
-      url = request,
-      write_disk(tif_file)
-    )
-  }
 
-  # raise http errors
-  stop_for_status(http_response)
+    request(wcs_url) |>
+      req_url_query(
+        SERVICE = "WCS",
+        VERSION = version,
+        REQUEST = "GetCoverage",
+        COVERAGE = layername,
+        CRS = wcs_crs,
+        BBOX = paste(
+          bbox[["xmin"]],
+          bbox[["ymin"]],
+          bbox[["xmax"]],
+          bbox[["ymax"]],
+          sep = ","
+        ),
+        RESX = resolution,
+        RESY = resolution,
+        FORMAT = ifelse(wcs == "mercatornet", "image/tiff", "geoTIFF"),
+        RESPONSE_CRS = wcs_crs,
+        ...
+      ) |>
+      req_perform(path = tif_file) |>
+      resp_check_status()
+  } # /version 1.0.0
 
   # assemble the spatial raster
   raster <- rast(tif_file)
@@ -226,6 +210,7 @@ get_coverage_wcs <- function(
 #' @importFrom readr read_lines_raw read_lines read_file_raw write_file
 #' @importFrom assertthat assert_that
 #' @importFrom stringr str_detect str_replace
+#' @importFrom utils tail
 #'
 #' @return tif_path the path to the extracted geoTIFF.
 #'

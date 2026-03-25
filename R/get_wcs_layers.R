@@ -18,7 +18,12 @@
 #'   https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS
 #'
 #' @importFrom assertthat assert_that
-#' @importFrom httr parse_url build_url GET stop_for_status content
+#' @importFrom httr2
+#' request
+#' req_url_query
+#' req_perform
+#' resp_check_status
+#' resp_body_string
 #' @importFrom xml2 read_xml xml_find_all xml_find_first xml_text
 #' @importFrom stringr str_extract str_to_lower
 #'
@@ -35,7 +40,6 @@ get_wcs_layers <- function(
     wcs = c("dtm", "dsm", "omz", "omw", "dhmv", "mercatornet"),
     version = c("1.0.0", "2.0.1"),
     ...) {
-
   # prelim check
   version <- match.arg(version)
   wcs <- tolower(wcs) # case insensitive wcs
@@ -44,25 +48,21 @@ get_wcs_layers <- function(
   # set url
   wcs_url <- get_wcs_url(wcs)
 
-
-  # prepare url request
-  url <- parse_url(wcs_url)
-  url$query <- list(
-    SERVICE = "WCS",
-    VERSION = version,
-    REQUEST = "GetCapabilities",
-    ...
-  )
-
   # build and run the http request
-  request <- build_url(url)
-  http_response <- GET(url = request)
+  http_response <- request(wcs_url) |>
+    req_url_query(
+      SERVICE = "WCS",
+      VERSION = version,
+      REQUEST = "GetCapabilities",
+      ...
+    ) |>
+    req_perform()
 
   # raise http errors
-  stop_for_status(http_response)
+  resp_check_status(http_response)
 
   # parse the xml response
-  xml_data <- read_xml(content(http_response, as = "text", encoding = "UTF-8"))
+  xml_data <- read_xml(resp_body_string(http_response))
 
   # Helper function to extract text bypassing namespaces
   get_tag_text <- function(node, tag_name) {
@@ -78,7 +78,6 @@ get_wcs_layers <- function(
     nodes <- xml_find_all(xml_data, "//*[local-name()='CoverageOfferingBrief']")
     layernames <- sapply(nodes, get_tag_text, "name")
     descriptions <- sapply(nodes, get_tag_text, "label")
-
   } else { # variant: version 2.0.1
     # Find all CoverageSummary nodes, regardless of namespace
     nodes <- xml_find_all(xml_data, "//*[local-name()='CoverageSummary']")
@@ -88,13 +87,11 @@ get_wcs_layers <- function(
     if (descriptions[1] == "") {
       descriptions <- sapply(nodes, get_tag_text, "Title")
     }
-
     # Clean up empty/hierarchical nodes that don't have a direct CoverageId
     valid_layers <- layernames != ""
     layernames <- layernames[valid_layers]
     descriptions <- descriptions[valid_layers]
   }
-
 
   # assemble and return the data.frame
   data.frame(

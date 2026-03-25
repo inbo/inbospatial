@@ -60,7 +60,7 @@ Because, in fact, the `ows4R` package seems functional. In the tutorial mentione
 First, we need to load some packages.
 
 ```{r setup}
-library("httr")
+library("httr2")
 library("sf")
 library("terra")
 library("ows4R")
@@ -279,34 +279,31 @@ get_elevation_wcs <- function(x, y, range_m = 1, tiff_file = NULL) {
   base_url <- "https://geo.api.vlaanderen.be"
   endpoint <- "/DHMV/wcs" # nolint: absolute_path_linter
 
-  # the query parameters which worked in QGIS
-  elevation_query <- list(
-    service = "WCS",
-    version = "1.0.0",
-    request = "GetCoverage",
-    format = "GeoTIFF",
-    coverage = "DHMVII_DTM_1m",
-    bbox = bbox,
-    width = 2 * range_m,
-    height = 2 * range_m,
-    crs = "EPSG:31370"
-  )
-
   # get wcs data
   if (is.null(tiff_file)) {
     tiff_file <- tempfile(fileext = ".tiff")
   }
-  GET(url = modify_url(base_url, path = endpoint),
-      query = elevation_query,
-      write_disk(tiff_file))
-  # note: saving this to a file is optional,
-  # but might prevent double download or loss of data
+
+  httr2::url_modify(base_url, path = endpoint) |>
+    httr2::request() |>
+    # the query parameters which worked in QGIS
+    httr2::req_url_query(
+      service = "WCS",
+      version = "1.0.0",
+      request = "GetCoverage",
+      format = "GeoTIFF",
+      coverage = "DHMVII_DTM_1m",
+      bbox = bbox,
+      width = 2 * range_m,
+      height = 2 * range_m,
+      crs = "EPSG:31370"
+    ) |>
+    httr2::req_perform(path = tiff_file)
 
   # re-read raster file
   data <- rast(tiff_file)
 
   return(data)
-
 }
 ```
 
@@ -341,24 +338,24 @@ Your browser might detect that the file is an `mht`, or not.
 Here is an example of how to build a query with the current version of DHMV:
 
 ```{r dhmv-query}
-url <- httr::parse_url("https://geo.api.vlaanderen.be/DHMV/wcs")
+url <- "https://geo.api.vlaanderen.be/DHMV/wcs"
 
 # the query parameters which worked in QGIS
-url$query <- list(
-  SERVICE = "WCS",
-  VERSION = "2.0.1",
-  REQUEST = "GetCoverage",
-  FORMAT = "image/tiff",
-  COVERAGEID = "DHMVII_DTM_1m",
-  SUBSET = "x,http://www.opengis.net/def/crs/EPSG/0/EPSG:31370(148000,149000)",
-  SUBSET = "y,http://www.opengis.net/def/crs/EPSG/0/EPSG:31370(208000,209000)",
-  SCALEFACTOR = "1",
-  CRS = "EPSG:31370",
-  RESPONSE_CRS = "EPSG:31370"
-)
-
-request <- httr::build_url(url)
-
+request <- httr2::request(url) |>
+  httr2::req_url_query(
+    SERVICE = "WCS",
+    VERSION = "2.0.1",
+    REQUEST = "GetCoverage",
+    FORMAT = "image/tiff",
+    COVERAGEID = "DHMVII_DTM_1m",
+    SUBSET =
+      "x,http://www.opengis.net/def/crs/EPSG/0/EPSG:31370(148000,149000)",
+    SUBSET =
+      "y,http://www.opengis.net/def/crs/EPSG/0/EPSG:31370(208000,209000)",
+    SCALEFACTOR = "1",
+    CRS = "EPSG:31370",
+    RESPONSE_CRS = "EPSG:31370"
+  )
 
 # get wcs data
 mht_file <- tempfile(fileext = ".mht")
@@ -366,9 +363,9 @@ mht_file <- tempfile(fileext = ".mht")
 print(request)
 print(mht_file)
 
-response <- httr::GET(
-  url = request,
-  write_disk(mht_file)
+response <- httr2::req_perform(
+  req = request,
+  path = mht_file
 )
 ```
 

@@ -117,7 +117,7 @@ The reason for such differences is that `get_feature_wfs()` retrieves whatever i
 This result is then saved temporarily to a `.GML` file and read with `sf::read_sf()`.
 Passing the WFS directly to the `dsn` argument of `sf::read_sf`, on the other hand, will translate the request to a form that will pass through [the GDAL WFS driver](https://gdal.org/en/latest/drivers/vector/wfs.html), which handles field specifications by reading them from a `DescribeFeatureType` request:
 
-> At the first opening, the content of the result of the `GetCapabilities` request will be appended to the file, so that it can be cached for later openings of the dataset. The same applies for the `DescribeFeatureType` request issued to discover the field definition of each layer.
+>At the first opening, the content of the result of the `GetCapabilities` request will be appended to the file, so that it can be cached for later openings of the dataset. The same applies for the `DescribeFeatureType` request issued to discover the field definition of each layer.
 
 ## Apply a CQL-Filter to filter on a field
 
@@ -367,7 +367,7 @@ Behold, there is a `get_coverage_wcs()` available for some of the web services w
 To know which layers are available in the WCS service, you can use the following code which is based on the `get_wcs_layers()` function.
 Here we apply the function to all of the supported WCS services and gather everything in a single table:
 
-```{r}
+```{r results="asis"}
 wcs <- c("dtm", "dsm", "omz", "omw", "dhmv", "mercatornet")
 
 list_of_dfs <- lapply(wcs, function(x) {
@@ -378,8 +378,13 @@ list_of_dfs <- lapply(wcs, function(x) {
 
 wcs_layers_df <- do.call(rbind, list_of_dfs)
 
-wcs_layers_df |>
-  knitr::kable()
+if (knitr::is_html_output()) {
+  cat("<div style='max-height: 400px; overflow-y: auto;'>")
+  print(knitr::kable(wcs_layers_df, format = "html"))
+  cat("</div>")
+} else {
+  print(knitr::kable(wcs_layers_df))
+}
 ```
 
 
