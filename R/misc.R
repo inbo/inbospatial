@@ -6,6 +6,9 @@
 #' \code{install.packages()} command to install them.
 #'
 #' @param pkgs A character vector of package names.
+#' @param quietly logical: should progress and error messages be suppressed?
+#'                (from ?loadNamespace)
+#' @param ... further parameters passed to `require` or `requireNamespace`
 #'
 #' @examples
 #' \dontrun{
@@ -19,11 +22,18 @@
 #' assert_that
 #' @keywords internal
 #' @noRd
-require_pkgs <- function(pkgs) {
-  assert_that(is.character(pkgs))
+#'
+require_pkgs <- function(pkgs, quietly = TRUE, ...) {
+
+  stopifnot(
+    "Requires package `assertthat`." =
+      requireNamespace("assertthat", quietly = TRUE)
+  )
+  assertthat::assert_that(is.character(pkgs))
+
   available <- vapply(
     pkgs,
-    function(x) requireNamespace(x, quietly = TRUE),
+    function(x) requireNamespace(x, quietly = quietly, ...),
     FUN.VALUE = logical(1)
   )
   if (!all(available)) {

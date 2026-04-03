@@ -40,6 +40,9 @@ get_wcs_layers <- function(
     wcs = c("dtm", "dsm", "omz", "omw", "dhmv", "mercatornet"),
     version = c("1.0.0", "2.0.1"),
     ...) {
+
+  require_pkgs(c("httr2", "xml2", "stringr"))
+
   # prelim check
   version <- match.arg(version)
   wcs <- tolower(wcs) # case insensitive wcs
@@ -49,40 +52,50 @@ get_wcs_layers <- function(
   wcs_url <- get_wcs_url(wcs)
 
   # build and run the http request
-  http_response <- request(wcs_url) |>
-    req_url_query(
+  http_response <- httr2::request(wcs_url) |>
+    httr2::req_url_query(
       SERVICE = "WCS",
       VERSION = version,
       REQUEST = "GetCapabilities",
       ...
     ) |>
-    req_perform()
+    httr2::req_perform()
 
   # raise http errors
-  resp_check_status(http_response)
+  httr2::resp_check_status(http_response)
 
   # parse the xml response
-  xml_data <- read_xml(resp_body_string(http_response))
+  xml_data <- xml2::read_xml(httr2::resp_body_string(http_response))
 
   # Helper function to extract text bypassing namespaces
   get_tag_text <- function(node, tag_name) {
     # Searches for any descendant node with the matching local name
     xpath <- sprintf(".//*[local-name()='%s']", tag_name)
-    val <- xml_text(xml_find_first(node, xpath))
+    val <- xml2::xml_text(xml2::xml_find_first(node, xpath))
     ifelse(is.na(val), "", val)
   }
 
   # extract information based on WCS version
   if (version == "1.0.0") {
+
     # Find all CoverageOfferingBrief nodes, regardless of namespace
-    nodes <- xml_find_all(xml_data, "//*[local-name()='CoverageOfferingBrief']")
+    nodes <- xml2::xml_find_all(
+      xml_data,
+      "//*[local-name()='CoverageOfferingBrief']"
+    )
     layernames <- sapply(nodes, get_tag_text, "name")
     descriptions <- sapply(nodes, get_tag_text, "label")
+
   } else { # variant: version 2.0.1
+
     # Find all CoverageSummary nodes, regardless of namespace
-    nodes <- xml_find_all(xml_data, "//*[local-name()='CoverageSummary']")
+    nodes <- xml2::xml_find_all(
+      xml_data,
+      "//*[local-name()='CoverageSummary']"
+    )
     layernames <- sapply(nodes, get_tag_text, "CoverageId")
     descriptions <- sapply(nodes, get_tag_text, "Abstract")
+
     # if no Abstract, use Title
     if (descriptions[1] == "") {
       descriptions <- sapply(nodes, get_tag_text, "Title")
@@ -91,6 +104,7 @@ get_wcs_layers <- function(
     valid_layers <- layernames != ""
     layernames <- layernames[valid_layers]
     descriptions <- descriptions[valid_layers]
+
   }
 
   # assemble and return the data.frame

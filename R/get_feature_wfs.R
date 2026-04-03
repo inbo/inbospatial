@@ -35,6 +35,13 @@
 #' requested features.
 #' @param ... Additional key-value pairs passed on to the WFS query.
 #'
+#' @details See
+#' \url{https://tutorials.inbo.be/tutorials/spatial_wfs_services/}
+#'  for more information.
+#' @return An `sf` (simple feature) object.
+#' @export
+#' @family topics on using web services
+#'
 #' @importFrom httr2
 #' request
 #' req_url_query
@@ -47,12 +54,6 @@
 #' @importFrom xml2 as_list
 #' @importFrom assertthat assert_that is.string
 #'
-#' @details See
-#' \url{https://tutorials.inbo.be/tutorials/spatial_wfs_services/}
-#'  for more information.
-#' @family topics on using web services
-#'
-#' @export
 #' @examples
 #' \dontrun{
 #' vlaanderen <- get_feature_wfs(
@@ -81,17 +82,33 @@ get_feature_wfs <- function(
     property_name = NULL,
     result_type = c("results", "hits"),
     ...) {
+
+  require_pkgs(c("httr2", "sf", "xml2"))
+
   result_type <- match.arg(result_type)
-  assert_that(grepl("\\d\\.\\d\\.\\d", version))
-  assert_that(is.null(crs) || grepl("EPSG:\\d+", crs))
-  assert_that(is.null(layername) || is.string(layername))
-  assert_that(is.null(filter) || is.string(filter))
-  assert_that(is.null(cql_filter) || is.string(cql_filter))
-  assert_that(is.null(property_name) || is.string(property_name))
+
+  assertthat::assert_that(grepl("\\d\\.\\d\\.\\d", version))
+  assertthat::assert_that(
+    is.null(crs) || grepl("EPSG:\\d+", crs)
+  )
+  assertthat::assert_that(
+    is.null(layername) || assertthat::is.string(layername)
+  )
+  assertthat::assert_that(
+    is.null(filter) || assertthat::is.string(filter)
+  )
+  assertthat::assert_that(
+    is.null(cql_filter) || assertthat::is.string(cql_filter)
+  )
+  assertthat::assert_that(
+    is.null(property_name) || assertthat::is.string(property_name)
+  )
 
   if (!is.null(bbox)) {
-    assert_that(length(bbox) == 4)
-    assert_that(all(names(bbox) %in% c("xmin", "xmax", "ymin", "ymax")))
+    assertthat::assert_that(length(bbox) == 4)
+    assertthat::assert_that(
+      all(names(bbox) %in% c("xmin", "xmax", "ymin", "ymax"))
+    )
     bbox <- paste(
       bbox[["xmin"]],
       bbox[["ymin"]],
@@ -134,9 +151,9 @@ get_feature_wfs <- function(
     )
   }
 
-  get_result <- request(wfs) |>
-    req_url_query(!!!query) |>
-    req_perform()
+  get_result <- httr2::request(wfs) |>
+    httr2::req_url_query(!!!query) |>
+    httr2::req_perform()
 
   handle_result_types(
     get_result,
@@ -145,25 +162,31 @@ get_feature_wfs <- function(
   )
 }
 
+
+#' different ways of handling different query outcomes
+#'
+#' @keywords internal
+#' @noRd
+#'
 handle_result_types <- function(result, result_type, property_name) {
-  status <- resp_status(result)
+  status <- httr2::resp_status(result)
 
   if (status != 200L) {
-    parsed <- as_list(resp_body_xml(result))
+    parsed <- xml2::as_list(httr2::resp_body_xml(result))
     if (names(parsed) == "ExceptionReport") {
       message <- unlist(parsed$ExceptionReport$Exception$ExceptionText)
       old_op <- options(warning.length = max(nchar(message), 1000))
       on.exit(options(old_op))
       stop(sprintf(
         paste0(message, "\nThe requested url was: %s"),
-        resp_url(result)
+        httr2::resp_url(result)
       ))
     }
     stop(sprintf("Exited with HTTP status code %s", status))
   }
 
   if (result_type == "hits") {
-    parsed <- as_list(resp_body_xml(result))
+    parsed <- xml2::as_list(httr2::resp_body_xml(result))
     n_features <- attr(parsed$FeatureCollection, "numberMatched")
     return(n_features)
   }
@@ -171,7 +194,7 @@ handle_result_types <- function(result, result_type, property_name) {
   # Write the content to disk and read back in as sf
   destfile <- store_as_gml(result)
 
-  sf_result <- read_sf(destfile)
+  sf_result <- sf::read_sf(destfile)
   # Sometimes CRS is missing
   if (is.na(sf::st_crs(sf_result))) {
     srs <- xml2::read_xml(destfile)
@@ -188,16 +211,23 @@ handle_result_types <- function(result, result_type, property_name) {
   if (!is.null(property_name)) {
     sf_result <- sf_result[, strsplit(property_name, split = ",")[[1]]]
   }
+
   return(sf_result)
 }
 
+
+#' store httr response to either a geographic xml file, or raw binary
+#'
+#' @keywords internal
+#' @noRd
+#'
 store_as_gml <- function(result, destfile = tempfile(fileext = ".gml")) {
   content_type <- httr2::resp_content_type(result)
 
   if (grepl("xml", content_type)) {
-    xml2::write_xml(resp_body_xml(result), destfile)
+    xml2::write_xml(httr2::resp_body_xml(result), destfile)
   } else {
-    writeBin(resp_body_raw(result), destfile, useBytes = TRUE)
+    writeBin(httr2::resp_body_raw(result), destfile, useBytes = TRUE)
   }
 
   return(destfile)
