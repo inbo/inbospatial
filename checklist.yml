@@ -30,5 +30,7 @@ spelling:
   default: en-GB
   ignore:
   - .github
+  - docs/
+  - doc/
   - LICENSE.md
 pak: []
