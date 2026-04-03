@@ -67,6 +67,8 @@ get_coverage_wcs <- function(
     version = c("1.0.0", "2.0.1"),
     ...) {
 
+  require_pkgs(c("sf", "terra", "httr2", "stringr"))
+
   # prelim check
   version <- match.arg(version)
   wcs <- tolower(wcs) # case insensitive wcs
@@ -98,13 +100,13 @@ get_coverage_wcs <- function(
   }
 
   # data type assertions
-  assert_that(is.character(layername))
-  assert_that(is.character(output_crs))
-  assert_that(inherits(bbox, "bbox"))
+  assertthat::assert_that(is.character(layername))
+  assertthat::assert_that(is.character(output_crs))
+  assertthat::assert_that(inherits(bbox, "bbox"))
 
   # check if layername is available
   layernames <- get_wcs_layers(wcs = wcs, version = version)$layername
-  assert_that(
+  assertthat::assert_that(
     layername %in% layernames,
     msg = sprintf(
       "%s is not in available layernames for this WCS: %s",
@@ -117,24 +119,24 @@ get_coverage_wcs <- function(
   wcs_url <- get_wcs_url(wcs)
 
   # resolution <=0 will give a `404`
-  assert_that(is.numeric(resolution) && resolution > 0)
+  assertthat::assert_that(is.numeric(resolution) && (resolution > 0))
 
   # assemble the bounding box
   matrix(bbox, ncol = 2, byrow = TRUE) |>
     as.data.frame() |>
-    st_as_sf(coords = c("V1", "V2"), crs = bbox_crs) |>
-    st_transform(crs = wcs_crs) |>
-    st_coordinates() |>
+    sf::st_as_sf(coords = c("V1", "V2"), crs = bbox_crs) |>
+    sf::st_transform(crs = wcs_crs) |>
+    sf::st_coordinates() |>
     as.vector() -> bbox
   names(bbox) <- c("xmin", "xmax", "ymin", "ymax")
 
   # variant: version 2.0.1
   if (version == "2.0.1") {
-    epsg_code <- str_extract(wcs_crs, "\\d+")
+    epsg_code <- stringr::str_extract(wcs_crs, "\\d+")
     mht_file <- tempfile(fileext = ".mht")
 
-    request(wcs_url) |>
-      req_url_query(
+    httr2::request(wcs_url) |>
+      httr2::req_url_query(
         SERVICE = "WCS",
         VERSION = version,
         REQUEST = "GetCoverage",
@@ -155,8 +157,8 @@ get_coverage_wcs <- function(
         RESPONSE_CRS = wcs_crs,
         ...
       ) |>
-      req_perform(path = mht_file) |>
-      resp_check_status()
+      httr2::req_perform(path = mht_file) |>
+      httr2::resp_check_status()
 
     # multipart file extract tif part
     tif_file <- unpack_mht(mht_file)
@@ -166,8 +168,8 @@ get_coverage_wcs <- function(
   if (version == "1.0.0") {
     tif_file <- tempfile(fileext = ".tif")
 
-    request(wcs_url) |>
-      req_url_query(
+    httr2::request(wcs_url) |>
+      httr2::req_url_query(
         SERVICE = "WCS",
         VERSION = version,
         REQUEST = "GetCoverage",
@@ -186,15 +188,15 @@ get_coverage_wcs <- function(
         RESPONSE_CRS = wcs_crs,
         ...
       ) |>
-      req_perform(path = tif_file) |>
-      resp_check_status()
+      httr2::req_perform(path = tif_file) |>
+      httr2::resp_check_status()
   } # /version 1.0.0
 
   # assemble the spatial raster
-  raster <- rast(tif_file)
-  template <- project(raster, output_crs)
-  res(template) <- resolution
-  raster <- project(raster, template)
+  raster <- terra::rast(tif_file)
+  template <- terra::project(raster, output_crs)
+  terra::res(template) <- resolution
+  raster <- terra::project(raster, template)
 
   return(raster)
 }
@@ -217,6 +219,9 @@ get_coverage_wcs <- function(
 #' @keywords internal
 #' @noRd
 unpack_mht <- function(path) {
+
+  require_pkgs(c("readr", "utils", "stringr"))
+
   raw_vector <- readr::read_file_raw(path)
 
   # 1. Match start of tiff part ^(II|MM)\*

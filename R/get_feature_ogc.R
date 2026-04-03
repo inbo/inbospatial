@@ -93,9 +93,7 @@ get_feature_ogc <- function(
   crs = NULL, quiet = TRUE, ...
 ) {
 
-  if (!exists("require_pkgs")) source("misc.R")
-  require_pkgs(c("httr2", "sf", "xml2", "assertthat"))
-  require_pkgs(c("jsonlite")) # used within `check_ogc_collection`
+  require_pkgs(c("httr2", "sf", "xml2"))
 
   assertthat::assert_that(
     assertthat::is.string(url),
@@ -137,6 +135,7 @@ get_feature_ogc <- function(
   }
 
   feature_data <- do.call(rbind, results_list)
+
   postprocess_features(feature_data, limit, properties, crs)
 }
 
@@ -164,6 +163,7 @@ build_ogc_request <- function(
 
   req <- apply_bbox_param(req, bbox)
   req <- apply_optional_params(req, datetime, properties, cql_filter)
+
   req |> httr2::req_url_query(...)
 }
 
@@ -235,6 +235,7 @@ fetch_ogc_page <- function(resp, quiet) {
   on.exit(unlink(tmp_file), add = TRUE)
 
   writeBin(httr2::resp_body_raw(resp), tmp_file)
+
   sf::read_sf(tmp_file, quiet = quiet)
 }
 
@@ -258,6 +259,7 @@ extract_next_url <- function(resp) {
   if (length(next_link_str) == 0L) return(NULL)
 
   next_url <- sub(".*<([^>]+)>.*", "\\1", next_link_str[[1L]])
+
   gsub("&amp;", "&", next_url)
 }
 
@@ -313,6 +315,8 @@ postprocess_features <- function(feature_data, limit, properties, crs) {
 #' check <- try(check_ogc_collection(api_url, "foutieve_laag"))
 #' }
 check_ogc_collection <- function(url, collection) {
+
+  require_pkgs("jsonlite")
 
   assertthat::assert_that(
     assertthat::is.string(url),

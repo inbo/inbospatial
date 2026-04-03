@@ -83,8 +83,7 @@ get_feature_wfs <- function(
     result_type = c("results", "hits"),
     ...) {
 
-  if (!exists("require_pkgs")) source("misc.R")
-  require_pkgs(c("httr2", "sf", "xml2", "assertthat"))
+  require_pkgs(c("httr2", "sf", "xml2"))
 
   result_type <- match.arg(result_type)
 
@@ -212,6 +211,7 @@ handle_result_types <- function(result, result_type, property_name) {
   if (!is.null(property_name)) {
     sf_result <- sf_result[, strsplit(property_name, split = ",")[[1]]]
   }
+
   return(sf_result)
 }
 
