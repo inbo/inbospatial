@@ -1,0 +1,73 @@
+# Changelog
+
+## inbospatial 0.1.0
+
+### Features
+
+- New function
+  [`get_feature_ogc()`](https://inbo.github.io/inbospatial/reference/get_feature_ogc.md)
+  to query `OGC API` features
+- New function
+  [`get_wcs_layers()`](https://inbo.github.io/inbospatial/reference/get_wcs_layers.md)
+  to see which layers (name and description) are available for a given
+  `WCS` service.
+- [`get_coverage_wcs()`](https://inbo.github.io/inbospatial/reference/get_coverage_wcs.md)
+  can now query data from the `"MercatorNet"` service.
+
+### Bug fixes
+
+- A parameter setting in the `unpack_mht(path)` function of
+  `get_coverage_wcs.R` produced unwanted empty line break output, which
+  is now suppressed.
+- The `unpack_mht()` function has been rewritten to make it more robust.
+
+## inbospatial 0.0.3
+
+### Features
+
+- [`get_coverage_wcs()`](https://inbo.github.io/inbospatial/reference/get_coverage_wcs.md)
+  can now query data from the Digital Elevation Model, Flanders (DHMV,
+  `Digitaal Hoogtemodel Vlaanderen`).
+
+### Documentation
+
+- added `spatial_dhmv_query` vignette demonstrating WCS queries with and
+  beyond
+  [`get_coverage_wcs()`](https://inbo.github.io/inbospatial/reference/get_coverage_wcs.md)
+
+### Bug fixes
+
+- fix parsing of `geoTIFF` part from `mht` files (internal function)
+
+## inbospatial 0.0.2
+
+### New functions
+
+- utility functions to calculate distance distortions in some projection
+  methods
+- `add_wms_*()`and `add_wmts_*()` family of functions, which are
+  shorthand alternatives for a fully specified
+  [`leaflet::addWMSTiles()`](https://rstudio.github.io/leaflet/reference/map-layers.html),
+  [`leaflet.extras2::addWMS()`](https://trafficonese.github.io/leaflet.extras2/reference/addWMS.html)
+  or
+  [`leaflet::addTiles()`](https://rstudio.github.io/leaflet/reference/map-layers.html)
+  statement.
+
+### Enhancements
+
+- updated vignette demonstrating `get_features_wfs()` and
+  [`get_coverage_wcs()`](https://inbo.github.io/inbospatial/reference/get_coverage_wcs.md)
+- improved error handling in `get_features_wfs()`
+  ([\#3](https://github.com/inbo/inbospatial/issues/3))
+
+### Bug fixes
+
+- Minor changes to fix failing GitHub actions
+
+## inbospatial 0.0.1
+
+- Added a `NEWS.md` file to track changes to the package.
+- New function `get_features_wfs` to get features (vector data) from a
+  Web Feature Service (`WFS`)
+- New function `get_coverage_wcs` to get raster data from a Web Coverage
+  Service (`WCS`)
