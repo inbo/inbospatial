@@ -21,7 +21,8 @@
 #' [standard OGC filter](https://www.ogc.org/standards/filter/)
 #' specification
 #' @param cql_filter Optional
-#' [Contextual Query Language](https://portal.ogc.org/files/96288) filter.
+#' [Common Query Language](https://docs.ogc.org/is/21-065r2/21-065r2.html)
+#' filter.
 #' This currently only works if the `WFS` is hosted on a `GeoServer`.
 #' @param output_format Optional output format supported by the `WFS`.
 #' @param property_name Optional character string.

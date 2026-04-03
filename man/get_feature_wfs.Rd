@@ -38,7 +38,8 @@ Pass this as a named vector with names \code{"xmin"}, \code{"xmax"}, \code{"ymin
 specification}
 
 \item{cql_filter}{Optional
-\href{https://portal.ogc.org/files/96288}{Contextual Query Language} filter.
+\href{https://docs.ogc.org/is/21-065r2/21-065r2.html}{Common Query Language}
+filter.
 This currently only works if the \code{WFS} is hosted on a \code{GeoServer}.}
 
 \item{output_format}{Optional output format supported by the \code{WFS}.}

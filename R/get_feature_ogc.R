@@ -18,6 +18,9 @@
 #' @param properties A character vector of specific column names to return.
 #' @param cql_filter A character string containing a CQL2-text filter to apply
 #'   attribute or complex spatial filtering on the server.
+#' See
+#' [Common Query Language](https://docs.ogc.org/is/21-065r2/21-065r2.html)
+#' filter specifications.
 #' @param limit Numeric. Maximum number of features to retrieve. If `NULL`
 #'   (default), all available features will be fetched via automatic API
 #'   pagination.

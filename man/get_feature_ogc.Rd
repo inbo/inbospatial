@@ -35,7 +35,10 @@ interval (e.g., \code{"2018-02-12T23:20:50Z"} or
 \item{properties}{A character vector of specific column names to return.}
 
 \item{cql_filter}{A character string containing a CQL2-text filter to apply
-attribute or complex spatial filtering on the server.}
+attribute or complex spatial filtering on the server.
+See
+\href{https://docs.ogc.org/is/21-065r2/21-065r2.html}{Common Query Language}
+filter specifications.}
 
 \item{limit}{Numeric. Maximum number of features to retrieve. If \code{NULL}
 (default), all available features will be fetched via automatic API
