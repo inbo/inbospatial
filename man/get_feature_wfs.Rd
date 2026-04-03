@@ -34,11 +34,12 @@ Pass this as a named vector with names \code{"xmin"}, \code{"xmax"}, \code{"ymin
 \code{"ymax"}.}
 
 \item{filter}{Optional
-\href{https://www.ogc.org/publications/standard/filter/}{standard OGC filter}
+\href{https://www.ogc.org/standards/filter/}{standard OGC filter}
 specification}
 
 \item{cql_filter}{Optional
-\href{https://portal.ogc.org/files/96288}{Contextual Query Language} filter.
+\href{https://docs.ogc.org/is/21-065r2/21-065r2.html}{Common Query Language}
+filter.
 This currently only works if the \code{WFS} is hosted on a \code{GeoServer}.}
 
 \item{output_format}{Optional output format supported by the \code{WFS}.}
@@ -56,6 +57,9 @@ requested features.}
 
 \item{...}{Additional key-value pairs passed on to the WFS query.}
 }
+\value{
+An \code{sf} (simple feature) object.
+}
 \description{
 This function constructs a \code{URL} request from its arguments and either reads
 in the resulting vector layer as a \code{sf} object or returns the number of
@@ -63,7 +67,7 @@ features that are requested.
 The request is made up of key-value pairs and additional key-value pairs can
 be passed to the function.
 The full documentation for the \code{WFS} standard can be consulted from
-\url{https://www.ogc.org/publications/standard/wfs/}.
+\url{https://www.ogc.org/standards/wfs/}.
 }
 \details{
 See
@@ -91,6 +95,9 @@ vlaanderen <- get_feature_wfs(
 Other topics on using web services: 
 \code{\link{add_wms_be_cartoweb}()},
 \code{\link{add_wmts_nl_brt}()},
-\code{\link{get_coverage_wcs}()}
+\code{\link{check_ogc_collection}()},
+\code{\link{get_coverage_wcs}()},
+\code{\link{get_feature_ogc}()},
+\code{\link{get_wcs_layers}()}
 }
 \concept{topics on using web services}

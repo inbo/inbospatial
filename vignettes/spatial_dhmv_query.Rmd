@@ -3,7 +3,7 @@ title: "Dissecting a WCS Query: DHMV Case Study."
 output: rmarkdown::html_vignette
 author: "Falk Mielke (falk.mielke@inbo.be)"
 vignette: >
-  %\VignetteIndexEntry{spatial_dhmv_query}
+  %\VignetteIndexEntry{Dissecting a WCS Query: DHMV Case Study.}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -60,19 +60,16 @@ Because, in fact, the `ows4R` package seems functional. In the tutorial mentione
 First, we need to load some packages.
 
 ```{r setup}
-library("httr")
+library("httr2")
 library("sf")
 library("terra")
-if (!requireNamespace("ows4R", quietly = TRUE)) {
-  install.packages("ows4R")
-}
 library("ows4R")
 ```
 
 We can connect a WCS client.
 
-```{r}
-wcs <- WCSClient$new(
+```{r wcs-client}
+wcs <- ows4R::WCSClient$new(
   "https://geo.api.vlaanderen.be/DHMV/wcs", "2.0.1",
   logger = "INFO"
 )
@@ -81,7 +78,7 @@ wcs <- WCSClient$new(
 
 We can easily query the capabilities:
 
-```{r}
+```{r capabilities}
 caps <- wcs$getCapabilities()
 ```
 
@@ -97,7 +94,7 @@ The "capabilities" are, per OGC standards, your go-to place for finding WCS docu
 
 In R, we can receive further information conveniently via `ows4R`. This works via the "coverage summary" &#x2026;
 
-```{r}
+```{r coverage-summary}
 feature <- "DHMVII_DTM_1m"
 dtm_smry <- caps$findCoverageSummaryById(feature, exact = TRUE)
 dtm_smry
@@ -105,7 +102,7 @@ dtm_smry
 
 &#x2026; and the coverage description.
 
-```{r}
+```{r coverage-description}
 # Get description from the WCS client
 dtm_des <- wcs$describeCoverage(feature)
 dtm_des
@@ -114,7 +111,7 @@ dtm_des
 
 Finally, it is important to know which dimensions are available: `LON/LAT`, `x/y`, or maybe `time`?
 
-```{r}
+```{r dimensions}
 dtm_dims <- dtm_smry$getDimensions()
 dtm_dims
 ```
@@ -124,30 +121,30 @@ So far, so good.
 
 Now, following the tutorials to get some real data:
 
-```{r}
+```{r testdata}
 x_test <- 148600
 y_test <- 208900
 range_m <- 2 # (+/- m)
 
-hopo_boxed <- OWSUtils$toBBOX(
+hopo_boxed <- ows4R::OWSUtils$toBBOX(
   xmin = x_test - range_m,
   xmax = x_test + range_m,
   ymin = y_test - range_m,
   ymax = y_test + range_m
-  )
+)
 ```
 
 I will write the file to disk:
 
-```{r, error=TRUE}
+```{r write-mht-file, error=TRUE}
 mht_file <- tempfile(fileext = ".mht")
 
 tryCatch({
   dtm_data <- dtm_smry$getCoverage(
     bbox = hopo_boxed,
     filename = mht_file
-    )
-  }, error = function(err) message(err)
+  )
+}, error = function(err) message(err)
 )
 ```
 
@@ -214,7 +211,7 @@ And, luckily, at some careless map movement, I received an error output from QGI
 -  `https://geo.api.vlaanderen.be/DHMV/wcs?SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&FORMAT=GeoTIFF&COVERAGE=DHMVII_DTM_1m&BBOX=162064,165735,170953,168882&CRS=EPSG:31370&RESPONSE_CRS=EPSG:31370&WIDTH=1622&HEIGHT=574`
 
 
-```{r echo=FALSE, out.width='90%'}
+```{r fig-qgis, echo=FALSE, out.width='90%'}
 knitr::include_graphics("../man/figures/qgis_lead.avif")
 ```
 
@@ -266,54 +263,53 @@ Here is what I found:
 
 After some more trial and error, I could construct working URLs in R and generalize this to a function.
 
-```{r}
+```{r get-elevation-wcs}
 get_elevation_wcs <- function(x, y, range_m = 1, tiff_file = NULL) {
   # Please note that this function lacks a lot of
   # assertions and documentation.
 
   # get bbox
-  bbox <- paste(x - range_m, x + range_m,
-               y - range_m, y + range_m,
-               sep = ",")
+  bbox <- paste(
+    x - range_m, x + range_m,
+    y - range_m, y + range_m,
+    sep = ","
+  )
 
   # the URL components
   base_url <- "https://geo.api.vlaanderen.be"
   endpoint <- "/DHMV/wcs" # nolint: absolute_path_linter
 
-  # the query parameters which worked in QGIS
-  elevation_query <- list(
-    service = "WCS",
-    version = "1.0.0",
-    request = "GetCoverage",
-    format = "GeoTIFF",
-    coverage = "DHMVII_DTM_1m",
-    bbox = bbox,
-    width = 2 * range_m,
-    height = 2 * range_m,
-    crs = "EPSG:31370"
-  )
-
   # get wcs data
   if (is.null(tiff_file)) {
     tiff_file <- tempfile(fileext = ".tiff")
   }
-  GET(url = modify_url(base_url, path = endpoint),
-      query = elevation_query,
-      write_disk(tiff_file))
-  # note: saving this to a file is optional,
-  # but might prevent double download or loss of data
+
+  httr2::url_modify(base_url, path = endpoint) |>
+    httr2::request() |>
+    # the query parameters which worked in QGIS
+    httr2::req_url_query(
+      service = "WCS",
+      version = "1.0.0",
+      request = "GetCoverage",
+      format = "GeoTIFF",
+      coverage = "DHMVII_DTM_1m",
+      bbox = bbox,
+      width = 2 * range_m,
+      height = 2 * range_m,
+      crs = "EPSG:31370"
+    ) |>
+    httr2::req_perform(path = tiff_file)
 
   # re-read raster file
   data <- rast(tiff_file)
 
   return(data)
-
 }
 ```
 
 Example usage:
 
-```{r}
+```{r usage}
 x_test <- 148600
 y_test <- 208900
 range_m <- 10 # (+/- m)
@@ -341,25 +337,25 @@ Your browser might detect that the file is an `mht`, or not.
 
 Here is an example of how to build a query with the current version of DHMV:
 
-```{r}
-url <- parse_url("https://geo.api.vlaanderen.be/DHMV/wcs")
+```{r dhmv-query}
+url <- "https://geo.api.vlaanderen.be/DHMV/wcs"
 
 # the query parameters which worked in QGIS
-url$query <- list(
-  SERVICE = "WCS",
-  VERSION = "2.0.1",
-  REQUEST = "GetCoverage",
-  FORMAT = "image/tiff",
-  COVERAGEID = "DHMVII_DTM_1m",
-  SUBSET = "x,http://www.opengis.net/def/crs/EPSG/0/EPSG:31370(148000,149000)",
-  SUBSET = "y,http://www.opengis.net/def/crs/EPSG/0/EPSG:31370(208000,209000)",
-  SCALEFACTOR = "1",
-  CRS = "EPSG:31370",
-  RESPONSE_CRS = "EPSG:31370"
-)
-
-request <- build_url(url)
-
+request <- httr2::request(url) |>
+  httr2::req_url_query(
+    SERVICE = "WCS",
+    VERSION = "2.0.1",
+    REQUEST = "GetCoverage",
+    FORMAT = "image/tiff",
+    COVERAGEID = "DHMVII_DTM_1m",
+    SUBSET =
+      "x,http://www.opengis.net/def/crs/EPSG/0/EPSG:31370(148000,149000)",
+    SUBSET =
+      "y,http://www.opengis.net/def/crs/EPSG/0/EPSG:31370(208000,209000)",
+    SCALEFACTOR = "1",
+    CRS = "EPSG:31370",
+    RESPONSE_CRS = "EPSG:31370"
+  )
 
 # get wcs data
 mht_file <- tempfile(fileext = ".mht")
@@ -367,32 +363,62 @@ mht_file <- tempfile(fileext = ".mht")
 print(request)
 print(mht_file)
 
-response <- GET(url = request,
-          write_disk(mht_file))
+response <- httr2::req_perform(
+  req = request,
+  path = mht_file
+)
 ```
 
 With the `mht` specifications [found online](https://docs.fileformat.com/web/mht), it is possible to create an unpacking function, which has become part of this very package.
 
-```{r}
-library("readr")
-library("stringr")
+```{r unpack-mht}
+unpack_mht <- function(path) {
+  raw_vector <- readr::read_file_raw(path)
 
-unpack_mht <- function(mht_filepath) {
-  lines_raw <- read_lines_raw(mht_filepath)
-  lines_char <- suppressWarnings(read_lines(mht_filepath))
-  raw_vector <- read_file_raw(mht_filepath)
+  # 1. MATCH start of (geoTiff) big or little endian ^(II|MM)\*
+  # Look for \nII* (0x0a + 49 49 2a) or \nMM* (0x0a + 4d 4d 2a)
+  match_ii <- grepRaw(as.raw(c(0x0a, 0x49, 0x49, 0x2a)), raw_vector)[1]
+  match_mm <- grepRaw(as.raw(c(0x0a, 0x4d, 0x4d, 0x2a)), raw_vector)[1]
+  valid_matches <- c(match_ii, match_mm)
+  valid_matches <- valid_matches[!is.na(valid_matches)]
 
-  start <- which(str_detect(lines_char, "^II\\*"))
-  end <- length(lines_raw) - 1
-  pos_start <- length(unlist(lines_raw[1:(start - 1)])) + start
-  pos_end <- length(raw_vector) - (length(lines_raw[end + 1]) + 1)
+  if (length(valid_matches) > 0) {
+    # +1 to step over the newline character and start exactly at 'I' or 'M'
+    pos_start <- min(valid_matches) + 1
+  } else {
+    # Edge case: If it's on the very first line of the file (no preceding \n)
+    if (
+      all(raw_vector[1:3] == as.raw(c(0x49, 0x49, 0x2a))) ||
+        all(raw_vector[1:3] == as.raw(c(0x4d, 0x4d, 0x2a)))
+    ) {
+      pos_start <- 1
+    } else {
+      stop("Could not find TIFF header (II* or MM*) at the start of any line.")
+    }
+  }
 
-  tif <- raw_vector[pos_start:pos_end]
-  tif_path <- str_replace(mht_filepath, "mht", "tif")
-  write_file(
-    tif,
-    tif_path
+  # 2. Drop the last line
+  # MHT files end with a boundary string that usually starts with two hyphens
+  # We search for \n-- to safely find the closing boundary and cut the file.
+  boundary_matches <- grepRaw(
+    as.raw(c(0x0a, 0x2d, 0x2d)), raw_vector, all = TRUE
   )
+
+  if (length(boundary_matches) > 0) {
+    pos_end <- tail(boundary_matches, 1) - 1
+    # Check for Windows \r\n and step back one more byte if needed
+    if (raw_vector[pos_end] == as.raw(0x0d)) pos_end <- pos_end - 1
+  } else {
+    # Fallback if no boundary exists: chop at the last newline
+    newlines <- grepRaw(as.raw(0x0a), raw_vector, all = TRUE)
+    pos_end <- tail(newlines, 1) - 1
+    if (raw_vector[pos_end] == as.raw(0x0d)) pos_end <- pos_end - 1
+  }
+
+  # 3. Extract and Write
+  tif <- raw_vector[pos_start:pos_end]
+  tif_path <- stringr::str_replace(path, "\\.mht$", ".tif")
+  readr::write_file(tif, tif_path)
   return(tif_path)
 }
 ```
@@ -400,9 +426,9 @@ unpack_mht <- function(mht_filepath) {
 
 This way you get the elevation data extracted:
 
-```{r}
+```{r unpack-it}
 tif_file <- unpack_mht(mht_file)
-raster <- rast(tif_file)
+raster <- terra::rast(tif_file)
 plot(raster, col = gray.colors(256))
 ```
 
@@ -417,10 +443,10 @@ We now refined the `get_coverage_wcs()` procedure to solve the `mht` issue.
 
 Here is how to use it, for the same case as above:
 
-```{r}
+```{r use-get-coverage-wcs}
 bbox <- sf::st_bbox(
-   c(xmin = 148000, xmax = 149000, ymin = 208000, ymax = 209000),
-   crs = sf::st_crs(31370)
+  c(xmin = 148000, xmax = 149000, ymin = 208000, ymax = 209000),
+  crs = sf::st_crs(31370)
 )
 hopo_raster <- inbospatial::get_coverage_wcs(
   wcs = "dhmv",

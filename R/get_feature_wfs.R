@@ -6,7 +6,7 @@
 #' The request is made up of key-value pairs and additional key-value pairs can
 #' be passed to the function.
 #' The full documentation for the `WFS` standard can be consulted from
-#' \url{https://www.ogc.org/publications/standard/wfs/}.
+#' \url{https://www.ogc.org/standards/wfs/}.
 #'
 #' @param wfs Web address for the service which you want to query features from
 #' @param version Version number for the service.
@@ -18,10 +18,11 @@
 #' Pass this as a named vector with names `"xmin"`, `"xmax"`, `"ymin"`,
 #' `"ymax"`.
 #' @param filter Optional
-#' [standard OGC filter](https://www.ogc.org/publications/standard/filter/)
+#' [standard OGC filter](https://www.ogc.org/standards/filter/)
 #' specification
 #' @param cql_filter Optional
-#' [Contextual Query Language](https://portal.ogc.org/files/96288) filter.
+#' [Common Query Language](https://docs.ogc.org/is/21-065r2/21-065r2.html)
+#' filter.
 #' This currently only works if the `WFS` is hosted on a `GeoServer`.
 #' @param output_format Optional output format supported by the `WFS`.
 #' @param property_name Optional character string.
@@ -35,17 +36,25 @@
 #' requested features.
 #' @param ... Additional key-value pairs passed on to the WFS query.
 #'
-#' @importFrom httr parse_url build_url GET HEAD content
+#' @details See
+#' \url{https://tutorials.inbo.be/tutorials/spatial_wfs_services/}
+#'  for more information.
+#' @return An `sf` (simple feature) object.
+#' @export
+#' @family topics on using web services
+#'
+#' @importFrom httr2
+#' request
+#' req_url_query
+#' req_perform
+#' resp_status
+#' resp_body_xml
+#' resp_body_raw
+#' resp_url
 #' @importFrom sf read_sf
 #' @importFrom xml2 as_list
 #' @importFrom assertthat assert_that is.string
 #'
-#' @details See
-#' \url{https://tutorials.inbo.be/tutorials/spatial_wfs_services/}
-#'  for more information.
-#' @family topics on using web services
-#'
-#' @export
 #' @examples
 #' \dontrun{
 #' vlaanderen <- get_feature_wfs(
@@ -74,18 +83,31 @@ get_feature_wfs <- function(
     property_name = NULL,
     result_type = c("results", "hits"),
     ...) {
+
   result_type <- match.arg(result_type)
-  url <- parse_url(wfs)
-  assert_that(grepl("\\d\\.\\d\\.\\d", version))
-  assert_that(is.null(crs) || grepl("EPSG:\\d+", crs))
-  assert_that(is.null(layername) || is.string(layername))
-  assert_that(is.null(filter) || is.string(filter))
-  assert_that(is.null(cql_filter) || is.string(cql_filter))
-  assert_that(is.null(property_name) || is.string(property_name))
+
+  assertthat::assert_that(grepl("\\d\\.\\d\\.\\d", version))
+  assertthat::assert_that(
+    is.null(crs) || grepl("EPSG:\\d+", crs)
+  )
+  assertthat::assert_that(
+    is.null(layername) || assertthat::is.string(layername)
+  )
+  assertthat::assert_that(
+    is.null(filter) || assertthat::is.string(filter)
+  )
+  assertthat::assert_that(
+    is.null(cql_filter) || assertthat::is.string(cql_filter)
+  )
+  assertthat::assert_that(
+    is.null(property_name) || assertthat::is.string(property_name)
+  )
 
   if (!is.null(bbox)) {
-    assert_that(length(bbox) == 4)
-    assert_that(all(names(bbox) %in% c("xmin", "xmax", "ymin", "ymax")))
+    assertthat::assert_that(length(bbox) == 4)
+    assertthat::assert_that(
+      all(names(bbox) %in% c("xmin", "xmax", "ymin", "ymax"))
+    )
     bbox <- paste(
       bbox[["xmin"]],
       bbox[["ymin"]],
@@ -94,8 +116,9 @@ get_feature_wfs <- function(
       sep = ","
     )
   }
+
   if (grepl(pattern = "^2", x = version)) {
-    url$query <- list(
+    query <- list(
       service = "wfs",
       request = "GetFeature",
       version = version,
@@ -111,7 +134,7 @@ get_feature_wfs <- function(
     )
   }
   if (grepl(pattern = "^1", x = version)) {
-    url$query <- list(
+    query <- list(
       service = "wfs",
       request = "GetFeature",
       version = version,
@@ -127,46 +150,52 @@ get_feature_wfs <- function(
     )
   }
 
-  request <- build_url(url)
+  get_result <- httr2::request(wfs) |>
+    httr2::req_url_query(!!!query) |>
+    httr2::req_perform()
 
-  get_result <- GET(request)
   handle_result_types(
     get_result,
     result_type = result_type,
-    property_name = property_name,
-    request = request
+    property_name = property_name
   )
 }
 
-handle_result_types <- function(result, result_type, property_name, request) {
-  if (result$status_code != 200L) {
-    parsed <- as_list(content(result, "parsed", encoding = "UTF-8"))
+
+#' different ways of handling different query outcomes
+#'
+#' @keywords internal
+#' @noRd
+#'
+handle_result_types <- function(result, result_type, property_name) {
+  status <- httr2::resp_status(result)
+
+  if (status != 200L) {
+    parsed <- xml2::as_list(httr2::resp_body_xml(result))
     if (names(parsed) == "ExceptionReport") {
       message <- unlist(parsed$ExceptionReport$Exception$ExceptionText)
       old_op <- options(warning.length = max(nchar(message), 1000))
       on.exit(options(old_op))
       stop(sprintf(
         paste0(message, "\nThe requested url was: %s"),
-        request
+        httr2::resp_url(result)
       ))
     }
-    stop(sprintf("Exited with HTTP status code %s", result$status_code))
+    stop(sprintf("Exited with HTTP status code %s", status))
   }
 
   if (result_type == "hits") {
-    parsed <- as_list(content(result, "parsed", encoding = "UTF-8"))
+    parsed <- xml2::as_list(httr2::resp_body_xml(result))
     n_features <- attr(parsed$FeatureCollection, "numberMatched")
     return(n_features)
   }
 
-  content <- content(result, encoding = "UTF-8")
-  # Write the content to disk
-  destfile <- store_as_gml(content = content)
+  # Write the content to disk and read back in as sf
+  destfile <- store_as_gml(result)
 
-  # Read the temporary GML file back in
-  result <- read_sf(destfile)
+  sf_result <- sf::read_sf(destfile)
   # Sometimes CRS is missing
-  if (is.na(sf::st_crs(result))) {
+  if (is.na(sf::st_crs(sf_result))) {
     srs <- xml2::read_xml(destfile)
     srs <- xml2::xml_find_first(srs, ".//@srsName") |>
       xml2::xml_text()
@@ -174,30 +203,31 @@ handle_result_types <- function(result, result_type, property_name, request) {
       srs,
       regexpr(pattern = "\\d+$", text = srs)
     )
-    sf::st_crs(result) <- as.integer(srs)
+    sf::st_crs(sf_result) <- as.integer(srs)
   }
   # avoid that non nillable fields are mandatory
   # and remove fields all NA
   if (!is.null(property_name)) {
-    result <- result[, strsplit(property_name, split = ",")[[1]]]
+    sf_result <- sf_result[, strsplit(property_name, split = ",")[[1]]]
   }
-  return(result)
+
+  return(sf_result)
 }
 
-store_as_gml <- function(content, ...) {
-  UseMethod("store_as_gml", content)
-}
 
-#' @export
-store_as_gml.raw <- function(
-    content, destfile = tempfile(fileext = "gml"), ...) {
-  writeBin(content, destfile, useBytes = TRUE)
-  return(destfile)
-}
+#' store `httr2` response to either a geographic xml file, or raw binary
+#'
+#' @keywords internal
+#' @noRd
+#'
+store_as_gml <- function(result, destfile = tempfile(fileext = ".gml")) {
+  content_type <- httr2::resp_content_type(result)
 
-#' @importFrom xml2 write_xml
-store_as_gml.xml_document <- function(
-    content, destfile = tempfile(fileext = "gml"), ...) {
-  write_xml(content, destfile)
+  if (grepl("xml", content_type)) {
+    xml2::write_xml(httr2::resp_body_xml(result), destfile)
+  } else {
+    writeBin(httr2::resp_body_raw(result), destfile, useBytes = TRUE)
+  }
+
   return(destfile)
 }

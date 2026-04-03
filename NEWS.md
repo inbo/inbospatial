@@ -1,3 +1,20 @@
+# inbospatial 0.1.0
+
+## Features
+
+* New function `get_feature_ogc()` to query `OGC API` features
+* New function `get_wcs_layers()` to see which layers (name and description)
+  are available for a given `WCS` service.
+* `get_coverage_wcs()` can now query data from the
+  `"MercatorNet"` service.
+
+## Bug fixes
+
+* A parameter setting in the `unpack_mht(path)` function 
+  of `get_coverage_wcs.R` produced unwanted empty line break output, 
+  which is now suppressed.
+* The `unpack_mht()` function has been rewritten to make it more robust.
+
 # inbospatial 0.0.3
 
 ## Features

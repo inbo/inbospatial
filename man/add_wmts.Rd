@@ -10,7 +10,7 @@ add_wmts_nl_brt(map, layer = c("standaard", "grijs", "pastel", "water"), ...)
 add_wmts_nl_ortho(map, ...)
 }
 \arguments{
-\item{map}{a map widget object created from \code{\link[leaflet]{leaflet}()}}
+\item{map}{a map widget object created from \code{\link[leaflet:leaflet]{leaflet()}}}
 
 \item{layer}{String that defines which layer to use, if the function supports
 more than one.
@@ -64,8 +64,11 @@ leaflet() |>
 \seealso{
 Other topics on using web services: 
 \code{\link{add_wms_be_cartoweb}()},
+\code{\link{check_ogc_collection}()},
 \code{\link{get_coverage_wcs}()},
-\code{\link{get_feature_wfs}()}
+\code{\link{get_feature_ogc}()},
+\code{\link{get_feature_wfs}()},
+\code{\link{get_wcs_layers}()}
 }
 \author{
 Floris Vanderhaeghe, \url{https://github.com/florisvdh}

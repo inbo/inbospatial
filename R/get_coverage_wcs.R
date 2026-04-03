@@ -4,7 +4,8 @@
 #' from which it is read with `terra::rast()` - if needed reprojected -
 #' and returned as a `SpatRaster` object
 #'
-#' @param wcs One of `"dtm"`, `"dsm"`, `"omz"`, `"omw"`, `"dhmv"`
+#' @param wcs One of `"dtm"`, `"dsm"`, `"omz"`, `"omw"`, `"dhmv"`,
+#'  `"mercatornet"`
 #' @param bbox An object of class bbox of length 4.
 #' @param layername Character string; name of the layer
 #' @param resolution Output resolution in meters
@@ -12,7 +13,7 @@
 #' @param output_crs Output CRS.
 #' May involve reprojection.
 #' @param bbox_crs CRS in which bbox coordinates are passed
-#' @param version `WCS` version to be used.
+#' @param version `WCS` version to be used. Default is `1.0.0`.
 #' @param ... Additional key-value pairs passed on to the `WCS` query
 #'
 #' @details The following WCS services can currently be used:
@@ -21,13 +22,21 @@
 #'   - `"dtm"`: digital terrain model Flanders
 #'   - `"dsm"`: digital surface model Flanders
 #'   - `"dhmv"`: digital elevation model Flanders (contains dtm and dsm data)
+#'   - `"mercatornet"`: Public Download Service Flemish Government -
+#'     department environment - cooperation `MercatorNet`
+#'
 #' For more information, see metadata Vlaanderen:
-#'   https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS
+#'
+#'   <https://metadata.vlaanderen.be/srv/eng/catalog.search#/search?any=WCS>
 #'
 #' @importFrom sf st_as_sf st_transform st_coordinates
 #' @importFrom terra rast `res<-` project
 #' @importFrom assertthat assert_that
-#' @importFrom httr parse_url build_url GET write_disk stop_for_status
+#' @importFrom httr2
+#' request
+#' req_url_query
+#' req_perform
+#' resp_check_status
 #' @importFrom stringr str_extract str_replace
 #'
 #' @export
@@ -48,7 +57,7 @@
 #' }
 #'
 get_coverage_wcs <- function(
-    wcs = c("dtm", "dsm", "omz", "omw", "dhmv"),
+    wcs = c("dtm", "dsm", "omz", "omw", "dhmv", "mercatornet"),
     bbox,
     layername,
     resolution,
@@ -65,132 +74,127 @@ get_coverage_wcs <- function(
   wcs_crs <- match.arg(wcs_crs)
   bbox_crs <- match.arg(bbox_crs)
 
-
-  # constrain version | wcs
-  if (wcs == "dhmv") {
-    # warn incompatible versions
-    if (!(version %in% c("1.0.0", "2.0.1"))) {
-      message("WCS `DHMV` is only compatible with versions `1.0.0` or `2.0.1`.
-        Consider using `version=\"2.0.1\"`")
-    }
-    # recommend crs specification
-    if (wcs_crs != "EPSG:31370") {
-      message("WCS `DHMV` only supports CRS Belgian Lambert 72 (`EPSG:31370`).
-        Consider specifying `wcs_csr=\"EPSG:31370\"`")
-    }
+  # warn for wcs specifics
+  problems <- character()
+  problems <- c(
+    problems,
+    sprintf(
+      "WCS `%s` only supports CRS Belgian Lambert 72 (`EPSG:31370`).
+      Consider specifying `wcs_csr=\"EPSG:31370\"`",
+      wcs
+    )[wcs %in% c("dhmv", "mercatornet") & wcs_crs != "EPSG:31370"]
+  )
+  problems <- c(
+    problems,
+    sprintf(
+      "WCS `%s` doesn't yet work for version %s.
+      Please switch to version 1.0.0.",
+      wcs,
+      version
+    )[wcs %in% c("mercatornet") & version == "2.0.1"]
+  )
+  if (length(problems) > 0) {
+    warning(paste(problems, collapse = "\n\n"), call. = FALSE)
   }
 
-  # set url
-  wcs <- switch(wcs,
-    omz = "https://geo.api.vlaanderen.be/oi-omz/wcs",
-    omw = "https://geo.api.vlaanderen.be/oi-omw/wcs",
-    dtm = "https://geo.api.vlaanderen.be/el-dtm/wcs",
-    dsm = "https://geo.api.vlaanderen.be/el-dsm/wcs",
-    dhmv = "https://geo.api.vlaanderen.be/DHMV/wcs"
+  # data type assertions
+  assertthat::assert_that(is.character(layername))
+  assertthat::assert_that(is.character(output_crs))
+  assertthat::assert_that(inherits(bbox, "bbox"))
+
+  # check if layername is available
+  layernames <- get_wcs_layers(wcs = wcs, version = version)$layername
+  assertthat::assert_that(
+    layername %in% layernames,
+    msg = sprintf(
+      "%s is not in available layernames for this WCS: %s",
+      layername,
+      paste(layernames, collapse = ", ")
+    )
   )
 
-  # data type assertions
-  assert_that(is.character(layername))
-  assert_that(is.character(output_crs))
-  assert_that(inherits(bbox, "bbox"))
+  # set url
+  wcs_url <- get_wcs_url(wcs)
 
   # resolution <=0 will give a `404`
-  assert_that(is.numeric(resolution) && resolution > 0)
+  assertthat::assert_that(is.numeric(resolution) && (resolution > 0))
 
   # assemble the bounding box
   matrix(bbox, ncol = 2, byrow = TRUE) |>
     as.data.frame() |>
-    st_as_sf(coords = c("V1", "V2"), crs = bbox_crs) |>
-    st_transform(crs = wcs_crs) |>
-    st_coordinates() |>
+    sf::st_as_sf(coords = c("V1", "V2"), crs = bbox_crs) |>
+    sf::st_transform(crs = wcs_crs) |>
+    sf::st_coordinates() |>
     as.vector() -> bbox
   names(bbox) <- c("xmin", "xmax", "ymin", "ymax")
 
-  # prepare url request
-  url <- parse_url(wcs)
-
   # variant: version 2.0.1
   if (version == "2.0.1") {
-    epsg_code <- str_extract(wcs_crs, "\\d+")
-    url$query <- list(
-      SERVICE = "WCS",
-      VERSION = version,
-      REQUEST = "GetCoverage",
-      COVERAGEID = layername,
-      CRS = wcs_crs,
-      SUBSET = paste0(
-        "x,http://www.opengis.net/def/crs/EPSG/0/",
-        epsg_code, "(",
-        bbox[["xmin"]],
-        ",",
-        bbox[["xmax"]], ")"
-      ),
-      SUBSET = paste0(
-        "y,http://www.opengis.net/def/crs/EPSG/0/",
-        epsg_code,
-        "(",
-        bbox[["ymin"]],
-        ",",
-        bbox[["ymax"]], ")"
-      ),
-      SCALEFACTOR = resolution,
-      FORMAT = "image/tiff",
-      RESPONSE_CRS = wcs_crs,
-      ...
-    )
-
-    # build and run the http request
-    request <- build_url(url)
+    epsg_code <- stringr::str_extract(wcs_crs, "\\d+")
     mht_file <- tempfile(fileext = ".mht")
-    http_response <- GET(
-      url = request,
-      write_disk(mht_file)
-    )
+
+    httr2::request(wcs_url) |>
+      httr2::req_url_query(
+        SERVICE = "WCS",
+        VERSION = version,
+        REQUEST = "GetCoverage",
+        COVERAGEID = layername,
+        CRS = wcs_crs,
+        SUBSET = paste0(
+          "x,http://www.opengis.net/def/crs/EPSG/0/",
+          epsg_code, "(",
+          bbox[["xmin"]], ",", bbox[["xmax"]], ")"
+        ),
+        SUBSET = paste0(
+          "y,http://www.opengis.net/def/crs/EPSG/0/",
+          epsg_code, "(",
+          bbox[["ymin"]], ",", bbox[["ymax"]], ")"
+        ),
+        SCALEFACTOR = resolution,
+        FORMAT = "image/tiff",
+        RESPONSE_CRS = wcs_crs,
+        ...
+      ) |>
+      httr2::req_perform(path = mht_file) |>
+      httr2::resp_check_status()
 
     # multipart file extract tif part
     tif_file <- unpack_mht(mht_file)
   } # /version 2.0.1
 
-
   # variant: version 1.0.0
   if (version == "1.0.0") {
-    url$query <- list(
-      SERVICE = "WCS",
-      VERSION = version,
-      REQUEST = "GetCoverage",
-      COVERAGE = layername,
-      CRS = wcs_crs,
-      BBOX = paste(
-        bbox[["xmin"]],
-        bbox[["ymin"]],
-        bbox[["xmax"]],
-        bbox[["ymax"]],
-        sep = ","
-      ),
-      RESX = resolution,
-      RESY = resolution,
-      FORMAT = "geoTIFF",
-      RESPONSE_CRS = wcs_crs,
-      ...
-    )
-
-    # build and run the http request
-    request <- build_url(url)
     tif_file <- tempfile(fileext = ".tif")
-    http_response <- GET(
-      url = request,
-      write_disk(tif_file)
-    )
-  }
 
-  # raise http errors
-  stop_for_status(http_response)
+    httr2::request(wcs_url) |>
+      httr2::req_url_query(
+        SERVICE = "WCS",
+        VERSION = version,
+        REQUEST = "GetCoverage",
+        COVERAGE = layername,
+        CRS = wcs_crs,
+        BBOX = paste(
+          bbox[["xmin"]],
+          bbox[["ymin"]],
+          bbox[["xmax"]],
+          bbox[["ymax"]],
+          sep = ","
+        ),
+        RESX = resolution,
+        RESY = resolution,
+        FORMAT = ifelse(wcs == "mercatornet", "image/tiff", "geoTIFF"),
+        RESPONSE_CRS = wcs_crs,
+        ...
+      ) |>
+      httr2::req_perform(path = tif_file) |>
+      httr2::resp_check_status()
+  } # /version 1.0.0
 
   # assemble the spatial raster
-  raster <- rast(tif_file)
-  template <- project(raster, output_crs)
-  res(template) <- resolution
-  raster <- project(raster, template)
+  raster <- terra::rast(tif_file)
+  template <- terra::project(raster, output_crs)
+  terra::res(template) <- resolution
+  raster <- terra::project(raster, template)
 
   return(raster)
 }
@@ -206,34 +210,63 @@ get_coverage_wcs <- function(
 #' @importFrom readr read_lines_raw read_lines read_file_raw write_file
 #' @importFrom assertthat assert_that
 #' @importFrom stringr str_detect str_replace
+#' @importFrom utils tail
 #'
 #' @return tif_path the path to the extracted geoTIFF.
 #'
 #' @keywords internal
-#'
-#' @details Need three ways to read in the `mht` file to get the `tif` file out.
-#' `read_lines()` cannot read all lines due to embedded `nulls`.
-#' Therefore, also `read_lines_raw()` needed for positioning of `tif` part in
-#' file.
-#' `write_lines()` does not work correctly on `lines_raw[start:end]`
-#' possibly a bug or edge case in `write_lines()`
-#' Therefore, also `read_file_raw()` needed to extract from the raw vector
+#' @noRd
 unpack_mht <- function(path) {
-  lines_raw <- read_lines_raw(path)
-  lines_char <- suppressWarnings(read_lines(path))
-  raw_vector <- read_file_raw(path)
 
-  assert_that(any(str_detect(lines_char, "image/tiff")))
-  start <- which(str_detect(lines_char, "^(II|MM)\\*"))
-  end <- length(lines_raw) - 1
-  pos_start <- length(unlist(lines_raw[1:(start - 1)])) + start
-  pos_end <- length(raw_vector) - (length(lines_raw[end + 1]) + 1)
+  raw_vector <- readr::read_file_raw(path)
 
-  tif <- raw_vector[pos_start:pos_end]
-  tif_path <- str_replace(path, "mht", "tif")
-  write_file(
-    tif,
-    tif_path
+  # 1. Match start of tiff part ^(II|MM)\*
+  # Can be little or big endian
+  # Look for \nII* (0x0a + 49 49 2a) or \nMM* (0x0a + 4d 4d 2a)
+  match_ii <- grepRaw(as.raw(c(0x0a, 0x49, 0x49, 0x2a)), raw_vector)[1]
+  match_mm <- grepRaw(as.raw(c(0x0a, 0x4d, 0x4d, 0x2a)), raw_vector)[1]
+
+  valid_matches <- c(match_ii, match_mm)
+  valid_matches <- valid_matches[!is.na(valid_matches)]
+
+  if (length(valid_matches) > 0) {
+    # +1 to step over the newline character and start exactly at 'I' or 'M'
+    pos_start <- min(valid_matches) + 1
+  } else {
+    # Edge case: If it's on the very first line of the file (no preceding \n)
+    if (
+      all(raw_vector[1:3] == as.raw(c(0x49, 0x49, 0x2a))) ||
+        all(raw_vector[1:3] == as.raw(c(0x4d, 0x4d, 0x2a)))
+    ) {
+      pos_start <- 1
+    } else {
+      stop("Could not find TIFF header (II* or MM*) at the start of any line.")
+    }
+  }
+
+  # 2. Drop the last line
+  # MHT files end with a boundary string that usually starts with two hyphens
+  # We search for \n-- to safely find the closing boundary and cut the file.
+  boundary_matches <- grepRaw(
+    as.raw(c(0x0a, 0x2d, 0x2d)), raw_vector, all = TRUE
   )
+
+  if (length(boundary_matches) > 0) {
+    pos_end <- tail(boundary_matches, 1) - 1
+    # Check for Windows \r\n and step back one more byte if needed
+    if (raw_vector[pos_end] == as.raw(0x0d)) pos_end <- pos_end - 1
+  } else {
+    # Fallback if no boundary exists: chop at the last newline
+    newlines <- grepRaw(as.raw(0x0a), raw_vector, all = TRUE)
+    pos_end <- tail(newlines, 1) - 1
+    if (raw_vector[pos_end] == as.raw(0x0d)) pos_end <- pos_end - 1
+  }
+
+  # 3. Extract and Write
+  tif <- raw_vector[pos_start:pos_end]
+  tif_path <- stringr::str_replace(path, "\\.mht$", ".tif")
+
+  readr::write_file(tif, tif_path)
+
   return(tif_path)
 }

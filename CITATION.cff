@@ -27,4 +27,4 @@ abstract: "Useful R functions developed at the Research Institute for Nature and
 identifiers:
 - type: url
   value: https://inbo.github.io/inbospatial/
-version: 0.0.3
+version: 0.1.0

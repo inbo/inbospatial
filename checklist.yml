@@ -1,12 +1,9 @@
 description: Configuration file for checklist::check_pkg()
 package: yes
 allowed:
-  warnings:
-  - motivation: documentation is a good thing
-    value: 'documented but unexported functions: coneconst_lcc, inbospatial, inbospatial-package,
-      require_pkgs, unpack_mht'
+  warnings: []
   notes:
-  - motivation: will not be submitted to CRAN
+  - motivation: Not intended for CRAN
     value: |-
       checking CRAN incoming feasibility ... NOTE
       Maintainer: 'Hans Van Calster <hans.vancalster@inbo.be>'
@@ -23,10 +20,14 @@ required:
 - folder conventions
 - license
 - lintr
+- organisation
 - repository secret
 - spelling
 spelling:
   default: en-GB
   ignore:
   - .github
+  - docs/
+  - doc/
   - LICENSE.md
+pak: []
