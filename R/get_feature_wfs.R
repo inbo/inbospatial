@@ -214,7 +214,7 @@ handle_result_types <- function(result, result_type, property_name) {
 }
 
 
-#' store httr response to either a geographic xml file, or raw binary
+#' store `httr2` response to either a geographic xml file, or raw binary
 #'
 #' @keywords internal
 #' @noRd

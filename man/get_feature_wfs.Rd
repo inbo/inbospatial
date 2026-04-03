@@ -56,6 +56,9 @@ requested features.}
 
 \item{...}{Additional key-value pairs passed on to the WFS query.}
 }
+\value{
+An \code{sf} (simple feature) object.
+}
 \description{
 This function constructs a \code{URL} request from its arguments and either reads
 in the resulting vector layer as a \code{sf} object or returns the number of

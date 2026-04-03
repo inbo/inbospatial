@@ -7,7 +7,7 @@
 #'
 #' @param pkgs A character vector of package names.
 #' @param quietly logical: should progress and error messages be suppressed?
-#'                (from ?loadNamespace)
+#'                (from `?loadNamespace`)
 #' @param ... further parameters passed to `require` or `requireNamespace`
 #'
 #' @examples

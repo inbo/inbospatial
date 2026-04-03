@@ -56,6 +56,7 @@ An \code{sf} (simple feature) object.
 \description{
 \code{get_feature_ogc()} provides a modern alternative to \code{get_feature_wfs()}. It
 retrieves vector data from an OGC API Features service.
+See \url{https://ogcapi.ogc.org}.
 }
 \examples{
 \dontrun{

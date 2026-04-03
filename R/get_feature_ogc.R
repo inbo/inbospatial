@@ -3,7 +3,7 @@
 #' @description
 #' `get_feature_ogc()` provides a modern alternative to `get_feature_wfs()`. It
 #' retrieves vector data from an OGC API Features service.
-#' cf. https://ogcapi.ogc.org
+#' See <https://ogcapi.ogc.org>.
 #'
 #' @param url A character string with the base URL of the OGC API (the landing
 #'   page).
