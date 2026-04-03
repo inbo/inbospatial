@@ -3,15 +3,12 @@ package: yes
 allowed:
   warnings: []
   notes:
-  - motivation: leaflet.extras was archived on CRAN (temporary?)
+  - motivation: Not intended for CRAN
     value: |-
       checking CRAN incoming feasibility ... NOTE
       Maintainer: 'Hans Van Calster <hans.vancalster@inbo.be>'
 
       New submission
-
-      Suggests or Enhances not in mainstream repositories:
-        leaflet.extras
 required:
 - CITATION
 - DESCRIPTION
