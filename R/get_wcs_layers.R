@@ -41,8 +41,6 @@ get_wcs_layers <- function(
     version = c("1.0.0", "2.0.1"),
     ...) {
 
-  require_pkgs(c("httr2", "xml2", "stringr"))
-
   # prelim check
   version <- match.arg(version)
   wcs <- tolower(wcs) # case insensitive wcs

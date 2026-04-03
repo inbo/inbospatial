@@ -93,8 +93,6 @@ get_feature_ogc <- function(
   crs = NULL, quiet = TRUE, ...
 ) {
 
-  require_pkgs(c("httr2", "sf", "xml2"))
-
   assertthat::assert_that(
     assertthat::is.string(url),
     assertthat::is.string(collection),
@@ -315,8 +313,6 @@ postprocess_features <- function(feature_data, limit, properties, crs) {
 #' check <- try(check_ogc_collection(api_url, "foutieve_laag"))
 #' }
 check_ogc_collection <- function(url, collection) {
-
-  require_pkgs("jsonlite")
 
   assertthat::assert_that(
     assertthat::is.string(url),

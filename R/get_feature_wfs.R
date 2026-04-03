@@ -83,8 +83,6 @@ get_feature_wfs <- function(
     result_type = c("results", "hits"),
     ...) {
 
-  require_pkgs(c("httr2", "sf", "xml2"))
-
   result_type <- match.arg(result_type)
 
   assertthat::assert_that(grepl("\\d\\.\\d\\.\\d", version))

@@ -67,8 +67,6 @@ get_coverage_wcs <- function(
     version = c("1.0.0", "2.0.1"),
     ...) {
 
-  require_pkgs(c("sf", "terra", "httr2", "stringr"))
-
   # prelim check
   version <- match.arg(version)
   wcs <- tolower(wcs) # case insensitive wcs
@@ -219,8 +217,6 @@ get_coverage_wcs <- function(
 #' @keywords internal
 #' @noRd
 unpack_mht <- function(path) {
-
-  require_pkgs(c("readr", "utils", "stringr"))
 
   raw_vector <- readr::read_file_raw(path)
 
