@@ -20,7 +20,7 @@
 #' @keywords internal
 #' @noRd
 require_pkgs <- function(pkgs) {
-  assert_that(is.character(pkgs))
+  assertthat::assert_that(is.character(pkgs))
   available <- vapply(
     pkgs,
     function(x) requireNamespace(x, quietly = TRUE),

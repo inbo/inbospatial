@@ -3,6 +3,7 @@
 #' @description
 #' `get_feature_ogc()` provides a modern alternative to `get_feature_wfs()`. It
 #' retrieves vector data from an OGC API Features service.
+#' cf. https://ogcapi.ogc.org
 #'
 #' @param url A character string with the base URL of the OGC API (the landing
 #'   page).
@@ -91,6 +92,11 @@ get_feature_ogc <- function(
   properties = NULL, cql_filter = NULL, limit = NULL,
   crs = NULL, quiet = TRUE, ...
 ) {
+
+  if (!exists("require_pkgs")) source("misc.R")
+  require_pkgs(c("httr2", "sf", "xml2", "assertthat"))
+  require_pkgs(c("jsonlite")) # used within `check_ogc_collection`
+
   assertthat::assert_that(
     assertthat::is.string(url),
     assertthat::is.string(collection),
@@ -307,6 +313,7 @@ postprocess_features <- function(feature_data, limit, properties, crs) {
 #' check <- try(check_ogc_collection(api_url, "foutieve_laag"))
 #' }
 check_ogc_collection <- function(url, collection) {
+
   assertthat::assert_that(
     assertthat::is.string(url),
     assertthat::is.string(collection)
