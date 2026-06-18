@@ -1,6 +1,6 @@
 {
   "title": "inbospatial: A Collection of Useful R Functions for Spatial Data",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "upload_type": "software",
   "description": "<p>Useful R functions developed at the Research Institute for Nature and Forest (INBO) for dealing with spatial raster or vector data.<\/p>",
@@ -49,5 +49,6 @@
     {
       "identifier": "inbo"
     }
-  ]
+  ],
+  "publisher": "Research Institute for Nature and Forest (INBO)"
 }
