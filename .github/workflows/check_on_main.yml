@@ -16,6 +16,6 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: inbo/actions/check_pkg@main
+      - uses: inbo/actions/check_pkg@5ad8ad6a75c216b77713aa14ebaef30d76ee1463 # main
         with:
           aptget: libudunits2-dev libgdal-dev libgeos-dev libproj-dev
