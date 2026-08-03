@@ -15,7 +15,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
       - name: Get tag
         run: |
           git fetch --tags --force
@@ -23,7 +23,7 @@ jobs:
           TAG_BODY=$(git tag --contains $(git rev-parse HEAD) --format='%(contents)')
           echo "tag=$TAG" >> $GITHUB_ENV
           echo "$TAG_BODY" > body.md
-      - uses: ncipollo/release-action@v1
+      - uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1
         with:
           name: Release ${{ env.tag }}
           tag: ${{ env.tag }}
